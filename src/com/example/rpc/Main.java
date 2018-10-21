@@ -1,7 +1,9 @@
 package com.example.rpc;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Scanner;
 
 import com.example.enccs.CompCSEncTerm;
 import com.example.enccs.EncTerm;
@@ -87,7 +89,32 @@ public class Main {
 //		LexicalAnalyzer lexical = new LexicalAnalyzer(new InputStreamReader(System.in));
 		Parser parser = new Parser();
 		
-		Term ex1 = parser.Parsing(new InputStreamReader(System.in));
+		System.out.println("1: File, the other: Console");
+		System.out.print("Enter the number: ");
+		String select = new Scanner(System.in).next();
+		
+		Term ex1;
+		
+		if (select.equals("1")) {
+			System.out.print("Enter a file name: ");
+			String fileName = new Scanner(System.in).next();
+			
+			FileReader fileReader = new FileReader("./testcase/" + fileName);
+			Scanner scan = new Scanner(fileReader);
+
+			while (scan.hasNext()) {
+				System.out.println(scan.nextLine());
+			}
+			System.out.println();
+
+			fileReader = new FileReader("./testcase/" + fileName);
+			ex1 = parser.Parsing(fileReader);
+		}
+		else {
+			ex1 = parser.Parsing(new InputStreamReader(System.in));
+		}
+		
+		System.out.println("start...");
 		
 		System.out.println(ex1.toString());
 		System.out.println(eval(ex1, Location.Client).toString());
