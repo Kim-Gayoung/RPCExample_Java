@@ -1,0 +1,10 @@
+let send = lam^s (session block).
+	let flag = query session "flag" in
+		if flag == False then
+			let insert = insertRecord tblname session block True in
+				()
+			end
+		else
+			send session block
+	end
+end

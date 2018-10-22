@@ -1,0 +1,5 @@
+let setupReceiving = lam^s (session).
+	let filename = query session "filename" in
+		filename
+	end
+end

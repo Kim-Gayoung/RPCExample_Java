@@ -1,0 +1,9 @@
+let receiverClient = lam^c ().
+	let session = readConsole () in
+		let filename = setupReceiving session in
+			let fd = fileOpen filename "w" in
+				receiveFile session fd
+			end
+		end
+	end
+end
