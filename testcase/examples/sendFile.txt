@@ -12,4 +12,3 @@ let sendFile = lam^c (session fd).
 			end
 	end
 end
-			
