@@ -6,7 +6,11 @@ public enum Token {
 	END_OF_TOKEN("$"),
 	OPENPAREN("("), CLOSEPAREN(")"),
 	DOT("."), LOC("loc"),
-	LAM("lam"), ID("id"), NUM("num");
+	ADD("+"), SUB("-"), MUL("*"), DIV("/"),
+	ASSIGN("="), EQUAL("=="), NOTEQ("!="),
+	LAM("lam"), ID("id"), NUM("num"), STR("str"), BOOL("bool"),
+	LET("let"), IN("in"), END("end"),
+	IF("if"), THEN("then"), ELSE("else");
 	
 	private String strToken;
 	
