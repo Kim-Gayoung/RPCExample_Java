@@ -1,25 +1,18 @@
 package com.example.rpc;
 
-public class Arithmetic extends Term {
-	public static final String ADD = "+";
-	public static final String SUB = "-";
-	public static final String MUL = "*";
-	public static final String DIV = "/";
-	public static final String UNARY = "-";
+public class Logical extends Cond {
+	public static final String AND = "and";
+	public static final String OR = "or";
 	
 	private Term oprnd1;
 	private String op;
 	private Term oprnd2;
 	
-	public Arithmetic(Term oprnd1, String op, Term oprnd2) {
+	public Logical(Term oprnd1, String op, Term oprnd2) {
+		super();
 		this.oprnd1 = oprnd1;
 		this.op = op;
 		this.oprnd2 = oprnd2;
-	}
-	
-	public Arithmetic(Term oprnd1, String op) {
-		this.oprnd1 = oprnd1;
-		this.op = op;
 	}
 
 	public Term getOprnd1() {
@@ -48,16 +41,7 @@ public class Arithmetic extends Term {
 
 	@Override
 	public String toString() {
-		String ret = "";
-		
-		if (op.equals(UNARY)) {
-			ret += op + oprnd1;
-		}
-		else {
-			ret += oprnd1 + " " + op + " " + oprnd2;
-		}
-		
-		return ret;
+		return oprnd1 + " " + op + " " + oprnd2;
 	}
-		
+	
 }
