@@ -27,17 +27,55 @@ public class Parser {
 		pu.lex("\\.", text -> { return Token.DOT; });
 		pu.lexEndToken("$", Token.END_OF_TOKEN);
 		
-		pu.ruleStartSymbol("L'");
-		pu.rule("L' -> L", () -> { return pu.get(1); });
-		pu.rule("L -> E", () -> { return pu.get(1); });
-		pu.rule("L -> lam loc id . L", () -> {
+		pu.ruleStartSymbol("LExpr'");
+		pu.rule("LExpr' -> LExpr", () -> { return pu.get(1); });
+		
+		pu.rule("LExpr -> Expr", () -> { return pu.get(1); });
+		pu.rule("LExpr -> lam loc Params . LExpr", () -> {
 			Object tree = pu.get(5);
 			return new Lam(getLoc(pu.getText(2)), pu.getText(3), (Term) tree); });
-		pu.rule("E -> E T", () -> { return new App((Term) pu.get(1), (Term) pu.get(2)); });
-		pu.rule("E -> T", () -> { return pu.get(1); });
-		pu.rule("T -> id", () -> { return new Var(pu.getText(1)); });
-		pu.rule("T -> num", () -> { return new Const(Integer.parseInt(pu.getText(1))); });
-		pu.rule("T -> ( L )", () -> { return pu.get(2); });
+		pu.rule("LExpr -> let id = Lexpr end", () -> { return new Let(); });
+		pu.rule("LExpr -> let id = Lexpr in LExpr end", () -> { return new Let(); });
+		pu.rule("LExpr -> if Cond then LExpr else LExpr", () -> { return new If(); });
+		
+		pu.rule("Expr -> Expr Term", () -> { return new App((Term) pu.get(1), (Term) pu.get(2)); });
+		pu.rule("Expr -> Cond", () -> { return pu.get(1); });
+		
+		pu.rule("Params -> ( )", () -> { return new Params(); });
+		pu.rule("Params -> ( IDs )", () -> { return new Params(); });
+		pu.rule("IDs -> id", () -> { return new Var(pu.getText(1)); });
+		pu.rule("IDs -> id IDs", () -> { });
+		
+		pu.rule("Cond -> LogicOr", () -> { return pu.get(1); });
+		pu.rule("LogicOr -> LogicOr or LogicAnd", tb);
+		pu.rule("LogicOr -> LogicAnd", tb);
+		pu.rule("LogicAnd -> LogicAnd and CompEqNeq", tb);
+		pu.rule("LogicAnd -> CompEqNeq", tb);
+		
+		pu.rule("CompEqNeq -> CompEqNeq == Comp", tb);
+		pu.rule("CompEqNeq -> CompEqNeq != Comp", tb);
+		pu.rule("CompEqNeq -> Comp", tb);
+		pu.rule("Comp -> Comp < ArithAddSub", tb);
+		pu.rule("Comp -> Comp <= ArithAddSub", tb);
+		pu.rule("Comp -> Comp > ArithAddSub", tb);
+		pu.rule("Comp -> Comp >= ArithAddSub", tb);
+		pu.rule("Comp -> ArithAddSub", tb);
+		
+		pu.rule("ArithAddSub -> ArithAddSub + ArithMulDiv", tb);
+		pu.rule("ArithAddSub -> ArithAddSub - ArithMulDiv", tb);
+		pu.rule("ArithAddSub -> ArithMulDiv", tb);
+		pu.rule("ArithMulDiv -> ArithMulDiv * ArithUnary", tb);
+		pu.rule("ArithMulDiv -> ArithMulDiv / ArithUnary", tb);
+		pu.rule("ArithMulDiv -> ArithUnary", tb);
+		pu.rule("ArithUnary -> - Term", tb);
+		pu.rule("ArithUnary -> Term", tb);
+		
+		pu.rule("Term -> id", () -> { return new Var(pu.getText(1)); });
+		pu.rule("Term -> num", () -> { return new Const(Integer.parseInt(pu.getText(1))); });
+		pu.rule("Term -> str", tb);
+		pu.rule("Term -> bool", tb);
+		pu.rule("Term -> ( )", tb);
+		pu.rule("Term -> ( LExpr )", () -> { return pu.get(2); });
 	}
 	
 	public Term Parsing(Reader r) throws ParserException, IOException, LexerException {
