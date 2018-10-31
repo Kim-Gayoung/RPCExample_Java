@@ -1,5 +1,6 @@
-let setupReceiving = lam^s (session).
-	let filename = query session "filename" in
-		filename
-	end
+let compTest02 = lam^c (oprnd1 oprnd2).
+	if oprnd1 > oprnd2 then
+		True
+	else
+		False
 end
