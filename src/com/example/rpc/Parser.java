@@ -18,9 +18,39 @@ public class Parser {
 		pu.lex("[0-9]+", text -> { return Token.NUM; });
 		pu.lex("[a-zA-Z]+[0-9]*", text -> {
 			if (text.equalsIgnoreCase("lam"))
-					return Token.LAM;
+				return Token.LAM;
+			else if (text.equalsIgnoreCase("let"))
+				return Token.LET;
+			else if (text.equalsIgnoreCase("in"))
+				return Token.IN;
+			else if (text.equalsIgnoreCase("end"))
+				return Token.END;
+			else if (text.equalsIgnoreCase("if"))
+				return Token.IF;
+			else if (text.equalsIgnoreCase("then"))
+				return Token.THEN;
+			else if (text.equalsIgnoreCase("else"))
+				return Token.ELSE;
+			else if (text.equalsIgnoreCase("true") || text.equalsIgnoreCase("false"))
+				return Token.BOOL;
 			else
-					return Token.ID; });
+				return Token.ID; });
+		
+		pu.lex("\\+", text -> { return Token.ADD; });
+		pu.lex("-", text -> { return Token.SUB; });
+		pu.lex("\\*", text -> { return Token.MUL; });
+		pu.lex("/", text -> { return Token.DIV; });
+
+		pu.lex(">", text -> { return Token.GTHAN; });
+		pu.lex(">=", text -> { return Token.GEQUAL; });
+		pu.lex("<", text -> { return Token.LTHAN; });
+		pu.lex("<=", text -> { return Token.LEQUAL; });
+		pu.lex("==", text -> { return Token.EQUAL; });
+		pu.lex("!=", text -> { return Token.NOTEQ; });
+		
+		pu.lex("=", text -> { return Token.ASSIGN; });
+		
+		pu.lex("\".*\"", text -> { return Token.STR; });
 		pu.lex("\\^[cs]", text -> { return Token.LOC; });
 		pu.lex("\\(", text -> { return Token.OPENPAREN; });
 		pu.lex("\\)", text -> { return Token.CLOSEPAREN; });
@@ -33,7 +63,7 @@ public class Parser {
 		pu.rule("LExpr -> Expr", () -> { return pu.get(1); });
 		pu.rule("LExpr -> lam loc Params . LExpr", () -> {
 			Object tree = pu.get(5);
-			return new Lam(getLoc(pu.getText(2)), pu.getText(3), (Term) tree); });
+			return new Lam(getLoc(pu.getText(2)), (Params) pu.get(3), (Term) tree); });
 		pu.rule("LExpr -> let id = Lexpr end", () -> { return new Let(); });
 		pu.rule("LExpr -> let id = Lexpr in LExpr end", () -> { return new Let(); });
 		pu.rule("LExpr -> if Cond then LExpr else LExpr", () -> { return new If(); });
