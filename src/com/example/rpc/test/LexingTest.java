@@ -1,6 +1,6 @@
 package com.example.rpc.test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -43,12 +43,13 @@ public class LexingTest {
 			lexer = new ArrayList<>();
 			Lexing(fileReader);
 			
-			for (int j = 0; j < lexer.size(); j++) {
+			int j = 0;
+			while (j < lexer.size()) {
 				FileReader resultReader = new FileReader(directory + "/testcase/simple_case/test_result/test" + String.format("%02d", i) + "_result.txt");
 				BufferedReader resultBr = new BufferedReader(resultReader);
 				String line;
-				if ((line = br.readLine()) != null) {
-					assertTrue(line == lexer.get(j).getSyntax().toString());
+				while ((line = resultBr.readLine()) != null) {
+					assertEquals(line, lexer.get(j++).getToken().toString());
 				}
 			}
 		}
@@ -81,7 +82,11 @@ public class LexingTest {
 		lex("-", text -> { return Token.SUB; });
 		lex("\\*", text -> { return Token.MUL; });
 		lex("/", text -> { return Token.DIV; });
-		
+
+		lex(">", text -> { return Token.GTHAN; });
+		lex(">=", text -> { return Token.GEQUAL; });
+		lex("<", text -> { return Token.LTHAN; });
+		lex("<=", text -> { return Token.LEQUAL; });
 		lex("==", text -> { return Token.EQUAL; });
 		lex("!=", text -> { return Token.NOTEQ; });
 		
