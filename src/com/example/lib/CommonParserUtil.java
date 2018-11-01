@@ -291,7 +291,7 @@ public class CommonParserUtil {
 		// ]
 		Object[] objGrammar = treeBuilders.keySet().toArray();
 
-		// HashMapÀº ¾ÈµÊ Key°¡ °ãÃÄ¼­ µ¤¾î¾º¿öÁü
+		// HashMapï¿½ï¿½ ï¿½Èµï¿½ Keyï¿½ï¿½ ï¿½ï¿½ï¿½Ä¼ï¿½ ï¿½ï¿½ï¿½î¾ºï¿½ï¿½ï¿½ï¿½
 		ArrayList<String> nonterminals = new ArrayList<>();
 
 		// nonterminal setting
@@ -312,12 +312,12 @@ public class CommonParserUtil {
 
 			fileContent += "\tProductionRule \"" + data[0] + "\" [";
 
-			// data[0] ´Â ProductionRule ÅÂ±× ºÙÀÌ±â
-			// data[1] Àº °ø¹éÀ¸·Î ³ª´² Nonterminal Terminal ÆÇ´Ü ÇÊ¿ä
+			// data[0] ï¿½ï¿½ ProductionRule ï¿½Â±ï¿½ ï¿½ï¿½ï¿½Ì±ï¿½
+			// data[1] ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Nonterminal Terminal ï¿½Ç´ï¿½ ï¿½Ê¿ï¿½
 			String[] tok = data[1].split("[ \t\n]");
 
 			for (int j = 0; j < tok.length; j++) {
-				if (nonterminals.contains(tok[j])) { // ÇöÀç tokenÀÌ NonterminalÀÎ °æ¿ì
+				if (nonterminals.contains(tok[j])) { // ï¿½ï¿½ï¿½ï¿½ tokenï¿½ï¿½ Nonterminalï¿½ï¿½ ï¿½ï¿½ï¿½
 					fileContent += "Nonterminal \"";
 				}
 				else {
@@ -345,7 +345,7 @@ public class CommonParserUtil {
 		String directory = System.getProperty("user.dir");
 		String grammarPath = directory + "\\mygrammar.grm";
 		
-		// file Ãâ·Â
+		// file ï¿½ï¿½ï¿½
 		try {
 			PrintWriter writer = new PrintWriter(grammarPath);
 			writer.println(fileContent);
@@ -406,9 +406,9 @@ public class CommonParserUtil {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append(
-				"Expect Trans Table content is \"" + current_state.toString() + " " + index + " <Destination State>\"");
+				"Expect Goto Table content is \"" + current_state.toString() + " " + index + " <Destination State>\"");
 		sb.append("\n");
-		sb.append("but didn't found at Trans Table... Plz Check it");
+		sb.append("but didn't found at Goto Table... Plz Check it");
 		sb.append("\n");
 
 		// For locating the parsing error.
@@ -463,11 +463,11 @@ public class CommonParserUtil {
 
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("Expect Parsing table content is \"" + current_state.toString() + " " + terminal.toString()
+		sb.append("Expect Action table content is \"" + current_state.toString() + " " + terminal.toString()
 				+ " <Shift/Reduce/Accecpt>\"");
 		sb.append("\n");
 
-		sb.append("but didn't found at Parsing Table... Plz Check it");
+		sb.append("but didn't found at Action Table... Plz Check it");
 		sb.append("\n");
 		sb.append("[" + terminal.getLineIndex() + "," + terminal.getChIndex() + "]");
 		sb.append("\n");
