@@ -68,8 +68,8 @@ public class Parser {
 		pu.rule("LExpr -> lam loc Params . LExpr", () -> {
 			Object tree = pu.get(5);
 			return new Lam(getLoc(pu.getText(2)), (Params) pu.get(3), (Term) tree); });
-		pu.rule("LExpr -> let id = Lexpr end", () -> { return new Let((Var) pu.get(2), (Term) pu.get(4)); });
-		pu.rule("LExpr -> let id = Lexpr in LExpr end", () -> { return new Let((Var) pu.get(2), (Term) pu.get(4), (Term) pu.get(6)); });
+		pu.rule("LExpr -> let id = LExpr end", () -> { return new Let(new Var(pu.getText(2)), (Term) pu.get(4)); });
+		pu.rule("LExpr -> let id = LExpr in LExpr end", () -> { return new Let(new Var(pu.getText(2)), (Term) pu.get(4), (Term) pu.get(6)); });
 		pu.rule("LExpr -> if Cond then LExpr else LExpr", () -> { return new If((Cond) pu.get(2), (Term) pu.get(4), (Term) pu.get(6)); });
 		
 		pu.rule("Expr -> Expr Term", () -> { return new App((Term) pu.get(1), (Term) pu.get(2)); });
@@ -113,7 +113,7 @@ public class Parser {
 		pu.rule("ArithUnary -> Term", () -> { return pu.get(1); });
 		
 		pu.rule("Term -> id", () -> { return new Var(pu.getText(1)); });
-		pu.rule("Term -> num", () -> { return new Const(Integer.parseInt(pu.getText(1))); });
+		pu.rule("Term -> num", () -> { return new Num(Integer.parseInt(pu.getText(1))); });
 		pu.rule("Term -> str", () -> { return new Str(pu.getText(1)); });
 		pu.rule("Term -> bool", () -> { return new Bool(pu.getText(1)); });
 		pu.rule("Term -> ( )", () -> { return new Unit(); });
