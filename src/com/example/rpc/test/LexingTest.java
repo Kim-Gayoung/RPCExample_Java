@@ -29,7 +29,7 @@ public class LexingTest {
 	
 	private LinkedHashMap<String, TokenBuilder> tokenBuilders;
 	
-	private int testCaseLength = 7;
+	private int testCaseLength = 9;
 	
 	@Test
 	public void test() throws IOException, LexerException {
@@ -49,6 +49,9 @@ public class LexingTest {
 				BufferedReader resultBr = new BufferedReader(resultReader);
 				String line;
 				while ((line = resultBr.readLine()) != null) {
+//					if (i == 3) {
+//						System.out.println(line + " " + lexer.get(j).getToken().toString());
+//					}
 					assertEquals(line, lexer.get(j++).getToken().toString());
 				}
 			}
@@ -75,6 +78,10 @@ public class LexingTest {
 				return Token.ELSE;
 			else if (text.equalsIgnoreCase("true") || text.equalsIgnoreCase("false"))
 				return Token.BOOL;
+			else if (text.equalsIgnoreCase("and"))
+				return Token.AND;
+			else if (text.equalsIgnoreCase("or"))
+				return Token.OR;
 			else
 				return Token.ID; });
 		
@@ -83,10 +90,16 @@ public class LexingTest {
 		lex("\\*", text -> { return Token.MUL; });
 		lex("/", text -> { return Token.DIV; });
 
-		lex(">", text -> { return Token.GTHAN; });
-		lex(">=", text -> { return Token.GEQUAL; });
-		lex("<", text -> { return Token.LTHAN; });
-		lex("<=", text -> { return Token.LEQUAL; });
+		lex("((>=)|>)", text -> { 
+			if (text.equals(">="))
+				return Token.GEQUAL;
+			else
+				return Token.GTHAN; });
+		lex("((<=)|<)", text -> { 
+			if (text.equals("<="))
+				return Token.LEQUAL;
+			else
+				return Token.LTHAN; });
 		lex("==", text -> { return Token.EQUAL; });
 		lex("!=", text -> { return Token.NOTEQ; });
 		

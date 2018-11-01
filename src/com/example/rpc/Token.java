@@ -8,6 +8,7 @@ public enum Token {
 	DOT("."), LOC("loc"),
 	ADD("+"), SUB("-"), MUL("*"), DIV("/"),
 	ASSIGN("="), EQUAL("=="), NOTEQ("!="),
+	AND("and"), OR("or"),
 	GTHAN(">"), GEQUAL(">="), LTHAN ("<"), LEQUAL("<="),
 	LAM("lam"), ID("id"), NUM("num"), STR("str"), BOOL("bool"),
 	LET("let"), IN("in"), END("end"),
