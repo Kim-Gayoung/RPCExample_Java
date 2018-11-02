@@ -1,21 +1,21 @@
 package com.example.rpc;
 
 public class If extends Term {
-	private Cond cond;
+	private Term cond;
 	private Term thenT;
 	private Term elseT;
 	
-	public If(Cond cond, Term thenT, Term elseT) {
+	public If(Term cond, Term thenT, Term elseT) {
 		this.cond = cond;
 		this.thenT = thenT;
 		this.elseT = elseT;
 	}
 
-	public Cond getCond() {
+	public Term getCond() {
 		return cond;
 	}
 
-	public void setCond(Cond cond) {
+	public void setCond(Term cond) {
 		this.cond = cond;
 	}
 
