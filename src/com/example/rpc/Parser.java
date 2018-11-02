@@ -45,10 +45,16 @@ public class Parser {
 		pu.lex("\\*", text -> { return Token.MUL; });
 		pu.lex("/", text -> { return Token.DIV; });
 
-		pu.lex(">", text -> { return Token.GTHAN; });
-		pu.lex(">=", text -> { return Token.GEQUAL; });
-		pu.lex("<", text -> { return Token.LTHAN; });
-		pu.lex("<=", text -> { return Token.LEQUAL; });
+		pu.lex("((>=)|>)", text -> { 
+			if (text.equals(">"))
+				return Token.GTHAN;
+			else
+				return Token.GEQUAL; });
+		pu.lex("((<=)|<)", text -> { 
+			if (text.equals("<"))
+				return Token.LTHAN;
+			else
+				return Token.LEQUAL; });
 		pu.lex("==", text -> { return Token.EQUAL; });
 		pu.lex("!=", text -> { return Token.NOTEQ; });
 		
@@ -70,12 +76,13 @@ public class Parser {
 			return new Lam(getLoc(pu.getText(2)), (Params) pu.get(3), (Term) tree); });
 		pu.rule("LExpr -> let id = LExpr end", () -> { return new Let(new Var(pu.getText(2)), (Term) pu.get(4)); });
 		pu.rule("LExpr -> let id = LExpr in LExpr end", () -> { return new Let(new Var(pu.getText(2)), (Term) pu.get(4), (Term) pu.get(6)); });
-		pu.rule("LExpr -> if Cond then LExpr else LExpr", () -> { return new If((Cond) pu.get(2), (Term) pu.get(4), (Term) pu.get(6)); });
+		pu.rule("LExpr -> if Expr then LExpr else LExpr", () -> { return new If((Term) pu.get(2), (Term) pu.get(4), (Term) pu.get(6)); });
 		
 		pu.rule("Expr -> Expr Term", () -> { return new App((Term) pu.get(1), (Term) pu.get(2)); });
 		pu.rule("Expr -> Cond", () -> { return pu.get(1); });
 		
 		pu.rule("Params -> ( )", () -> { return new Params(); });
+		pu.rule("Params -> id", () -> { return new Params(new Var(pu.getText(1))); });
 		pu.rule("Params -> ( IDs )", () -> { return pu.get(2); });
 		pu.rule("IDs -> id", () -> { return new Params(new Var(pu.getText(1))); });
 		pu.rule("IDs -> id IDs", () -> { return new Params(new Var(pu.getText(1)), (Params) pu.get(2)); });
