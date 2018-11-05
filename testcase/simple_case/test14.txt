@@ -1,0 +1,6 @@
+let doSomething = lam^c (block).
+	if (length block) >= 10 then
+		"very long block"
+	else
+		reverse block
+end

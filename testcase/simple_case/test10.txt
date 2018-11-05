@@ -1,0 +1,3 @@
+let divTest = lam^c (a b).
+	a / b
+end
