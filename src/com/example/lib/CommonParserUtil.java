@@ -254,6 +254,10 @@ public class CommonParserUtil {
 			BufferedReader gotoBReader = new BufferedReader(gotoFReader);
 
 			String tmpLine;
+			
+			grammar_rules.clear();
+			action_table.clear();
+			goto_table.clear();
 
 			while ((tmpLine = grammarBReader.readLine()) != null) {
 				// grammarNumber: grammar
