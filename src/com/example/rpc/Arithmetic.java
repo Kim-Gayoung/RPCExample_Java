@@ -50,7 +50,7 @@ public class Arithmetic extends Term {
 	public String toString() {
 		String ret = "";
 		
-		if (op.equals(UNARY)) {
+		if (oprnd2 == null) {
 			ret += op + oprnd1;
 		}
 		else {

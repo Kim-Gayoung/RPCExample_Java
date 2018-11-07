@@ -98,7 +98,7 @@ public class ParseRegressionTest {
 	}
 
 	public void prettyPrint(Arithmetic arith) {
-		if (arith.getOp().equals(arith.UNARY)) {
+		if (arith.getOprnd2() == null) {
 			System.out.print(arith.getOp());
 			prettyPrint(arith.getOprnd1());
 		}
