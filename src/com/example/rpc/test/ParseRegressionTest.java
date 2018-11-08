@@ -47,7 +47,8 @@ public class ParseRegressionTest {
 				FileReader fileReader = new FileReader(file);
 				Term ex1 = parser.Parsing(fileReader);
 				prettyPrint(ex1);
-			} else if (file.isDirectory()) {
+			}
+			else if (file.isDirectory()) {
 				if (!file.toPath().toString().contains("test_result")) {
 					recursiveRead(new File(file + "/"));
 				}
@@ -104,7 +105,8 @@ public class ParseRegressionTest {
 		if (arith.getOprnd2() == null) {
 			System.out.print(arith.getOp());
 			prettyPrint(arith.getOprnd1());
-		} else {
+		}
+		else {
 			prettyPrint(arith.getOprnd1());
 			System.out.print(" " + arith.getOp() + " ");
 			prettyPrint(arith.getOprnd2());
@@ -171,9 +173,15 @@ public class ParseRegressionTest {
 	}
 
 	public void prettyPrint(Logical logical) {
-		prettyPrint(logical.getOprnd1());
-		System.out.print(" " + logical.getOp() + " ");
-		prettyPrint(logical.getOprnd2());
+		if (logical.getOprnd2() == null) {
+			System.out.print(logical.getOp());
+			prettyPrint(logical.getOprnd1());
+		}
+		else {
+			prettyPrint(logical.getOprnd1());
+			System.out.print(" " + logical.getOp() + " ");
+			prettyPrint(logical.getOprnd2());
+		}
 	}
 
 	public void prettyPrint(Num num) {
