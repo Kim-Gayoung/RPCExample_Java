@@ -56,7 +56,12 @@ public class Parser {
 			else
 				return Token.LEQUAL; });
 		pu.lex("==", text -> { return Token.EQUAL; });
-		pu.lex("!=", text -> { return Token.NOTEQ; });
+		pu.lex("((!=)|!)", text -> {
+			if (text.equals("!="))
+				return Token.NOTEQ;
+			else
+				return Token.NOT;
+		});
 		
 		pu.lex("=", text -> { return Token.ASSIGN; });
 		
@@ -65,16 +70,18 @@ public class Parser {
 		pu.lex("\\(", text -> { return Token.OPENPAREN; });
 		pu.lex("\\)", text -> { return Token.CLOSEPAREN; });
 		pu.lex("\\.", text -> { return Token.DOT; });
+		pu.lex(";", text -> { return Token.SEMICOLON; });
 		pu.lexEndToken("$", Token.END_OF_TOKEN);
 		
-		pu.ruleStartSymbol("LExpr'");
-		pu.rule("LExpr' -> LExpr", () -> { return pu.get(1); });
-		
+		pu.ruleStartSymbol("TopLevel'");
+		pu.rule("TopLevel' -> TopLevel", () -> { return pu.get(1); });
+		pu.rule("TopLevel -> id = LExpr", () -> { return new TopLevel(new Var(pu.getText(1)), (Term) pu.get(3)); });
+		pu.rule("TopLevel -> id = LExpr ; TopLevel", () -> { return new TopLevel(new Var(pu.getText(1)), (Term) pu.get(3), (TopLevel) pu.get(5)); });
+
 		pu.rule("LExpr -> Expr", () -> { return pu.get(1); });
 		pu.rule("LExpr -> lam loc Params . LExpr", () -> {
 			Object tree = pu.get(5);
 			return new Lam(getLoc(pu.getText(2)), (Params) pu.get(3), (Term) tree); });
-		pu.rule("LExpr -> let id = LExpr end", () -> { return new Let(new Var(pu.getText(2)), (Term) pu.get(4)); });
 		pu.rule("LExpr -> let id = LExpr in LExpr end", () -> { return new Let(new Var(pu.getText(2)), (Term) pu.get(4), (Term) pu.get(6)); });
 		pu.rule("LExpr -> if Expr then LExpr else LExpr", () -> { return new If((Term) pu.get(2), (Term) pu.get(4), (Term) pu.get(6)); });
 		
@@ -82,12 +89,13 @@ public class Parser {
 		pu.rule("Expr -> Cond", () -> { return pu.get(1); });
 		
 		pu.rule("Params -> ( )", () -> { return new Params(); });
-		pu.rule("Params -> id", () -> { return new Params(new Var(pu.getText(1))); });
-		pu.rule("Params -> ( IDs )", () -> { return pu.get(2); });
+		pu.rule("Params -> IDs", () -> { return pu.get(1); });
 		pu.rule("IDs -> id", () -> { return new Params(new Var(pu.getText(1))); });
 		pu.rule("IDs -> id IDs", () -> { return new Params(new Var(pu.getText(1)), (Params) pu.get(2)); });
 		
-		pu.rule("Cond -> LogicOr", () -> { return pu.get(1); });
+		pu.rule("Cond -> LogicNot", () -> { return pu.get(1); });
+		pu.rule("LogicNot -> ! LogicOr", () -> { return new Logical((Term) pu.get(2), Logical.NOT); });
+		pu.rule("LogicNot -> LogicOr", () -> { return pu.get(1); });
 		pu.rule("LogicOr -> LogicOr or LogicAnd", () -> { return new Logical((Term) pu.get(1), Logical.OR, (Term) pu.get(3)); });
 		pu.rule("LogicOr -> LogicAnd", () -> { return pu.get(1); });
 		pu.rule("LogicAnd -> LogicAnd and CompEqNeq", () -> { return new Logical((Term) pu.get(1), Logical.AND, (Term) pu.get(3)); });

@@ -10,11 +10,6 @@ public class Let extends Term {
 		this.t1 = t1;
 		this.t2 = t2;
 	}
-	
-	public Let(Var id, Term t1) {
-		this.id = id;
-		this.t1 = t1;
-	}
 
 	public Var getId() {
 		return id;

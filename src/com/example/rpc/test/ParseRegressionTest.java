@@ -22,6 +22,7 @@ import com.example.rpc.Params;
 import com.example.rpc.Parser;
 import com.example.rpc.Str;
 import com.example.rpc.Term;
+import com.example.rpc.TopLevel;
 import com.example.rpc.Unit;
 import com.example.rpc.Var;
 
@@ -46,8 +47,7 @@ public class ParseRegressionTest {
 				FileReader fileReader = new FileReader(file);
 				Term ex1 = parser.Parsing(fileReader);
 				prettyPrint(ex1);
-			}
-			else if (file.isDirectory()) {
+			} else if (file.isDirectory()) {
 				if (!file.toPath().toString().contains("test_result")) {
 					recursiveRead(new File(file + "/"));
 				}
@@ -78,19 +78,22 @@ public class ParseRegressionTest {
 			prettyPrint((Params) t);
 		else if (t instanceof Str)
 			prettyPrint((Str) t);
+		else if (t instanceof TopLevel)
+			prettyPrint((TopLevel) t);
 		else if (t instanceof Unit)
 			prettyPrint((Unit) t);
 		else if (t instanceof Var)
 			prettyPrint((Var) t);
 	}
+
 	private int indent = 0;
-	
+
 	public void printIndent() {
-		for(int i = 0; i < indent; i++) {
+		for (int i = 0; i < indent; i++) {
 			System.out.print("    ");
 		}
 	}
-	
+
 	public void prettyPrint(App app) {
 		prettyPrint(app.getFun());
 		System.out.print(" ");
@@ -101,8 +104,7 @@ public class ParseRegressionTest {
 		if (arith.getOprnd2() == null) {
 			System.out.print(arith.getOp());
 			prettyPrint(arith.getOprnd1());
-		}
-		else {
+		} else {
 			prettyPrint(arith.getOprnd1());
 			System.out.print(" " + arith.getOp() + " ");
 			prettyPrint(arith.getOprnd2());
@@ -138,7 +140,7 @@ public class ParseRegressionTest {
 
 	public void prettyPrint(Lam lam) {
 		System.out.print("lam");
-		if(lam.getLoc() == Location.Client)
+		if (lam.getLoc() == Location.Client)
 			System.out.print("^c ");
 		else
 			System.out.print("^s ");
@@ -158,13 +160,11 @@ public class ParseRegressionTest {
 		prettyPrint(let.getId());
 		System.out.print(" = ");
 		prettyPrint(let.getT1());
-		if (let.getT2() != null) {
-			System.out.print(" in\n");
-			indent++;
-			printIndent();
-			prettyPrint(let.getT2());
-			indent--;
-		}
+		System.out.print(" in\n");
+		indent++;
+		printIndent();
+		prettyPrint(let.getT2());
+		indent--;
 		System.out.println();
 		printIndent();
 		System.out.print("end");
@@ -192,6 +192,17 @@ public class ParseRegressionTest {
 
 	public void prettyPrint(Str str) {
 		System.out.print(str.getStr());
+	}
+
+	public void prettyPrint(TopLevel topLevel) {
+		prettyPrint(topLevel.getId());
+		System.out.print(" = ");
+		prettyPrint(topLevel.getBody());
+
+		if (topLevel.getNext() != null) {
+			System.out.println(";");
+			prettyPrint(topLevel.getNext());
+		}
 	}
 
 	public void prettyPrint(Unit unit) {

@@ -3,6 +3,7 @@ package com.example.rpc;
 public class Logical extends Cond {
 	public static final String AND = "and";
 	public static final String OR = "or";
+	public static final String NOT = "!";
 	
 	private Term oprnd1;
 	private String op;
@@ -13,6 +14,11 @@ public class Logical extends Cond {
 		this.oprnd1 = oprnd1;
 		this.op = op;
 		this.oprnd2 = oprnd2;
+	}
+	
+	public Logical (Term oprnd1, String op) {
+		this.oprnd1 = oprnd1;
+		this.op = op;
 	}
 
 	public Term getOprnd1() {
@@ -41,7 +47,10 @@ public class Logical extends Cond {
 
 	@Override
 	public String toString() {
-		return oprnd1 + " " + op + " " + oprnd2;
+		if (oprnd2 == null)
+			return oprnd1 + " " + op + " " + oprnd2;
+		else
+			return op + oprnd1;
 	}
 	
 }
