@@ -1,6 +1,8 @@
-let doSomething = lam^c (block).
-	if (length block) >= 10 then
-		"very long block"
-	else
-		reverse block
-end
+main = let doSomething = lam^c block.
+			if (length block) >= 10 then
+				"very long block"
+			else
+				reverse block
+		in
+			doSomethig
+		end

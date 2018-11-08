@@ -1,11 +1,13 @@
-let senderClient = lam^c ().
-	let filename = readConsole () in
-		let fd = fileOpen filename "r" in
-			let session = setupSending filename in
-				let a = writeConsole session in
-					sendFile session fd
+main = let senderClient = lam^c ().
+			let filename = readConsole () in
+				let fd = fileOpen filename "r" in
+					let session = setupSending filename in
+						let a = writeConsole session in
+							sendFile session fd
+						end
+					end
 				end
 			end
+		in
+			()
 		end
-	end
-end

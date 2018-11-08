@@ -1,6 +1,8 @@
-let divMax = lam^c (a b c).
-	if a != 0 and b != 0 and c != 0 then
-		max (a / b) (max (a / c) (max (b / a) (max (b / c) (max (c / a) (c / b)))))
-	else
-		"div error!! It can not be divisible by 0"
-end
+main = let divMax = lam^c a b c.
+			if a != 0 and b != 0 and c != 0 then
+				max (a / b) (max (a / c) (max (b / a) (max (b / c) (max (c / a) (c / b)))))
+			else
+				"div error!! It can not be divisible by 0"
+		in
+			divMax
+		end

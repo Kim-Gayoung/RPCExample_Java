@@ -1,12 +1,14 @@
-let receive = lam^s (session).
-	let flag = query session "flag" in
-		if flag == False then
-			receive session
-		else
-			let block = query session "block" in
-				let update = updateRecord tblname session False in
-					block
-				end
+main = let receive = lam^s session.
+			let flag = query session "flag" in
+				if flag == False then
+					receive session
+				else
+					let block = query session "block" in
+						let update = updateRecord tblname session False in
+							block
+						end
+					end
 			end
-	end
-end
+		in
+			()
+		end

@@ -1,5 +1,7 @@
-let setupSending = lam^s (filename).
-	let recordid = createRecord tblname filename in
-		recordid
-	end
-end
+main = let setupSending = lam^s filename.
+			let recordid = createRecord tblname filename in
+				recordid
+			end
+		in
+			()
+		end

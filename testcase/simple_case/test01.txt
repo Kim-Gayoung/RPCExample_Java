@@ -1,2 +1,1 @@
-let area = 2 * pi * r * h
-end
+area = 2 * pi * r * h

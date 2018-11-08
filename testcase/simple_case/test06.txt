@@ -1,6 +1,8 @@
-let compTest02 = lam^c (oprnd1 oprnd2).
-	if oprnd1 > oprnd2 then
-		True
-	else
-		False
-end
+compMain = let compTest02 = lam^c oprnd1 oprnd2.
+				if oprnd1 > oprnd2 then
+					True
+				else
+					False
+			in
+				compTest02
+			end

@@ -1,3 +1,5 @@
-let divTest = lam^c (a b).
-	a / b
-end
+main = let divTest = lam^c a b.
+			a / b
+		in
+			divTest
+		end

@@ -1,6 +1,8 @@
-let logical = lam^c (str oprnd1 oprnd2).
-	if str != "or" then
-		oprnd1 and oprnd2
-	else
-		oprnd1 or oprnd2
-end
+main = let logical = lam^c str oprnd1 oprnd2.
+			if str != "or" then
+				oprnd1 and oprnd2
+			else
+				oprnd1 or oprnd2
+		in
+			logical
+		end
