@@ -1,11 +1,11 @@
-package com.example.rpc;
+package com.example.extrpc;
 
 public class Lam extends Value {
 	private Location loc;
-	private String x;
+	private Params x;
 	private Term m;
 
-	public Lam(Location loc, String x, Term m) {
+	public Lam(Location loc, Params x, Term m) {
 		this.loc = loc;
 		this.x = x;
 		this.m = m;
@@ -19,11 +19,11 @@ public class Lam extends Value {
 		this.loc = loc;
 	}
 
-	public String getX() {
+	public Params getX() {
 		return x;
 	}
 
-	public void setX(String x) {
+	public void setX(Params x) {
 		this.x = x;
 	}
 

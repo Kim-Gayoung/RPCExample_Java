@@ -12,8 +12,8 @@ public class Infer {
 	public static QuadTup<TypedTerm, Type, Equations, Integer> genCst(int n, Term t, TyEnv tyenv) {
 		QuadTup<TypedTerm, Type, Equations, Integer> ret;
 
-		if (t instanceof com.example.rpc.Num) {
-			com.example.rpc.Num tyConst = (com.example.rpc.Num) t;
+		if (t instanceof com.example.rpc.Const) {
+			com.example.rpc.Const tyConst = (com.example.rpc.Const) t;
 
 			ret = new QuadTup<>(new Const(tyConst.getI()), new IntType(), new Equations(), n);
 

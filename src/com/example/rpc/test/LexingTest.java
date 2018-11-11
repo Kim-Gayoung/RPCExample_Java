@@ -13,10 +13,10 @@ import java.util.regex.Pattern;
 
 import org.junit.Test;
 
+import com.example.extrpc.Token;
 import com.example.lib.LexerException;
 import com.example.lib.Terminal;
 import com.example.lib.TokenBuilder;
-import com.example.rpc.Token;
 
 public class LexingTest {
 	private int lineno;

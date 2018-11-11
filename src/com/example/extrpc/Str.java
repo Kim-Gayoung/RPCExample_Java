@@ -1,4 +1,4 @@
-package com.example.rpc;
+package com.example.extrpc;
 
 public class Str extends Value {
 	private String str;

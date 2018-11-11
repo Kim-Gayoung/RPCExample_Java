@@ -1,22 +1,23 @@
-package com.example.rpc;
+package com.example.extrpc;
 
-public class Logical extends Cond {
-	public static final String AND = "and";
-	public static final String OR = "or";
-	public static final String NOT = "!";
+public class Arithmetic extends Term {
+	public static final String ADD = "+";
+	public static final String SUB = "-";
+	public static final String MUL = "*";
+	public static final String DIV = "/";
+	public static final String UNARY = "-";
 	
 	private Term oprnd1;
 	private String op;
 	private Term oprnd2;
 	
-	public Logical(Term oprnd1, String op, Term oprnd2) {
-		super();
+	public Arithmetic(Term oprnd1, String op, Term oprnd2) {
 		this.oprnd1 = oprnd1;
 		this.op = op;
 		this.oprnd2 = oprnd2;
 	}
 	
-	public Logical (Term oprnd1, String op) {
+	public Arithmetic(Term oprnd1, String op) {
 		this.oprnd1 = oprnd1;
 		this.op = op;
 	}
@@ -47,10 +48,16 @@ public class Logical extends Cond {
 
 	@Override
 	public String toString() {
-		if (oprnd2 == null)
-			return oprnd1 + " " + op + " " + oprnd2;
-		else
-			return op + oprnd1;
+		String ret = "";
+		
+		if (oprnd2 == null) {
+			ret += op + oprnd1;
+		}
+		else {
+			ret += oprnd1 + " " + op + " " + oprnd2;
+		}
+		
+		return ret;
 	}
-	
+		
 }

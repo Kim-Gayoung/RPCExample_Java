@@ -1,9 +1,9 @@
 package com.example.rpc;
 
-public class Num extends Value {
+public class Const extends Value {
 	private int i;
 
-	public Num(int i) {
+	public Const(int i) {
 		super();
 		this.i = i;
 	}

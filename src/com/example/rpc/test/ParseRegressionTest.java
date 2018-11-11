@@ -6,25 +6,25 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+import com.example.extrpc.App;
+import com.example.extrpc.Arithmetic;
+import com.example.extrpc.Bool;
+import com.example.extrpc.Comp;
+import com.example.extrpc.If;
+import com.example.extrpc.Lam;
+import com.example.extrpc.Let;
+import com.example.extrpc.Location;
+import com.example.extrpc.Logical;
+import com.example.extrpc.Num;
+import com.example.extrpc.Params;
+import com.example.extrpc.Parser;
+import com.example.extrpc.Str;
+import com.example.extrpc.Term;
+import com.example.extrpc.TopLevel;
+import com.example.extrpc.Unit;
+import com.example.extrpc.Var;
 import com.example.lib.LexerException;
 import com.example.lib.ParserException;
-import com.example.rpc.App;
-import com.example.rpc.Arithmetic;
-import com.example.rpc.Bool;
-import com.example.rpc.Comp;
-import com.example.rpc.If;
-import com.example.rpc.Lam;
-import com.example.rpc.Let;
-import com.example.rpc.Location;
-import com.example.rpc.Logical;
-import com.example.rpc.Num;
-import com.example.rpc.Params;
-import com.example.rpc.Parser;
-import com.example.rpc.Str;
-import com.example.rpc.Term;
-import com.example.rpc.TopLevel;
-import com.example.rpc.Unit;
-import com.example.rpc.Var;
 
 public class ParseRegressionTest {
 	private Parser parser;

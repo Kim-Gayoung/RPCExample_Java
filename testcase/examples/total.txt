@@ -1,0 +1,45 @@
+receive = lam^s session.
+			let flag = query session "flag" in
+				if flag == False then
+					receive session
+				else
+					let block = query session "block" in
+						let update = updateRecord tblname session False in
+							block
+						end
+					end
+			end;
+			
+receiveFile = lam^c session fd.
+			let maybeblock = receive session in
+				if isNothing maybeblock then
+					let close = closeFile fd in
+						()
+					end
+				else
+					let block = fromJust maybeblock in
+						let run = writeFile fd block in
+							receiveFile session fd
+						end
+					end
+			end;
+
+receiverClient = lam^c ().
+			let session = readConsole () in
+				let filename = setupReceiving session in
+					let fd = fileOpen filename "w" in
+						receiveFile session fd
+					end
+				end
+			end;
+
+senderClient = lam^c ().
+			let filename = readConsole () in
+				let fd = fileOpen filename "r" in
+					let session = setupSending filename in
+						let a = writeConsole session in
+							sendFile session fd
+						end
+					end
+				end
+			end

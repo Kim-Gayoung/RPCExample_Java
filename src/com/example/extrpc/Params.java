@@ -1,4 +1,4 @@
-package com.example.rpc;
+package com.example.extrpc;
 
 public class Params extends Value {
 	private Var id;
