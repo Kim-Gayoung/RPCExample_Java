@@ -6,7 +6,6 @@ public class App extends Term {
 	private TypedLocation loc;
 
 	public App(Term fun, Term arg) {
-		super();
 		this.fun = fun;
 		this.arg = arg;
 	}
@@ -27,11 +26,11 @@ public class App extends Term {
 		this.arg = arg;
 	}
 
-	public Location getLoc() {
+	public TypedLocation getLoc() {
 		return loc;
 	}
 
-	public void setLoc(Location loc) {
+	public void setLoc(TypedLocation loc) {
 		this.loc = loc;
 	}
 

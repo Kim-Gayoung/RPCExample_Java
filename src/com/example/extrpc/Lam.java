@@ -46,14 +46,7 @@ public class Lam extends Value {
 
 	@Override
 	public String toString() {
-		String ret = "";
-
-		if (loc == Location.Client)
-			ret += "lam^c ";
-		else
-			ret += "lam^s ";
-
-		ret += "(" + x + "). " + m.toString();
+		String ret = "lam" + loc + "(" + x + "). " + m.toString();
 		
 		return ret;
 	}

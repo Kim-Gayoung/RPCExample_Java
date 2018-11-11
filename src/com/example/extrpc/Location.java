@@ -1,7 +1,7 @@
 package com.example.extrpc;
 
 public enum Location {
-	Client("^c"), Server("^s");
+	Client("c"), Server("s");
 	
 	private String loc;
 	
@@ -9,8 +9,12 @@ public enum Location {
 		this.loc = loc;
 	}
 
+	public String getLoc() {
+		return loc;
+	}
+
 	@Override
 	public String toString() {
-		return this.loc;
+		return "^" + this.loc;
 	}
 }

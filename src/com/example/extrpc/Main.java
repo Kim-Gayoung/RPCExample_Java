@@ -205,7 +205,7 @@ public class Main {
 		System.out.println(ex1.toString());
 		System.out.println(eval(ex1, Location.Client).toString());
 
-		com.example.typedrpc.TypedTerm tym = Infer.infer(ex1);
+		com.example.extrpc.Term tym = Infer.infer(ex1);
 		System.out.println(tym.toString());
 
 //		System.out.println("----RPC EncTerm----");
