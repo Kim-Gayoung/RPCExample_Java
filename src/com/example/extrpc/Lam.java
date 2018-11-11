@@ -2,10 +2,10 @@ package com.example.extrpc;
 
 public class Lam extends Value {
 	private Location loc;
-	private Params x;
+	private String x;
 	private Term m;
 
-	public Lam(Location loc, Params x, Term m) {
+	public Lam(Location loc, String x, Term m) {
 		this.loc = loc;
 		this.x = x;
 		this.m = m;
@@ -19,11 +19,11 @@ public class Lam extends Value {
 		this.loc = loc;
 	}
 
-	public Params getX() {
+	public String getX() {
 		return x;
 	}
 
-	public void setX(Params x) {
+	public void setX(String x) {
 		this.x = x;
 	}
 

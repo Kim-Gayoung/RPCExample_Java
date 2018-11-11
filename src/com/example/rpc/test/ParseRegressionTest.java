@@ -146,9 +146,7 @@ public class ParseRegressionTest {
 			System.out.print("^c ");
 		else
 			System.out.print("^s ");
-		System.out.print("(");
-		prettyPrint(lam.getX());
-		System.out.print(")");
+		System.out.print("(" + lam.getX() + ")");
 		System.out.print(".\n");
 		indent++;
 		printIndent();

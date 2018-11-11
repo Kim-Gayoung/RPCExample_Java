@@ -14,7 +14,7 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.example.rpc.Token;
+import com.example.extrpc.Token;
 
 public class CommonParserUtil {
 	// file names
@@ -451,7 +451,7 @@ public class CommonParserUtil {
 
 				index_Token = Token.findToken(data[index1]);
 
-				if (terminal.getToken() == index_Token) {
+				if (terminal.getToken().equals(index_Token)) {
 					String return_string = new String();
 					for (int i = index1 + 1; i < data.length; i++) {
 						if (data[i].equals(""))
