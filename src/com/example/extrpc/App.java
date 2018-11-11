@@ -3,6 +3,7 @@ package com.example.extrpc;
 public class App extends Term {
 	private Term fun;
 	private Term arg;
+	private TypedLocation loc;
 
 	public App(Term fun, Term arg) {
 		super();
@@ -26,8 +27,23 @@ public class App extends Term {
 		this.arg = arg;
 	}
 
+	public Location getLoc() {
+		return loc;
+	}
+
+	public void setLoc(Location loc) {
+		this.loc = loc;
+	}
+
 	@Override
 	public String toString() {
-		return "(" + fun.toString() + ") " + "(" + arg.toString() + ")";
+		String ret = "(" + fun.toString() + ")";
+		
+		if (loc != null)
+			 ret += loc + "(" + arg.toString() + ")";
+		else
+			ret +=  " (" + arg.toString() + ")";
+		
+		return ret;
 	}
 }

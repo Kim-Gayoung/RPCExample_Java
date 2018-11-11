@@ -2,6 +2,7 @@ package com.example.extrpc;
 
 public class Let extends Term {
 	private Var id;
+	private Type idTy;
 	private Term t1;
 	private Term t2;
 

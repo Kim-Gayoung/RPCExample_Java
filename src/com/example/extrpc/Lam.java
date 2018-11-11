@@ -3,6 +3,7 @@ package com.example.extrpc;
 public class Lam extends Value {
 	private Location loc;
 	private String x;
+	private Type idTy;
 	private Term m;
 
 	public Lam(Location loc, String x, Term m) {
@@ -25,6 +26,14 @@ public class Lam extends Value {
 
 	public void setX(String x) {
 		this.x = x;
+	}
+
+	public Type getIdTy() {
+		return idTy;
+	}
+
+	public void setIdTy(Type idTy) {
+		this.idTy = idTy;
 	}
 
 	public Term getM() {

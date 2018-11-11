@@ -27,9 +27,6 @@ public class Main {
 
 			return con;
 		}
-		else if (m instanceof Let) {
-
-		}
 		else {
 			return null;
 		}
@@ -94,13 +91,8 @@ public class Main {
 
 			Var id = (Var) subst(let.getId(), x, v);
 			Term t1 = subst(let.getT1(), x, v);
-
-			if (let.getT2() != null) {
-				Term t2 = subst(let.getT2(), x, v);
-				ret = new Let(id, t1, t2);
-			}
-			else
-				ret = new Let(id, t1);
+			Term t2 = subst(let.getT2(), x, v);
+			ret = new Let(id, t1, t2);
 
 			return ret;
 		}
@@ -132,11 +124,18 @@ public class Main {
 		}
 		else if (m instanceof Logical) {
 			Logical logic = (Logical) m;
+			Logical ret;
 
 			Term oprnd1 = subst(logic.getOprnd1(), x, v);
-			Term oprnd2 = subst(logic.getOprnd2(), x, v);
-
-			return new Logical(oprnd1, logic.getOp(), oprnd2);
+			if (logic.getOprnd2() != null) {
+				Term oprnd2 = subst(logic.getOprnd2(), x, v);
+				ret = new Logical(oprnd1, logic.getOp(), oprnd2);
+			}
+			else {
+				ret = new Logical(oprnd1, logic.getOp());
+			}
+			
+			return ret;
 		}
 		else if (m instanceof Comp) {
 			Comp comp = (Comp) m;
@@ -201,14 +200,14 @@ public class Main {
 		
 		System.out.println(ex1.toString());
 
-//		System.out.println("start...");
-//
-//		System.out.println(ex1.toString());
-//		System.out.println(eval(ex1, Location.Client).toString());
-//
-//		com.example.typedrpc.TypedTerm tym = Infer.infer(ex1);
-//		System.out.println(tym.toString());
-//
+		System.out.println("start...");
+
+		System.out.println(ex1.toString());
+		System.out.println(eval(ex1, Location.Client).toString());
+
+		com.example.typedrpc.TypedTerm tym = Infer.infer(ex1);
+		System.out.println(tym.toString());
+
 //		System.out.println("----RPC EncTerm----");
 //		com.example.encrpc.EncTerm encTerm = CompRPCEncTerm.compEncTerm(tym);
 //		System.out.println(encTerm);
