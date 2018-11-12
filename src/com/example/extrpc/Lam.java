@@ -12,6 +12,13 @@ public class Lam extends Value {
 		this.m = m;
 	}
 
+	public Lam(Location loc, String x, Type idTy, Term m) {
+		this.loc = loc;
+		this.x = x;
+		this.idTy = idTy;
+		this.m = m;
+	}
+
 	public Location getLoc() {
 		return loc;
 	}

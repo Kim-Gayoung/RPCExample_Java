@@ -2,6 +2,7 @@ package com.example.extrpc;
 
 public class TopLevel extends Term {
 	private Var id;
+	private Type idTy;
 	private Term body;
 	private TopLevel next;
 	
@@ -16,6 +17,13 @@ public class TopLevel extends Term {
 		this.body = body;
 	}
 
+	public TopLevel(Var id, Type idTy, Term body, TopLevel next) {
+		this.id = id;
+		this.idTy = idTy;
+		this.body = body;
+		this.next = next;
+	}
+	
 	public Var getId() {
 		return id;
 	}
@@ -38,6 +46,14 @@ public class TopLevel extends Term {
 
 	public void setNext(TopLevel next) {
 		this.next = next;
+	}
+	
+	public Type getIdTy() {
+		return idTy;
+	}
+
+	public void setIdTy(Type idTy) {
+		this.idTy = idTy;
 	}
 
 	@Override

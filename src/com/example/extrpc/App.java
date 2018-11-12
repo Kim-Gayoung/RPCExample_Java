@@ -9,6 +9,12 @@ public class App extends Term {
 		this.fun = fun;
 		this.arg = arg;
 	}
+	
+	public App(Term fun, Term arg, TypedLocation loc) {
+		this.fun = fun;
+		this.arg = arg;
+		this.loc = loc;
+	}
 
 	public Term getFun() {
 		return fun;
