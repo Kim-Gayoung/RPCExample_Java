@@ -285,7 +285,7 @@ public class Infer {
 				
 				return retPair;
 			}
-		}
+		}		
 		else if (ty1 instanceof VarType) {
 			VarType varTy1 = (VarType) ty1;
 
@@ -739,5 +739,106 @@ public class Infer {
 
 			return tyloc;
 		}
+	}
+	public static Type subst(Type t, int i, Type ty) {
+		check(i, ty);
+		
+		if (t instanceof IntType) {
+			IntType intType = (IntType) t;
+
+			return intType;
+		}
+		else if (t instanceof VarType) {
+			VarType varType = (VarType) t;
+
+			if (i == varType.getVar())
+				return ty;
+			else
+				return varType;
+		}
+		else if (t instanceof FunType) {
+			FunType funType = (FunType) t;
+			
+			Type left = subst(funType.getFunTy(), i, ty);
+			Type right = subst(funType.getArgTy(), i, ty);
+
+			FunType retFunType = new FunType(left, funType.getLoc(), right);
+
+			return retFunType;
+		}
+		else
+			return null;
+	}
+	
+	public static Type substTyTyLoc(Type t, int i, TypedLocation tyloc) {
+		if (t instanceof IntType) {
+			IntType intType = (IntType) t;
+
+			return intType;
+		}
+		else if (t instanceof VarType) {
+			VarType varType = (VarType) t;
+
+			return varType;
+		}
+		else if (t instanceof FunType) {
+			FunType funType = (FunType) t;
+			TypedLocation funTypedLocation = funType.getLoc();
+
+			if (funTypedLocation instanceof LocType) {
+				LocType locType = (LocType) funTypedLocation;
+
+				return funType;
+			}
+			else if (funTypedLocation instanceof LocVarType) {
+				LocVarType locVarType = (LocVarType) funTypedLocation;
+
+				if (i == locVarType.getVar())
+					return new FunType(funType.getFunTy(), tyloc, funType.getArgTy());
+				else
+					return funType;
+			}
+			else
+				return null;
+		}
+		else
+			return null;
+	}
+	
+	public static TypedLocation substTyLoc(TypedLocation tyloc, int j, TypedLocation jtyloc) {
+		if (tyloc instanceof LocVarType) {
+			LocVarType locVarType = (LocVarType) tyloc;
+
+			if (locVarType.getVar() == j)
+				return jtyloc;
+			else
+				return locVarType;
+		}
+		else if (tyloc instanceof LocType) {
+			LocType locType = (LocType) tyloc;
+
+			return locType;
+		}
+		else
+			return null;
+	}
+	
+	public static void check(int i, Type ty) {
+		if (ty instanceof IntType) {
+			
+		}
+		else if (ty instanceof VarType) {
+			VarType vTy = (VarType) ty;
+			
+			if (vTy.getVar() == i)
+				throw new RuntimeException(i + " occurs in " + ty);
+		}
+		else if (ty instanceof FunType) {
+			FunType fTy = (FunType) ty;
+			
+			check(i, fTy.getFunTy());
+			check(i, fTy.getArgTy());
+		}
+		
 	}
 }
