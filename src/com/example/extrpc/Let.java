@@ -53,14 +53,12 @@ public class Let extends Term {
 
 	@Override
 	public String toString() {
-		String ret = "let " + id + " = " + t1;
-		
-		if (t2 != null)
-			ret += " in " + t2;
-		
-		ret+= " end";
-		
-		return ret;
+		if (idTy != null) {
+			return "let" + id + ": " + idTy + " = " + t1 + " in " + t2 + " end";
+		}
+		else {
+			return "let" + id + " = " + t1 + " in " + t2 + " end";
+		}
 	}
 	
 }
