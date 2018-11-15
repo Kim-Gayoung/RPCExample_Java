@@ -39,7 +39,7 @@ public class Infer {
 			TopLevel tyTopLevel = new TopLevel(top.getId(), constraints1.getSecond(), constraints1.getFirst(), constraints2.getFirst());
 			
 			// toplevel list의 타입..?
-			return new QuadTup<>(tyTopLevel, constraints2.getSecond(),constraints, constraints2.getFourth());
+			return new QuadTup<>(tyTopLevel, constraints2.getSecond(), constraints, constraints2.getFourth());
 		}
 		else {
 			Equations constraints = new Equations();
@@ -743,6 +743,15 @@ public class Infer {
 			Term t2 = substTerm(tLet.getT2(), equs);
 
 			return new Let(tLet.getId(), ty, t1, t2);
+		}
+		else if (t instanceof If) {
+			If tIf = (If) t;
+			
+			Term condTerm = substTerm(tIf.getCond(), equs);
+			Term thenTerm = substTerm(tIf.getThenT(), equs);
+			Term elseTerm = substTerm(tIf.getElseT(), equs);
+			
+			return new If(condTerm, thenTerm, elseTerm);
 		}
 		else if (t instanceof Arithmetic) {
 			Arithmetic tArith = (Arithmetic) t;
