@@ -17,6 +17,12 @@ public class TopLevel extends Term {
 		this.body = body;
 	}
 
+	public TopLevel(Var id, Type idTy, Term body) {
+		this.id = id;
+		this.idTy = idTy;
+		this.body = body;
+	}
+	
 	public TopLevel(Var id, Type idTy, Term body, TopLevel next) {
 		this.id = id;
 		this.idTy = idTy;

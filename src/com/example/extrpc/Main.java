@@ -197,13 +197,9 @@ public class Main {
 		else {
 			ex1 = parser.Parsing(new InputStreamReader(System.in));
 		}
-		
-		System.out.println(ex1.toString());
-
-		System.out.println("start...");
 
 		System.out.println(ex1.toString());
-		System.out.println(eval(ex1, Location.Client).toString());
+//		System.out.println(eval(ex1, Location.Client).toString());
 
 		com.example.extrpc.Term tym = Infer.infer(ex1);
 		System.out.println(tym.toString());
