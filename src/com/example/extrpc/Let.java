@@ -54,10 +54,10 @@ public class Let extends Term {
 	@Override
 	public String toString() {
 		if (idTy != null) {
-			return "let" + id + ": " + idTy + " = " + t1 + " in " + t2 + " end";
+			return "let " + id + ": " + idTy + " = " + t1 + " in " + t2 + " end";
 		}
 		else {
-			return "let" + id + " = " + t1 + " in " + t2 + " end";
+			return "let " + id + " = " + t1 + " in " + t2 + " end";
 		}
 	}
 	
