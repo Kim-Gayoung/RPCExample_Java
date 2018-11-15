@@ -125,6 +125,10 @@ public class Parser {
 			Params params = (Params) pu.get(3);
 			ArrayList<String> strParams = new ArrayList<>();
 			int idx = 0;
+			
+			if (params.getId() == null) {
+				params.setId(new Var("_tempParam"));
+			}
 
 			while (params != null && (params.getId() != null || params.getIds() != null)) {
 				strParams.add(params.getId().getVar());
