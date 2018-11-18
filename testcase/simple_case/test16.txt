@@ -1,17 +1,14 @@
 main = let what = lam^c str.
-			if str == "time" then
-				getTime ()
+			if str == "year" then
+				getYear ()
 			else
-				if str == "year" then
-					getYear ()
+				if str == "month" then
+					getMonth ()
 				else
-					if str == "month" then
-						getMonth ()
+					if str == "day" then
+						getDay ()
 					else
-						if str == "day" then
-							getDay ()
-						else
-							getDate()
+						getDate()
 		in
 			what
 		end
