@@ -47,7 +47,7 @@ public class Logical extends Cond {
 
 	@Override
 	public String toString() {
-		if (oprnd2 == null)
+		if (oprnd2 != null)
 			return oprnd1 + " " + op + " " + oprnd2;
 		else
 			return op + oprnd1;

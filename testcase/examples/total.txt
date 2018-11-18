@@ -1,14 +1,36 @@
+tblname = "web test";
+
+send = lam^s session.
+		let flag = query tblname session "flag" in
+			if flag == False then
+				let insert = insertRecord tblname session block True in
+					()
+				end
+			else
+				send session block
+		end;
+		
 receive = lam^s session.
-			let flag = query session "flag" in
+			let flag = query tblname session "flag" in
 				if flag == False then
 					receive session
 				else
-					let block = query session "block" in
+					let block = query tblname session "block" in
 						let update = updateRecord tblname session False in
 							block
 						end
 					end
 			end;
+
+setupSending = lam^s filename.
+				let recordid = createRecord tblname filename in
+					recordid
+				end;
+				
+setupReceiving = lam^s session.
+					let filename = query tblname session "filename" in
+						filename
+					end;
 			
 receiveFile = lam^c session fd.
 			let maybeblock = receive session in
@@ -27,7 +49,7 @@ receiveFile = lam^c session fd.
 receiverClient = lam^c ().
 			let session = readConsole () in
 				let filename = setupReceiving session in
-					let fd = fileOpen filename "w" in
+					let fd = openFile filename "w" in
 						receiveFile session fd
 					end
 				end
@@ -35,11 +57,25 @@ receiverClient = lam^c ().
 
 senderClient = lam^c ().
 			let filename = readConsole () in
-				let fd = fileOpen filename "r" in
+				let fd = openFile filename "r" in
 					let session = setupSending filename in
 						let a = writeConsole session in
 							sendFile session fd
 						end
 					end
 				end
+			end;
+
+sendFile = lam^c session fd.
+			let maybeblock = readFile fd in
+				if isNothing maybeblock then
+					let close = closeFile fd in
+						()
+					end
+				else
+					let block = fromJust maybeblock in
+						let sending = send session block in
+							sendFile session fd
+						end
+					end
 			end

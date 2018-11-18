@@ -1,4 +1,6 @@
-main = let send = lam^s session block.
+tblname = "web test";
+
+send = lam^s session block.
 			let flag = query session "flag" in
 				if flag == False then
 					let insert = insertRecord tblname session block True in
@@ -7,6 +9,3 @@ main = let send = lam^s session block.
 				else
 					send session block
 			end
-		in
-			()
-		end

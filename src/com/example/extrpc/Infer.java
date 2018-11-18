@@ -8,8 +8,66 @@ import com.example.utils.TripleTup;
 import javafx.util.Pair;
 
 public class Infer {
+
+	private static Pair<TyEnv, Integer> initEnv() {
+		int i = 1;
+		TyEnv env = new TyEnv();
+		Pair<TyEnv, Integer> generalLibraryEnv = generalLibrary(i);
+		
+		env.getPairList().addAll(generalLibraryEnv.getKey().getPairList());
+		env.getPairList().addAll(dbLibrary().getPairList());
+
+		return new Pair<>(env, generalLibraryEnv.getValue());
+	}
+
+	private static Pair<TyEnv, Integer> generalLibrary(int i) {
+		// isNothing, fromJust
+		// openFile, closeFile, writeFile, readFile
+		// readConsole, writeConsole
+		TyEnv env = new TyEnv();
+
+		env.getPairList().add(new Pair<>("isNothing", new FunType(new StrType(), new LocVarType(i), new BoolType())));
+		env.getPairList().add(new Pair<>("fromJust", new FunType(new StrType(), new LocVarType(i + 1), new StrType())));
+		i = i + 2;
+
+		env.getPairList().add(new Pair<>("openFile", new FunType(new StrType(), new LocVarType(i),
+				new FunType(new StrType(), new LocVarType(i + 1), new StrType()))));
+		env.getPairList()
+				.add(new Pair<>("closeFile", new FunType(new StrType(), new LocVarType(i + 2), new UnitType())));
+		env.getPairList().add(new Pair<>("writeFile", new FunType(new StrType(), new LocVarType(i + 3),
+				new FunType(new StrType(), new LocVarType(i + 4), new StrType()))));
+		env.getPairList().add(new Pair<>("readFile", new FunType(new StrType(), new LocVarType(i + 5), new StrType())));
+		i = i + 6;
+
+		env.getPairList().add(new Pair<>("readConsole", new FunType(new UnitType(), new LocVarType(i), new StrType())));
+		env.getPairList()
+				.add(new Pair<>("writeConsole", new FunType(new StrType(), new LocVarType(i + 1), new UnitType())));
+		i = i + 2;
+
+		return new Pair<>(env, i);
+	}
+
+	private static TyEnv dbLibrary() {
+		// createRecord, updateRecord, insertRecord, deleteRecord, query
+		TyEnv env = new TyEnv();
+		LocType loc = new LocType(Location.Server);
+
+		env.getPairList().add(new Pair<>("createRecord",
+				new FunType(new StrType(), loc, new FunType(new StrType(), loc, new IntType()))));
+		env.getPairList().add(new Pair<>("insertRecord", new FunType(new StrType(), loc, new FunType(new IntType(), loc,
+				new FunType(new StrType(), loc, new FunType(new BoolType(), loc, new UnitType()))))));
+		env.getPairList().add(new Pair<>("updateRecord", new FunType(new StrType(), loc,
+				new FunType(new IntType(), loc, new FunType(new BoolType(), loc, new BoolType())))));
+		env.getPairList().add(new Pair<>("deleteRecord", new FunType(new StrType(), loc, new FunType(new IntType(), loc, new BoolType()))));
+		env.getPairList().add(new Pair<>("query", new FunType(new StrType(), loc, new FunType(new StrType(), loc, new FunType(new StrType(), loc, new StrType())))));
+		
+		return env;
+	}
+
 	public static TopLevel infer(Term m) {
-		QuadTup<TopLevel, Type, Equations, Integer> quadGenCst = genCstTopLevel(1, (TopLevel) m, new TyEnv());
+		Pair<TyEnv, Integer> init = initEnv();
+		QuadTup<TopLevel, Type, Equations, Integer> quadGenCst = genCstTopLevel(init.getValue(), (TopLevel) m,
+				init.getKey());
 		Equations equs1 = solve(quadGenCst.getThird());
 		TopLevel tym = substTopLevel(quadGenCst.getFirst(), equs1);
 
@@ -26,35 +84,37 @@ public class Infer {
 	}
 
 	public static QuadTup<TopLevel, Type, Equations, Integer> genCstTopLevel(int n, TopLevel top, TyEnv tyenv) {
-		QuadTup<Term, Type, Equations, Integer> constraints1 = genCst(n, top.getBody(),	tyenv);
+		QuadTup<Term, Type, Equations, Integer> constraints1 = genCst(n, top.getBody(), tyenv);
 		tyenv.getPairList().add(new Pair<>(top.getId().getVar(), constraints1.getSecond()));
-		
+
 		if (top.getNext() != null) {
-			QuadTup<TopLevel, Type, Equations, Integer> constraints2 = genCstTopLevel(constraints1.getFourth(), top.getNext(), tyenv);
-			
+			QuadTup<TopLevel, Type, Equations, Integer> constraints2 = genCstTopLevel(constraints1.getFourth(),
+					top.getNext(), tyenv);
+
 			Equations constraints = new Equations();
 			constraints.getEqus().addAll(constraints1.getThird().getEqus());
 			constraints.getEqus().addAll(constraints2.getThird().getEqus());
-			
-			TopLevel tyTopLevel = new TopLevel(top.getId(), constraints1.getSecond(), constraints1.getFirst(), constraints2.getFirst());
-			
+
+			TopLevel tyTopLevel = new TopLevel(top.getId(), constraints1.getSecond(), constraints1.getFirst(),
+					constraints2.getFirst());
+
 			// toplevel list의 타입..?
 			return new QuadTup<>(tyTopLevel, constraints2.getSecond(), constraints, constraints2.getFourth());
 		}
 		else {
 			Equations constraints = new Equations();
 			constraints.getEqus().addAll(constraints1.getThird().getEqus());
-			
+
 			TopLevel tyTopLevel = new TopLevel(top.getId(), constraints1.getSecond(), constraints1.getFirst());
-			
+
 			return new QuadTup<>(tyTopLevel, constraints1.getSecond(), constraints, constraints1.getFourth());
 		}
-		
+
 	}
 
 	public static QuadTup<Term, Type, Equations, Integer> genCst(int n, Term t, TyEnv tyenv) {
 		QuadTup<Term, Type, Equations, Integer> ret;
-		
+
 		if (t instanceof Unit) {
 			ret = new QuadTup<>(t, new UnitType(), new Equations(), n);
 
@@ -314,58 +374,58 @@ public class Infer {
 		}
 		else if (ty1 instanceof UnitType) {
 			UnitType unitTy1 = (UnitType) ty1;
-			
+
 			if (ty2 instanceof UnitType) {
 				retPair = new Pair<>(new Equations(), false);
-				
+
 				return retPair;
 			}
 			else if (ty2 instanceof VarType) {
 				VarType varTy2 = (VarType) ty2;
-				
-				ArrayList<Equ> equList=  new ArrayList<>();
+
+				ArrayList<Equ> equList = new ArrayList<>();
 				equList.add(new EquTy(varTy2, unitTy1));
-				
+
 				retPair = new Pair<>(new Equations(equList), true);
-				
+
 				return retPair;
 			}
 		}
 		else if (ty1 instanceof BoolType) {
 			BoolType boolTy1 = (BoolType) ty1;
-			
+
 			if (ty2 instanceof BoolType) {
 				retPair = new Pair<>(new Equations(), false);
-				
+
 				return retPair;
 			}
 			else if (ty2 instanceof VarType) {
 				VarType varTy2 = (VarType) ty2;
-				
+
 				ArrayList<Equ> equList = new ArrayList<>();
 				equList.add(new EquTy(varTy2, boolTy1));
-				
+
 				retPair = new Pair<>(new Equations(equList), true);
-				
+
 				return retPair;
 			}
 		}
 		else if (ty1 instanceof StrType) {
 			StrType strTy1 = (StrType) ty1;
-			
+
 			if (ty2 instanceof StrType) {
 				retPair = new Pair<>(new Equations(), false);
-				
+
 				return retPair;
 			}
 			else if (ty2 instanceof VarType) {
 				VarType varTy2 = (VarType) ty2;
-				
+
 				ArrayList<Equ> equList = new ArrayList<>();
 				equList.add(new EquTy(varTy2, strTy1));
-				
+
 				retPair = new Pair<>(new Equations(equList), true);
-				
+
 				return retPair;
 			}
 		}
@@ -678,13 +738,13 @@ public class Infer {
 			return retPair;
 		}
 	}
-	
+
 	public static TopLevel substTopLevel(TopLevel t, Equations equs) {
 		Term body = substTerm(t.getBody(), equs);
-		
+
 		if (t.getNext() != null) {
 			TopLevel next = substTopLevel(t.getNext(), equs);
-			
+
 			return new TopLevel(t.getId(), t.getIdTy(), body, next);
 		}
 		else {
@@ -746,11 +806,11 @@ public class Infer {
 		}
 		else if (t instanceof If) {
 			If tIf = (If) t;
-			
+
 			Term condTerm = substTerm(tIf.getCond(), equs);
 			Term thenTerm = substTerm(tIf.getThenT(), equs);
 			Term elseTerm = substTerm(tIf.getElseT(), equs);
-			
+
 			return new If(condTerm, thenTerm, elseTerm);
 		}
 		else if (t instanceof Arithmetic) {

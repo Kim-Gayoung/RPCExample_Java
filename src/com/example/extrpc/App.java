@@ -45,7 +45,7 @@ public class App extends Term {
 		String ret = "(" + fun.toString() + ")";
 		
 		if (loc != null)
-			 ret += loc + "(" + arg.toString() + ")";
+			 ret += "^" + loc + "(" + arg.toString() + ")";
 		else
 			ret +=  " (" + arg.toString() + ")";
 		
