@@ -1,6 +1,6 @@
 main = let exp = readConsole () in
 			if exp == "Keep" then
-				let keepVal = readConsole () in () end
+				let keepVal = readConsole () in keepVal end
 			else
 				"exit"
 		end	
