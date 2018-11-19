@@ -54,10 +54,10 @@ public class Lam extends Value {
 	@Override
 	public String toString() {
 		if (idTy != null) {
-			return "lam" + loc + "(" + x + ": " + idTy + ").\n" + m.toString();
+			return "lam^" + loc + "(" + x + ": " + idTy + ").\n" + m.toString();
 		}
 		else {
-			return "lam" + loc + "(" + x + ").\n" + m.toString();
+			return "lam^" + loc + "(" + x + ").\n" + m.toString();
 		}
 	}
 }

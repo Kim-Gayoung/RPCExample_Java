@@ -28,7 +28,7 @@ public class LocType extends TypedLocation {
 
 	@Override
 	public String toString() {
-		return loc.getLoc();
+		return loc.toString();
 	}
 	
 }

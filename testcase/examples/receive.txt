@@ -1,3 +1,5 @@
+tblname = "web test";
+
 main = let receive = lam^s session.
 			let flag = query session "flag" in
 				if flag == False then

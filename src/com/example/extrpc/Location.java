@@ -15,6 +15,6 @@ public enum Location {
 
 	@Override
 	public String toString() {
-		return "^" + this.loc;
+		return loc;
 	}
 }
