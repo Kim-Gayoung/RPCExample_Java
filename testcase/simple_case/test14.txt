@@ -4,5 +4,5 @@ main = let doSomething = lam^c block.
 			else
 				reverse block
 		in
-			doSomethig
+			doSomething "hello!!!"
 		end
