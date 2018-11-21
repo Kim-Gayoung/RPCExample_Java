@@ -49,7 +49,7 @@ public class Infer {
 		// append: String -> (String -> String)
 		// length: String -> Int
 		// getHour, getYear, getMonth, getDay, getDate: Unit->Int
-		env.getPairList().add(new Pair<>("toString", new FunType(new StrType(), new LocVarType(i), new StrType())));
+		env.getPairList().add(new Pair<>("toString", new FunType(new VarType(i), new LocVarType(i), new StrType())));
 		env.getPairList().add(new Pair<>("reverse", new FunType(new StrType(), new LocVarType(i + 1), new StrType())));
 		i = i + 2;
 
@@ -106,12 +106,12 @@ public class Infer {
 	}
 
 	public static QuadTup<TopLevel, Type, Equations, Integer> genCstTopLevel(int n, TopLevel top, TyEnv tyenv) {
-		Pair<String, Type> tmpIdTy = new Pair<>(top.getId().getVar(), new FunType(new VarType(n), new LocVarType(n), new VarType(n + 1)));
+		Pair<String, Type> tmpIdTy = new Pair<>(top.getId().getVar(), new VarType(n));
 		TyEnv tmpEnv = new TyEnv();
 		tmpEnv.getPairList().addAll((ArrayList<Pair<String, Type>>) tyenv.getPairList().clone());
 		tmpEnv.getPairList().add(tmpIdTy);
 		
-		QuadTup<Term, Type, Equations, Integer> constraints1 = genCst(n + 2, top.getBody(), tmpEnv);
+		QuadTup<Term, Type, Equations, Integer> constraints1 = genCst(n + 1, top.getBody(), tmpEnv);
 		tyenv.getPairList().add(new Pair<>(top.getId().getVar(), constraints1.getSecond()));
 
 		if (top.getNext() != null) {
@@ -121,6 +121,7 @@ public class Infer {
 			Equations constraints = new Equations();
 			constraints.getEqus().addAll(constraints1.getThird().getEqus());
 			constraints.getEqus().addAll(constraints2.getThird().getEqus());
+			constraints.getEqus().add(new EquTy(tmpIdTy.getValue(), constraints1.getSecond()));
 
 			TopLevel tyTopLevel = new TopLevel(top.getId(), constraints1.getSecond(), constraints1.getFirst(),
 					constraints2.getFirst());
@@ -131,6 +132,7 @@ public class Infer {
 		else {
 			Equations constraints = new Equations();
 			constraints.getEqus().addAll(constraints1.getThird().getEqus());
+			constraints.getEqus().add(new EquTy(tmpIdTy.getValue(), constraints1.getSecond()));
 
 			TopLevel tyTopLevel = new TopLevel(top.getId(), constraints1.getSecond(), constraints1.getFirst());
 
@@ -174,13 +176,20 @@ public class Infer {
 			Lam tLam = (Lam) t;
 
 			Type argTy = new VarType(n);
-			tyenv.getPairList().add(new Pair<>(tLam.getX(), argTy));
+			
+			TyEnv tyenv1 = new TyEnv();
+			ArrayList<Pair<String, Type>> pairList = tyenv.getPairList();
 
-			QuadTup<Term, Type, Equations, Integer> quad = genCst(n + 1, tLam.getM(), tyenv);
+			tyenv1.setPairList(pairList);
+			tyenv1.getPairList().add(0, new Pair<>(tLam.getX(), argTy));
+
+			QuadTup<Term, Type, Equations, Integer> quad = genCst(n + 1, tLam.getM(), tyenv1);
 			FunType funTy = new FunType(argTy, new LocType(tLam.getLoc()), quad.getSecond());
 
 			ret = new QuadTup<>(new Lam(tLam.getLoc(), tLam.getX(), argTy, quad.getFirst()), funTy, quad.getThird(),
 					quad.getFourth());
+			
+			tyenv1.getPairList().remove(0);
 
 			return ret;
 		}
@@ -212,7 +221,7 @@ public class Infer {
 			cloneEnv.setPairList((ArrayList<Pair<String, Type>>) tyenv.getPairList().clone());
 			cloneEnv.getPairList().add(tmpIdTy);
 
-			QuadTup<Term, Type, Equations, Integer> t1Quad = genCst(n, tLet.getT1(), cloneEnv);
+			QuadTup<Term, Type, Equations, Integer> t1Quad = genCst(n + 2, tLet.getT1(), cloneEnv);
 			tyenv.getPairList().add(new Pair<>(tLet.getId().getVar(), t1Quad.getSecond()));
 			QuadTup<Term, Type, Equations, Integer> t2Quad = genCst(t1Quad.getFourth(), tLet.getT2(), tyenv);
 
