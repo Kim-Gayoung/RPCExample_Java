@@ -17,11 +17,6 @@ import java.util.regex.Pattern;
 import com.example.extrpc.Token;
 
 public class CommonParserUtil {
-	// file names
-	private String fGrammarRules;
-	private String fActionTable;
-	private String fGotoTable;
-
 	// Lexer part
 	private int lineno;
 	private String endOfTok;
