@@ -8,82 +8,78 @@ import com.example.utils.TripleTup;
 import javafx.util.Pair;
 
 public class Infer {
+	private static TyEnv libraryEnv;
+	private static ArrayList<String> dbLibraryList;
 
 	private static Pair<TyEnv, Integer> initEnv() {
-		int i = 1;
+		libraryEnv = new TyEnv();
 		TyEnv env = new TyEnv();
-		Pair<TyEnv, Integer> generalLibraryEnv = generalLibrary(i);
-		Pair<TyEnv, Integer> dbLibraryEnv = dbLibrary(generalLibraryEnv.getValue());
 
-		env.getPairList().addAll(generalLibraryEnv.getKey().getPairList());
-		env.getPairList().addAll(dbLibraryEnv.getKey().getPairList());
+		TyEnv generalLibraryEnv = generalLibrary();
+		TyEnv dbLibraryEnv = dbLibrary();
 
-		return new Pair<>(env, generalLibraryEnv.getValue());
+		libraryEnv.getPairList().addAll(generalLibraryEnv.getPairList());
+		libraryEnv.getPairList().addAll(dbLibraryEnv.getPairList());
+
+		return new Pair<>(env, 3);
 	}
 
-	private static Pair<TyEnv, Integer> generalLibrary(int i) {
+	private static TyEnv generalLibrary() {
 		// isNothing, fromJust
 		// openFile, closeFile, writeFile, readFile
 		// readConsole, writeConsole
+		Location client = Location.Client;
 		TyEnv env = new TyEnv();
 
-		env.getPairList().add(new Pair<>("isNothing", new FunType(new StrType(), new LocVarType(i), new BoolType())));
-		env.getPairList().add(new Pair<>("fromJust", new FunType(new StrType(), new LocVarType(i + 1), new StrType())));
-		i = i + 2;
+		env.getPairList().add(new Pair<>("isNothing", new FunType(new StrType(), new LocVarType(1), new BoolType())));
+		env.getPairList().add(new Pair<>("fromJust", new FunType(new StrType(), new LocVarType(1), new StrType())));
 
-		env.getPairList().add(new Pair<>("openFile", new FunType(new StrType(), new LocVarType(i),
-				new FunType(new StrType(), new LocVarType(i + 1), new StrType()))));
-		env.getPairList()
-				.add(new Pair<>("closeFile", new FunType(new StrType(), new LocVarType(i + 2), new UnitType())));
-		env.getPairList().add(new Pair<>("writeFile", new FunType(new StrType(), new LocVarType(i + 3),
-				new FunType(new StrType(), new LocVarType(i + 4), new StrType()))));
-		env.getPairList().add(new Pair<>("readFile", new FunType(new StrType(), new LocVarType(i + 5), new StrType())));
-		i = i + 6;
+		env.getPairList().add(new Pair<>("openFile", new FunType(new StrType(), new LocType(client),
+				new FunType(new StrType(), new LocType(client), new StrType()))));
+		env.getPairList().add(new Pair<>("closeFile", new FunType(new StrType(), new LocType(client), new UnitType())));
+		env.getPairList().add(new Pair<>("writeFile", new FunType(new StrType(), new LocType(client),
+				new FunType(new StrType(), new LocType(client), new StrType()))));
+		env.getPairList().add(new Pair<>("readFile", new FunType(new StrType(), new LocType(client), new StrType())));
 
-		env.getPairList().add(new Pair<>("readConsole", new FunType(new UnitType(), new LocVarType(i), new StrType())));
 		env.getPairList()
-				.add(new Pair<>("writeConsole", new FunType(new StrType(), new LocVarType(i + 1), new UnitType())));
-		i = i + 2;
+				.add(new Pair<>("readConsole", new FunType(new UnitType(), new LocType(client), new StrType())));
+		env.getPairList()
+				.add(new Pair<>("writeConsole", new FunType(new StrType(), new LocType(client), new UnitType())));
 
 		// toString, reverse: String -> String
 		// append: String -> (String -> String)
 		// length: String -> Int
 		// getHour, getYear, getMonth, getDay, getDate: Unit->Int
-		env.getPairList().add(new Pair<>("toString", new FunType(new VarType(i), new LocVarType(i), new StrType())));
-		env.getPairList().add(new Pair<>("reverse", new FunType(new StrType(), new LocVarType(i + 1), new StrType())));
-		i = i + 2;
+		env.getPairList().add(new Pair<>("toString", new FunType(new VarType(1), new LocVarType(1), new StrType())));
+		env.getPairList().add(new Pair<>("reverse", new FunType(new StrType(), new LocVarType(1), new StrType())));
 
-		env.getPairList().add(new Pair<>("append", new FunType(new StrType(), new LocVarType(i),
-				new FunType(new StrType(), new LocVarType(i), new StrType()))));
-		i = i + 1;
+		env.getPairList().add(new Pair<>("append", new FunType(new StrType(), new LocVarType(1),
+				new FunType(new StrType(), new LocVarType(1), new StrType()))));
+		env.getPairList().add(new Pair<>("length", new FunType(new StrType(), new LocVarType(1), new IntType())));
 
-		env.getPairList().add(new Pair<>("length", new FunType(new StrType(), new LocVarType(i), new IntType())));
-		i = i + 1;
+		env.getPairList().add(new Pair<>("getHour", new FunType(new UnitType(), new LocVarType(1), new IntType())));
+		env.getPairList().add(new Pair<>("getYear", new FunType(new UnitType(), new LocVarType(1), new IntType())));
+		env.getPairList().add(new Pair<>("getMonth", new FunType(new UnitType(), new LocVarType(1), new IntType())));
+		env.getPairList().add(new Pair<>("getDay", new FunType(new UnitType(), new LocVarType(1), new IntType())));
+		env.getPairList().add(new Pair<>("getDate", new FunType(new UnitType(), new LocVarType(1), new IntType())));
 
-		env.getPairList().add(new Pair<>("getHour", new FunType(new UnitType(), new LocVarType(i), new IntType())));
-		env.getPairList().add(new Pair<>("getYear", new FunType(new UnitType(), new LocVarType(i + 1), new IntType())));
-		env.getPairList()
-				.add(new Pair<>("getMonth", new FunType(new UnitType(), new LocVarType(i + 2), new IntType())));
-		env.getPairList().add(new Pair<>("getDay", new FunType(new UnitType(), new LocVarType(i + 3), new IntType())));
-		env.getPairList().add(new Pair<>("getDate", new FunType(new UnitType(), new LocVarType(i + 4), new IntType())));
-		i = i + 5;
-
-		return new Pair<>(env, i);
+		return env;
 	}
 
-	private static Pair<TyEnv, Integer> dbLibrary(int i) {
-		// createRecord, updateRecord, insertRecord, deleteRecord, query
+	private static TyEnv dbLibrary() {
+		String[] dbLibraryArr = { "createRecord", "insertRecord", "updateRecord", "deleteRecord", "query" };
+		dbLibraryList = new ArrayList<>();
+
 		TyEnv env = new TyEnv();
 		LocType loc = new LocType(Location.Server);
+		Type ty = new FunType(new VarType(1), loc, new VarType(2));
 
-		env.getPairList().add(new Pair<>("createRecord", new FunType(new VarType(i), loc, new VarType(i+1))));
-		env.getPairList().add(new Pair<>("insertRecord", new FunType(new VarType(i+2), loc, new VarType(i+3))));
-		env.getPairList().add(new Pair<>("updateRecord", new FunType(new VarType(i+4), loc, new VarType(i+5))));
-		env.getPairList().add(new Pair<>("deleteRecord", new FunType(new VarType(i+6), loc, new VarType(i+7))));
-		env.getPairList().add(new Pair<>("query", new FunType(new VarType(i+8), loc, new VarType(i+9))));
-		i = i + 10;
+		for (int i = 0; i < dbLibraryArr.length; i++) {
+			dbLibraryList.add(dbLibraryArr[i]);
+			env.getPairList().add(new Pair<>(dbLibraryArr[i], ty));
+		}
 
-		return new Pair<>(env, i);
+		return env;
 	}
 
 	public static TopLevel infer(Term m) {
@@ -96,7 +92,30 @@ public class Infer {
 		return tym;
 	}
 
-	public static Type tylookup(String x, TyEnv tyenv) {
+	public static Type tylookup(int n, String x, TyEnv tyenv) {
+		for (Pair<String, Type> p : libraryEnv.getPairList()) {
+			if (p.getKey().equals(x)) {
+				Type ty = p.getValue();
+
+				if (ty instanceof FunType) {
+					FunType funty = (FunType) ty;
+
+					if (x.equals("toString")) {
+						funty.setFunTy(new VarType(n));
+					}
+					else if (dbLibraryList.contains(x)) {
+						// 데이터베이스 라이브러리에 속해있을 때
+						// varty의 int값 선정
+					}
+
+					if (funty.getLoc() instanceof LocVarType)
+						funty.setLoc(new LocVarType(n));
+
+					return funty;
+				}
+			}
+		}
+
 		for (Pair<String, Type> p : tyenv.getPairList()) {
 			if (p.getKey().equals(x))
 				return p.getValue();
@@ -107,10 +126,11 @@ public class Infer {
 
 	public static QuadTup<TopLevel, Type, Equations, Integer> genCstTopLevel(int n, TopLevel top, TyEnv tyenv) {
 		Pair<String, Type> tmpIdTy = new Pair<>(top.getId().getVar(), new VarType(n));
+
 		TyEnv tmpEnv = new TyEnv();
 		tmpEnv.getPairList().addAll((ArrayList<Pair<String, Type>>) tyenv.getPairList().clone());
 		tmpEnv.getPairList().add(tmpIdTy);
-		
+
 		QuadTup<Term, Type, Equations, Integer> constraints1 = genCst(n + 1, top.getBody(), tmpEnv);
 		tyenv.getPairList().add(new Pair<>(top.getId().getVar(), constraints1.getSecond()));
 
@@ -166,7 +186,7 @@ public class Infer {
 		}
 		else if (t instanceof Var) {
 			Var tVar = (Var) t;
-			Type varTy = tylookup(tVar.getVar(), tyenv);
+			Type varTy = tylookup(n, tVar.getVar(), tyenv);
 
 			ret = new QuadTup<>(tVar, varTy, new Equations(), n);
 
@@ -176,7 +196,7 @@ public class Infer {
 			Lam tLam = (Lam) t;
 
 			Type argTy = new VarType(n);
-			
+
 			TyEnv tyenv1 = new TyEnv();
 			ArrayList<Pair<String, Type>> pairList = tyenv.getPairList();
 
@@ -188,7 +208,7 @@ public class Infer {
 
 			ret = new QuadTup<>(new Lam(tLam.getLoc(), tLam.getX(), argTy, quad.getFirst()), funTy, quad.getThird(),
 					quad.getFourth());
-			
+
 			tyenv1.getPairList().remove(0);
 
 			return ret;
@@ -215,19 +235,24 @@ public class Infer {
 		else if (t instanceof Let) {
 			Let tLet = (Let) t;
 
-			Pair<String, Type> tmpIdTy = new Pair<>(tLet.getId().getVar(),
-					new FunType(new VarType(n), new LocVarType(n), new VarType(n + 1)));
+			String id = tLet.getId().getVar();
+			VarType idTy = new VarType(n);
+			Pair<String, Type> tmpIdTy = new Pair<>(id, idTy);
+
 			TyEnv cloneEnv = new TyEnv();
 			cloneEnv.setPairList((ArrayList<Pair<String, Type>>) tyenv.getPairList().clone());
 			cloneEnv.getPairList().add(tmpIdTy);
 
-			QuadTup<Term, Type, Equations, Integer> t1Quad = genCst(n + 2, tLet.getT1(), cloneEnv);
+			QuadTup<Term, Type, Equations, Integer> t1Quad = genCst(n + 1, tLet.getT1(), cloneEnv);
 			tyenv.getPairList().add(new Pair<>(tLet.getId().getVar(), t1Quad.getSecond()));
 			QuadTup<Term, Type, Equations, Integer> t2Quad = genCst(t1Quad.getFourth(), tLet.getT2(), tyenv);
+
+			EquTy constraint = new EquTy(idTy, t1Quad.getSecond());
 
 			Equations constraints = new Equations();
 			constraints.getEqus().addAll(t1Quad.getThird().getEqus());
 			constraints.getEqus().addAll(t2Quad.getThird().getEqus());
+			constraints.getEqus().add(constraint);
 
 			ret = new QuadTup<>(new Let(tLet.getId(), t1Quad.getSecond(), t1Quad.getFirst(), t2Quad.getFirst()),
 					t2Quad.getSecond(), constraints, t2Quad.getFourth());
@@ -390,7 +415,7 @@ public class Infer {
 	}
 
 	public static Pair<Equations, Boolean> unify_(Type ty1, Type ty2) {
-//		System.out.println(ty1 + ", " + ty2);
+		// System.out.println(ty1 + ", " + ty2);
 		Pair<Equations, Boolean> retPair;
 		// 타입 추가 필요
 		if (ty1 instanceof IntType) {
@@ -553,7 +578,7 @@ public class Infer {
 	}
 
 	public static Pair<Equations, Boolean> mergeAll(Equations equs) {
-		ArrayList<Equ> equList = equs.getEqus();
+		ArrayList<Equ> equList = (ArrayList<Equ>) equs.getEqus().clone();
 
 		Equations retEqus = new Equations();
 		Pair<Equations, Boolean> retPair;
