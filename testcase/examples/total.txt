@@ -3,8 +3,10 @@ tblname = "web test";
 send = lam^s session.
 		let flag = query tblname session "flag" in
 			if flag == False then
-				let insert = insertRecord tblname session block True in
-					()
+				let insertQuery = append (append "session=" session) (append (append "block=" block) (append "flag=" (toString True))) in
+					let insert = insertRecord tblname insertQuery in
+						()
+					end
 				end
 			else
 				send session block
@@ -16,8 +18,10 @@ receive = lam^s session.
 					receive session
 				else
 					let block = query tblname session "block" in
-						let update = updateRecord tblname session False in
-							block
+						let updateQuery = append (append "session=" session) (append "flag=" (toString False)) in
+							let update = updateRecord tblname updateQuery in
+								block
+							end
 						end
 					end
 			end;

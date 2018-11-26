@@ -1,10 +1,12 @@
 tblname = "web test";
 
 send = lam^s session block.
-			let flag = query session "flag" in
-				if flag == False then
-					let insert = insertRecord tblname session block True in
-						()
+			let flag = query tblname session "flag" in
+				if (toBool flag) == False then
+					let insertQuery = append (append "session=" (toString session)) (append (append "block=" block) (append "flag=" (toString True))) in
+						let insert = insertRecord tblname insertQuery in
+							()
+						end
 					end
 				else
 					send session block

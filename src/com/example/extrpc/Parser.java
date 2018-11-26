@@ -85,7 +85,7 @@ public class Parser {
 			return Token.ASSIGN;
 		});
 
-		pu.lex("\".*\"", text -> {
+		pu.lex("\"[^(\")]*\"", text -> {
 			return Token.STR;
 		});
 		pu.lex("\\^[cs]", text -> {
