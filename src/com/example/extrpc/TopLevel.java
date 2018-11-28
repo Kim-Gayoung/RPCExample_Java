@@ -1,49 +1,24 @@
 package com.example.extrpc;
 
 public class TopLevel extends Term {
-	private Var id;
-	private Type idTy;
-	private Term body;
+	private Term term;
 	private TopLevel next;
-	
-	public TopLevel(Var id, Term body, TopLevel next) {
-		this.id = id;
-		this.body = body;
+
+	public TopLevel(Term term) {
+		this.term = term;
+	}
+
+	public TopLevel(Term term, TopLevel next) {
+		this.term = term;
 		this.next = next;
 	}
-	
-	public TopLevel(Var id, Term body) {
-		this.id = id;
-		this.body = body;
+
+	public Term getTerm() {
+		return term;
 	}
 
-	public TopLevel(Var id, Type idTy, Term body) {
-		this.id = id;
-		this.idTy = idTy;
-		this.body = body;
-	}
-	
-	public TopLevel(Var id, Type idTy, Term body, TopLevel next) {
-		this.id = id;
-		this.idTy = idTy;
-		this.body = body;
-		this.next = next;
-	}
-	
-	public Var getId() {
-		return id;
-	}
-
-	public void setId(Var id) {
-		this.id = id;
-	}
-
-	public Term getBody() {
-		return body;
-	}
-
-	public void setBody(Term body) {
-		this.body = body;
+	public void setTerm(Term term) {
+		this.term = term;
 	}
 
 	public TopLevel getNext() {
@@ -53,23 +28,15 @@ public class TopLevel extends Term {
 	public void setNext(TopLevel next) {
 		this.next = next;
 	}
-	
-	public Type getIdTy() {
-		return idTy;
-	}
-
-	public void setIdTy(Type idTy) {
-		this.idTy = idTy;
-	}
 
 	@Override
 	public String toString() {
-		String ret = id + " = " + body;
-		
+		String ret = term.toString();
+
 		if (next != null)
 			ret += ";\n" + next;
-		
+
 		return ret;
 	}
-	
+
 }

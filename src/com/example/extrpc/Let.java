@@ -1,29 +1,29 @@
 package com.example.extrpc;
 
 public class Let extends Term {
-	private Var id;
+	private String id;
 	private Type idTy;
 	private Term t1;
 	private Term t2;
 
-	public Let(Var id, Term t1, Term t2) {
+	public Let(String id, Term t1, Term t2) {
 		this.id = id;
 		this.t1 = t1;
 		this.t2 = t2;
 	}
 	
-	public Let(Var id, Type idTy, Term t1, Term t2) {
+	public Let(String id, Type idTy, Term t1, Term t2) {
 		this.id = id;
 		this.idTy = idTy;
 		this.t1 = t1;
 		this.t2 = t2;
 	}
 	
-	public Var getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(Var id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 

@@ -89,10 +89,9 @@ public class Main {
 			Let let = (Let) m;
 			Let ret;
 
-			Var id = (Var) subst(let.getId(), x, v);
 			Term t1 = subst(let.getT1(), x, v);
 			Term t2 = subst(let.getT2(), x, v);
-			ret = new Let(id, t1, t2);
+			ret = new Let(let.getId(), t1, t2);
 
 			return ret;
 		}
@@ -108,61 +107,18 @@ public class Main {
 
 			return ret;
 		}
-		else if (m instanceof Arithmetic) {
-			Arithmetic arith = (Arithmetic) m;
-			Arithmetic ret;
+		else if (m instanceof ExprTerm) {
+			ExprTerm exprTerm = (ExprTerm) m;
 			
-			Term oprnd1 = subst(arith.getOprnd1(), x, v);
-			if (arith.getOprnd2() != null) {
-				Term oprnd2 = subst(arith.getOprnd2(), x, v);
-				ret = new Arithmetic(oprnd1, arith.getOp(), oprnd2);
+			Term oprnd1 = subst(exprTerm.getOprnd1(), x, v);
+			
+			if (exprTerm.getOprnd2() != null) {
+				Term oprnd2 = subst(exprTerm.getOprnd2(), x, v);
+				
+				return new ExprTerm(oprnd1, exprTerm.getOp(), oprnd2);
 			}
 			else
-				ret = new Arithmetic(oprnd1, arith.getOp());
-			
-			return ret; 
-		}
-		else if (m instanceof Logical) {
-			Logical logic = (Logical) m;
-			Logical ret;
-
-			Term oprnd1 = subst(logic.getOprnd1(), x, v);
-			if (logic.getOprnd2() != null) {
-				Term oprnd2 = subst(logic.getOprnd2(), x, v);
-				ret = new Logical(oprnd1, logic.getOp(), oprnd2);
-			}
-			else {
-				ret = new Logical(oprnd1, logic.getOp());
-			}
-			
-			return ret;
-		}
-		else if (m instanceof Comp) {
-			Comp comp = (Comp) m;
-
-			Term oprnd1 = subst(comp.getOprnd1(), x, v);
-			Term oprnd2 = subst(comp.getOprnd2(), x, v);
-
-			return new Comp(oprnd1, comp.getOp(), oprnd2);
-		}
-		else if (m instanceof Params) {
-			Params params = (Params) m;
-			Params ret;
-			
-			if (params.getId() != null) {
-				Var id = (Var) subst(params.getId(), x, v);
-				
-				if (params.getIds() != null) {
-					Params ids = (Params) subst(params.getIds(), x, v);
-					ret = new Params(id, ids);
-				}
-				else
-					ret = new Params(id);
-				
-				return ret;
-			}
-			else				// Lambda 식의 Parameter가 아무것도 없는 경우 -> 대치할 것이 없음
-				return params;
+				return new ExprTerm(oprnd1, exprTerm.getOp());
 		}
 		else
 			return null;
@@ -197,10 +153,10 @@ public class Main {
 		else {
 			ex1 = parser.Parsing(new InputStreamReader(System.in));
 		}
-
 		System.out.println(ex1.toString());
 //		System.out.println(eval(ex1, Location.Client).toString());
 
+		System.out.println();
 		com.example.extrpc.Term tym = Infer.infer(ex1);
 		System.out.println(tym.toString());
 

@@ -7,16 +7,13 @@ import java.io.IOException;
 import org.junit.Test;
 
 import com.example.extrpc.App;
-import com.example.extrpc.Arithmetic;
 import com.example.extrpc.Bool;
-import com.example.extrpc.Comp;
+import com.example.extrpc.ExprTerm;
 import com.example.extrpc.If;
 import com.example.extrpc.Lam;
 import com.example.extrpc.Let;
 import com.example.extrpc.Location;
-import com.example.extrpc.Logical;
 import com.example.extrpc.Num;
-import com.example.extrpc.Params;
 import com.example.extrpc.Parser;
 import com.example.extrpc.Str;
 import com.example.extrpc.Term;
@@ -59,24 +56,18 @@ public class ParseRegressionTest {
 	public void prettyPrint(Term t) {
 		if (t instanceof App)
 			prettyPrint((App) t);
-		else if (t instanceof Arithmetic)
-			prettyPrint((Arithmetic) t);
 		else if (t instanceof Bool)
 			prettyPrint((Bool) t);
-		else if (t instanceof Comp)
-			prettyPrint((Comp) t);
+		else if (t instanceof ExprTerm)
+			prettyPrint((ExprTerm) t);
 		else if (t instanceof If)
 			prettyPrint((If) t);
 		else if (t instanceof Lam)
 			prettyPrint((Lam) t);
 		else if (t instanceof Let)
 			prettyPrint((Let) t);
-		else if (t instanceof Logical)
-			prettyPrint((Logical) t);
 		else if (t instanceof Num)
 			prettyPrint((Num) t);
-		else if (t instanceof Params)
-			prettyPrint((Params) t);
 		else if (t instanceof Str)
 			prettyPrint((Str) t);
 		else if (t instanceof TopLevel)
@@ -101,26 +92,20 @@ public class ParseRegressionTest {
 		prettyPrint(app.getArg());
 	}
 
-	public void prettyPrint(Arithmetic arith) {
-		if (arith.getOprnd2() == null) {
-			System.out.print(arith.getOp());
-			prettyPrint(arith.getOprnd1());
-		}
-		else {
-			prettyPrint(arith.getOprnd1());
-			System.out.print(" " + arith.getOp() + " ");
-			prettyPrint(arith.getOprnd2());
-		}
-	}
-
 	public void prettyPrint(Bool bool) {
 		System.out.print(bool.isBool());
 	}
 
-	public void prettyPrint(Comp comp) {
-		prettyPrint(comp.getOprnd1());
-		System.out.print(" " + comp.getOp() + " ");
-		prettyPrint(comp.getOprnd2());
+	public void prettyPrint(ExprTerm exprTerm) {
+		if (exprTerm.getOprnd2() == null) {
+			System.out.print(exprTerm.getOp());
+			prettyPrint(exprTerm.getOprnd1());
+		}
+		else {
+			prettyPrint(exprTerm.getOprnd1());
+			System.out.print(" " + exprTerm.getOp() + " ");
+			prettyPrint(exprTerm.getOprnd2());
+		}
 	}
 
 	public void prettyPrint(If ifTerm) {
@@ -156,8 +141,7 @@ public class ParseRegressionTest {
 	}
 
 	public void prettyPrint(Let let) {
-		System.out.print("let ");
-		prettyPrint(let.getId());
+		System.out.print("let " + let.getId());
 		System.out.print(" = ");
 		prettyPrint(let.getT1());
 		System.out.print(" in\n");
@@ -170,30 +154,8 @@ public class ParseRegressionTest {
 		System.out.print("end");
 	}
 
-	public void prettyPrint(Logical logical) {
-		if (logical.getOprnd2() == null) {
-			System.out.print(logical.getOp());
-			prettyPrint(logical.getOprnd1());
-		}
-		else {
-			prettyPrint(logical.getOprnd1());
-			System.out.print(" " + logical.getOp() + " ");
-			prettyPrint(logical.getOprnd2());
-		}
-	}
-
 	public void prettyPrint(Num num) {
 		System.out.print(num.getI());
-	}
-
-	public void prettyPrint(Params params) {
-		if (params.getId() != null) {
-			prettyPrint(params.getId());
-		}
-		if (params.getIds() != null) {
-			System.out.print(" ");
-			prettyPrint(params.getIds());
-		}
 	}
 
 	public void prettyPrint(Str str) {
@@ -201,9 +163,7 @@ public class ParseRegressionTest {
 	}
 
 	public void prettyPrint(TopLevel topLevel) {
-		prettyPrint(topLevel.getId());
-		System.out.print(" = ");
-		prettyPrint(topLevel.getBody());
+		prettyPrint(topLevel.getTerm());
 
 		if (topLevel.getNext() != null) {
 			System.out.println(";");
