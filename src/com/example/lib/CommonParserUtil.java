@@ -14,24 +14,22 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.example.rpc.Token;
-
-public class CommonParserUtil {
+public class CommonParserUtil<Token extends TokenInterface<Token>> {
 	// file names
-	private String fGrammarRules;
-	private String fActionTable;
-	private String fGotoTable;
+//	private String fGrammarRules;
+//	private String fActionTable;
+//	private String fGotoTable;
 
 	// Lexer part
 	private int lineno;
 	private String endOfTok;
-	private Object objEndOfTok;
+	private Token objEndOfTok;
 
 	private BufferedReader br;
 	private ArrayList<String> lineArr;
-	private ArrayList<Terminal> lexer;
+	private ArrayList<Terminal<Token>> lexer;
 
-	private LinkedHashMap<String, TokenBuilder> tokenBuilders;
+	private LinkedHashMap<String, TokenBuilder<Token>> tokenBuilders;
 
 	// Parser part
 	private String startSymbol;
@@ -48,7 +46,7 @@ public class CommonParserUtil {
 
 	public CommonParserUtil() throws IOException {
 		super();
-		this.lexer = new ArrayList<Terminal>();
+		this.lexer = new ArrayList<Terminal<Token>>();
 
 		stack = new Stack<>();
 
@@ -79,7 +77,7 @@ public class CommonParserUtil {
 
 		int last_stack_tree_index = stack.size() - 1;
 		int offset = (length * 2) - ((i - 1) * 2 + 1);
-		Terminal nt = (Terminal) stack.get(last_stack_tree_index - offset);
+		Terminal<Token> nt = (Terminal<Token>) stack.get(last_stack_tree_index - offset);
 
 		return nt.getSyntax();
 	}
@@ -92,11 +90,11 @@ public class CommonParserUtil {
 		treeBuilders.put(productionRule, tb);
 	}
 
-	public void lex(String regExp, TokenBuilder tb) {
+	public void lex(String regExp, TokenBuilder<Token> tb) {
 		tokenBuilders.put(regExp, tb);
 	}
 
-	public void lexEndToken(String regExp, Object objEndOfTok) {
+	public void lexEndToken(String regExp, Token objEndOfTok) {
 		endOfTok = regExp;
 		this.objEndOfTok = objEndOfTok;
 	}
@@ -121,7 +119,7 @@ public class CommonParserUtil {
 		}
 
 		lineno = 1;
-		TokenBuilder tb;
+		TokenBuilder<Token> tb;
 
 		Object[] keys = tokenBuilders.keySet().toArray();
 
@@ -150,7 +148,7 @@ public class CommonParserUtil {
 
 						tb = tokenBuilders.get(regExp);
 						if (tb.tokenBuilder(str) != null) {
-							lexer.add(new Terminal(str, tb.tokenBuilder(str), startIdx, lineno));
+							lexer.add(new Terminal<Token>(str, tb.tokenBuilder(str), startIdx, lineno));
 						}
 
 						str = "";
@@ -166,7 +164,7 @@ public class CommonParserUtil {
 			lineno++;
 		}
 
-		Terminal epsilon = new Terminal(endOfTok, objEndOfTok, -1, -1);
+		Terminal<Token> epsilon = new Terminal<Token>(endOfTok, objEndOfTok, -1, -1);
 		lexer.add(epsilon);
 	}
 
@@ -181,7 +179,7 @@ public class CommonParserUtil {
 
 		while (!lexer.isEmpty()) {
 			ParseState currentState = (ParseState) stack.lastElement();
-			Terminal currentTerminal = lexer.get(0);
+			Terminal<Token> currentTerminal = lexer.get(0);
 
 			ArrayList<String> data_arr = Check_state(currentState, currentTerminal, lexer);
 			String order = data_arr.get(0); // Accept | Reduce | Shift
@@ -215,7 +213,7 @@ public class CommonParserUtil {
 					rhsCount = 0;
 				}
 
-				int last_stack_tree_index = stack.size() - 1;
+//				int last_stack_tree_index = stack.size() - 1;
 
 				TreeBuilder tb = treeBuilders.get(grammar_rules.get(grammar_rule_num));
 
@@ -272,6 +270,10 @@ public class CommonParserUtil {
 			while ((tmpLine = gotoBReader.readLine()) != null) {
 				goto_table.add(tmpLine);
 			}
+			
+			grammarBReader.close();
+			actionBReader.close();
+			gotoBReader.close();
 		}
 		catch (FileNotFoundException e) {
 			createGrammarRules();
@@ -374,7 +376,7 @@ public class CommonParserUtil {
 		}
 	}
 
-	private ParseState get_st(ParseState current_state, String index, ArrayList<Terminal> Tokens)
+	private ParseState get_st(ParseState current_state, String index, ArrayList<Terminal<Token>> Tokens)
 			throws FileNotFoundException, ParserException {
 		int count = 0;
 
@@ -417,7 +419,7 @@ public class CommonParserUtil {
 		String culprit = "no hint";
 
 		if (Tokens.isEmpty() == false) {
-			Terminal t = Tokens.get(0);
+			Terminal<Token> t = Tokens.get(0);
 			err_ch_index = t.getChIndex();
 			err_line_index = t.getLineIndex();
 			culprit = t.getSyntax();
@@ -427,7 +429,7 @@ public class CommonParserUtil {
 				err_line_index, err_ch_index);
 	}
 
-	private ArrayList<String> Check_state(ParseState current_state, Terminal terminal, ArrayList<Terminal> Tokens)
+	private ArrayList<String> Check_state(ParseState current_state, Terminal<Token> terminal, ArrayList<Terminal<Token>> Tokens)
 			throws ParserException {
 		int index = 0;
 		while (index < action_table.size()) {
@@ -445,10 +447,12 @@ public class CommonParserUtil {
 					continue;
 				}
 
-				index_Token = Token.findToken(data[index1]);
+//				index_Token = Token.findToken(data[index1]);
+				index_Token = terminal.getToken().toToken(data[index1]);
+
 
 				if (terminal.getToken() == index_Token) {
-					String return_string = new String();
+//					String return_string = new String();
 					for (int i = index1 + 1; i < data.length; i++) {
 						if (data[i].equals(""))
 							continue;
@@ -478,7 +482,7 @@ public class CommonParserUtil {
 		String culprit = "no hint";
 
 		if (Tokens.isEmpty() == false) {
-			Terminal t = Tokens.get(0);
+			Terminal<Token> t = Tokens.get(0);
 			err_ch_index = t.getChIndex();
 			err_line_index = t.getLineIndex();
 			culprit = t.getSyntax();

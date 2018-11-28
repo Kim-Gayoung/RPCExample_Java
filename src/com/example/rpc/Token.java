@@ -1,8 +1,9 @@
 package com.example.rpc;
 
 import com.example.lib.ParserException;
+import com.example.lib.TokenInterface;
 
-public enum Token {
+public enum Token implements TokenInterface<Token> {
 	END_OF_TOKEN("$"),
 	OPENPAREN("("), CLOSEPAREN(")"),
 	DOT("."), LOC("loc"),
@@ -23,5 +24,14 @@ public enum Token {
 				return t;
 		}
 		throw new ParserException(strToken + " not expected.");
+	}
+	
+	@Override
+	public Token toToken(String s) throws ParserException {
+		return Token.findToken(s);
+	}
+	@Override
+	public String toString(Token tok) {
+		return tok.getStrToken();
 	}
 }

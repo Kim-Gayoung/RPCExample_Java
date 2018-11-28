@@ -8,10 +8,10 @@ import com.example.lib.LexerException;
 import com.example.lib.ParserException;
 
 public class Parser {
-	private CommonParserUtil pu;
+	private CommonParserUtil<Token> pu;
 	
 	public Parser() throws IOException, LexerException {
-		pu = new CommonParserUtil();
+		pu = new CommonParserUtil<Token>();
 //		pu = new CommonParserUtil("grammar_rules.txt", "action_table.txt", "goto_table.txt");
 
 		pu.lex("[ \t\n]", text -> { return null; });
