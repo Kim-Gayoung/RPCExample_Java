@@ -1,7 +1,9 @@
+tblname = "test";
+
 main = let setupReceiving = lam^s session.
-			let filename = query session "filename" in
+			let filename = query tblname session "filename" in
 				filename
 			end
 		in
-			()
+			setupReceiving 3
 		end

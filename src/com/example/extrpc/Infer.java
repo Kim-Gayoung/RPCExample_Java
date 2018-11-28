@@ -343,101 +343,31 @@ public class Infer {
 
 			return ret;
 		}
-//		else if (t instanceof Arithmetic) {
-//			Arithmetic tArith = (Arithmetic) t;
-//
-//			TripleTup<Term, Type, Equations> oprnd1 = genCst(tArith.getOprnd1(), tyenv);
-//
-//			if (tArith.getOprnd2() != null) {
-//				TripleTup<Term, Type, Equations> oprnd2 = genCst(tArith.getOprnd2(), tyenv);
-//				Equ constraint1 = new EquTy(oprnd1.getSecond(), new IntType());
-//				Equ constraint2 = new EquTy(oprnd2.getSecond(), new IntType());
-//
-//				Equations constraints = new Equations();
-//				constraints.getEqus().addAll(oprnd1.getThird().getEqus());
-//				constraints.getEqus().addAll(oprnd2.getThird().getEqus());
-//				constraints.getEqus().add(constraint1);
-//				constraints.getEqus().add(constraint2);
-//
-//				ret = new TripleTup<>(new Arithmetic(oprnd1.getFirst(), tArith.getOp(), oprnd2.getFirst()),
-//						new IntType(), constraints);
-//			}
-//			else {
-//				Equ constraint = new EquTy(oprnd1.getSecond(), new IntType());
-//
-//				Equations constraints = new Equations();
-//				constraints.getEqus().addAll(oprnd1.getThird().getEqus());
-//				constraints.getEqus().add(constraint);
-//
-//				ret = new TripleTup<>(new Arithmetic(oprnd1.getFirst(), tArith.getOp()), new IntType(), constraints);
-//			}
-//
-//			return ret;
-//		}
-//		else if (t instanceof Comp) {
-//			Comp tComp = (Comp) t;
-//
-//			TripleTup<Term, Type, Equations> oprnd1 = genCst(tComp.getOprnd1(), tyenv);
-//			TripleTup<Term, Type, Equations> oprnd2 = genCst(tComp.getOprnd2(), tyenv);
-//
-//			Equ constraint = new EquTy(oprnd1.getSecond(), oprnd2.getSecond());
-//			Equations constraints = new Equations();
-//
-//			constraints.getEqus().addAll(oprnd1.getThird().getEqus());
-//			constraints.getEqus().addAll(oprnd2.getThird().getEqus());
-//			constraints.getEqus().add(constraint);
-//
-//			ret = new TripleTup<>(new Comp(oprnd1.getFirst(), tComp.getOp(), oprnd2.getFirst()), new BoolType(),
-//					constraints);
-//
-//			return ret;
-//		}
-//		else if (t instanceof Logical) {
-//			Logical tLogic = (Logical) t;
-//
-//			TripleTup<Term, Type, Equations> oprnd1 = genCst(tLogic.getOprnd1(), tyenv);
-//
-//			if (tLogic.getOprnd2() != null) {
-//				TripleTup<Term, Type, Equations> oprnd2 = genCst(tLogic.getOprnd2(), tyenv);
-//
-//				Equ constraint1 = new EquTy(oprnd1.getSecond(), new BoolType());
-//				Equ constraint2 = new EquTy(oprnd2.getSecond(), new BoolType());
-//
-//				Equations constraints = new Equations();
-//				constraints.getEqus().addAll(oprnd1.getThird().getEqus());
-//				constraints.getEqus().addAll(oprnd2.getThird().getEqus());
-//				constraints.getEqus().add(constraint1);
-//				constraints.getEqus().add(constraint2);
-//
-//				ret = new TripleTup<>(new Logical(oprnd1.getFirst(), tLogic.getOp(), oprnd2.getFirst()), new BoolType(),
-//						constraints);
-//			}
-//			else {
-//				Equ constraint = new EquTy(oprnd1.getSecond(), new BoolType());
-//
-//				Equations constraints = new Equations();
-//				constraints.getEqus().addAll(oprnd1.getThird().getEqus());
-//				constraints.getEqus().add(constraint);
-//
-//				ret = new TripleTup<>(new Logical(oprnd1.getFirst(), tLogic.getOp()), new BoolType(), constraints);
-//			}
-//
-//			return ret;
-//		}
 		else
 			return null;
 	}
 
 	public static Equations solve(Equations equs) {
 		while (true) {
+			printEqus(equs);
 			Pair<Equations, Boolean> p1 = unifyEqus(equs);
+			printEqus(p1.getKey());
 			Pair<Equations, Boolean> p2 = mergeAll(p1.getKey());
+			printEqus(p2.getKey());
 			Pair<Equations, Boolean> p3 = propagate(p2.getKey());
+			printEqus(p3.getKey());
 
 			if (p1.getValue() || p2.getValue() || p3.getValue())
 				equs = p3.getKey();
 			else
 				return equs;
+		}
+	}
+	
+	private static void printEqus(Equations equs) {
+		System.out.println("-----------------------");
+		for (Equ eq: equs.getEqus()) {
+			System.out.println(eq);
 		}
 	}
 
@@ -953,40 +883,6 @@ public class Infer {
 			else
 				return new ExprTerm(oprnd1, tExprTerm.getOp());
 		}
-//		else if (t instanceof Arithmetic) {
-//			Arithmetic tArith = (Arithmetic) t;
-//
-//			Term oprnd1 = substTerm(tArith.getOprnd1(), equs);
-//
-//			if (tArith.getOprnd2() != null) {
-//				Term oprnd2 = substTerm(tArith.getOprnd2(), equs);
-//
-//				return new Arithmetic(oprnd1, tArith.getOp(), oprnd2);
-//			}
-//			else
-//				return new Arithmetic(oprnd1, tArith.getOp());
-//		}
-//		else if (t instanceof Comp) {
-//			Comp tComp = (Comp) t;
-//
-//			Term oprnd1 = substTerm(tComp.getOprnd1(), equs);
-//			Term oprnd2 = substTerm(tComp.getOprnd2(), equs);
-//
-//			return new Comp(oprnd1, tComp.getOp(), oprnd2);
-//		}
-//		else if (t instanceof Logical) {
-//			Logical tLogic = (Logical) t;
-//
-//			Term oprnd1 = substTerm(tLogic.getOprnd1(), equs);
-//
-//			if (tLogic.getOprnd2() != null) {
-//				Term oprnd2 = substTerm(tLogic.getOprnd2(), equs);
-//
-//				return new Logical(oprnd1, tLogic.getOp(), oprnd2);
-//			}
-//			else
-//				return new Logical(oprnd1, tLogic.getOp());
-//		}
 		else
 			return null;
 	}

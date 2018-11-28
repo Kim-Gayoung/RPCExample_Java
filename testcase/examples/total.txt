@@ -27,7 +27,7 @@ receive = lam^s session.
 			end;
 
 setupSending = lam^s filename.
-				let recordid = createRecord tblname filename in
+				let recordid = createTable tblname filename in
 					recordid
 				end;
 				

@@ -1,8 +1,9 @@
 tblname = "web test";
+
 main = let setupSending = lam^s filename.
-			let recordid = createRecord tblname filename in
+			let recordid = createTable tblname filename in
 				recordid
 			end
 		in
-			()
+			setupSending "test"
 		end
