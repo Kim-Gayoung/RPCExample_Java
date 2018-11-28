@@ -1,0 +1,9 @@
+main = let time = getHour () in
+			if time > 18 then
+				"good evening!!"
+			else
+				if time >= 12 then
+					"good afternoon!!"
+				else
+					"good morning!!"
+		end

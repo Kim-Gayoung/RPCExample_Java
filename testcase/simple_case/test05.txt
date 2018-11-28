@@ -1,0 +1,8 @@
+compMain = let compTest01 = lam^c oprnd1.
+				if oprnd1 <= 20 then
+					"oprnd1 less than 20"
+				else
+					"oprnd1 greater than 20"
+			in
+				compTest01
+			end

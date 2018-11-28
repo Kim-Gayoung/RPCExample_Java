@@ -1,0 +1,5 @@
+main = let appendRev = lam^c str1 str2 str3.
+			append (reverse str1) (append (reverse str2) (reverse str3))
+		in
+			appendRev
+		end

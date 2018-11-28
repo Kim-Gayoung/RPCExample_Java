@@ -1,0 +1,18 @@
+tblname = "web test";
+
+main = let receive = lam^s session.
+			let flag = query tblname session "flag" in
+				if (toBool flag) == False then
+					receive session
+				else
+					let block = query tblname session "block" in
+						let updateQuery = append (append "session=" (toString session)) (append "flag=" (toString False)) in
+							let update = updateRecord tblname updateQuery in
+								block
+							end
+						end
+					end
+			end
+		in
+			()
+		end

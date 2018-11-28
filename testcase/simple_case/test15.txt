@@ -1,0 +1,15 @@
+max = lam^c num1 num2.
+		if num1 < num2 then
+			num2
+		else
+			num1
+;
+
+main = let divMax = lam^c a b c.
+			if a != 0 and b != 0 and c != 0 then
+				max (a / b) (max (a / c) (max (b / a) (max (b / c) (max (c / a) (c / b)))))
+			else
+				-1
+		in
+			divMax
+		end

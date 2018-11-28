@@ -1,0 +1,16 @@
+main = let receiveFile = lam^c session fd.
+			let maybeblock = receive session in
+				if isNothing maybeblock then
+					let close = closeFile fd in
+						()
+					end
+				else
+					let block = fromJust maybeblock in
+						let run = writeFile fd block in
+							receiveFile session fd
+						end
+					end
+			end
+		in
+			()
+		end

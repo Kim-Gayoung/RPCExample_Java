@@ -1,0 +1,11 @@
+main = let arith = lam^c a b c.
+			if a < 0 then
+				-a
+			else
+				if b < 0 then
+					-b
+				else
+					-c
+		in
+			arith
+		end

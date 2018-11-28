@@ -1,0 +1,5 @@
+main = let divTest = lam^c a b.
+			a / b
+		in
+			divTest
+		end

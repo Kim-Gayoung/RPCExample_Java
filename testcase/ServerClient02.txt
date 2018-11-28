@@ -1,1 +1,1 @@
-(lam^c x. x) (lam^s x. x)
+main = (lam^c x. x) (lam^s x. x)

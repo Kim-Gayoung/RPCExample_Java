@@ -1,0 +1,8 @@
+main = let compNotTest = lam^c boolVal.
+			if !boolVal then
+				"boolVal is False"
+			else
+				"boolVal is True"
+		in
+			compNotTest
+		end

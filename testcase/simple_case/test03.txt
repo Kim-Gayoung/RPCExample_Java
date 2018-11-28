@@ -1,0 +1,6 @@
+main = let boolX = True in
+			if boolX == True then
+				"boolX is True"
+			else
+				"boolX is False"
+		end

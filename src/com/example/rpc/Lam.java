@@ -44,7 +44,8 @@ public class Lam extends Value {
 		else
 			ret += "lam^s ";
 
-		ret += x + " " + m.toString();
+		ret += "(" + x + "). " + m.toString();
+		
 		return ret;
 	}
 }

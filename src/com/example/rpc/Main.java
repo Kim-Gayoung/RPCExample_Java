@@ -1,7 +1,9 @@
 package com.example.rpc;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Scanner;
 
 import com.example.enccs.CompCSEncTerm;
 import com.example.enccs.EncTerm;
@@ -42,7 +44,12 @@ public class Main {
 	}
 
 	public static Term subst(Term m, String x, Value v) {
-		if (m instanceof Var) {
+		if (m instanceof Const) {
+			Const con = (Const) m;
+
+			return con;
+		}
+		else if (m instanceof Var) {
 			Var var = (Var) m;
 
 			if (var.getVar().equals(x)) {
@@ -74,27 +81,46 @@ public class Main {
 
 			return ret;
 		}
-		else if (m instanceof Const) {
-			Const con = (Const) m;
-
-			return con;
-		}
 		else
 			return null;
 	}
 
 	public static void main(String[] args) throws ParserException, IOException, LexerException {
-//		LexicalAnalyzer lexical = new LexicalAnalyzer(new InputStreamReader(System.in));
+		// LexicalAnalyzer lexical = new LexicalAnalyzer(new
+		// InputStreamReader(System.in));
 		Parser parser = new Parser();
-		
-		Term ex1 = parser.Parsing(new InputStreamReader(System.in));
-		
+
+		System.out.println("1: File, the other: Console");
+		System.out.print("Enter the number: ");
+		String select = new Scanner(System.in).next();
+
+		Term ex1;
+
+		if (select.equals("1")) {
+			System.out.print("Enter a file name: ");
+			String fileName = new Scanner(System.in).next();
+
+			FileReader fileReader = new FileReader("./testcase/" + fileName);
+			Scanner scan = new Scanner(fileReader);
+
+			while (scan.hasNext()) {
+				System.out.println(scan.nextLine());
+			}
+			System.out.println();
+
+			fileReader = new FileReader("./testcase/" + fileName);
+			ex1 = parser.Parsing(fileReader);
+		}
+		else {
+			ex1 = parser.Parsing(new InputStreamReader(System.in));
+		}
+
 		System.out.println(ex1.toString());
 		System.out.println(eval(ex1, Location.Client).toString());
 
 		com.example.typedrpc.TypedTerm tym = Infer.infer(ex1);
 		System.out.println(tym.toString());
-		
+
 		System.out.println("----RPC EncTerm----");
 		com.example.encrpc.EncTerm encTerm = CompRPCEncTerm.compEncTerm(tym);
 		System.out.println(encTerm);
@@ -104,33 +130,36 @@ public class Main {
 		System.out.println(staTerm);
 		System.out.println(TypedRPCSta.eval(staTerm));
 
-		
 		System.out.println("In Encoding CS: ");
-		TripleTup<EncTerm, com.example.enccs.FunStore, com.example.enccs.FunStore> csEncTerm = CompCSEncTerm.compCSEncTerm(encTerm);
+		TripleTup<EncTerm, com.example.enccs.FunStore, com.example.enccs.FunStore> csEncTerm = CompCSEncTerm
+				.compCSEncTerm(encTerm);
 		System.out.println("----CS EncTerm----");
 		System.out.println("client function store: ");
 		System.out.println(csEncTerm.getSecond());
 		System.out.println("server function store: ");
 		System.out.println(csEncTerm.getThird());
-		
+
 		System.out.println("main client expression: ");
 		System.out.println(csEncTerm.getFirst().toString());
 		System.out.println("evaluates to ");
-		com.example.enccs.EncTerm csencv = TypedCSEnc.eval(csEncTerm.getSecond(), csEncTerm.getThird(), csEncTerm.getFirst());
+		com.example.enccs.EncTerm csencv = TypedCSEnc.eval(csEncTerm.getSecond(), csEncTerm.getThird(),
+				csEncTerm.getFirst());
 		System.out.println(csencv);
-		
+
 		System.out.println("In Stateful CS: ");
-		TripleTup<com.example.stacs.StaTerm, com.example.stacs.FunStore, com.example.stacs.FunStore> csStaTerm = CompCSStaTerm.compCSStaTerm(staTerm);
+		TripleTup<com.example.stacs.StaTerm, com.example.stacs.FunStore, com.example.stacs.FunStore> csStaTerm = CompCSStaTerm
+				.compCSStaTerm(staTerm);
 		System.out.println("----CS StaTerm----");
 		System.out.println("client function store: ");
 		System.out.println(csStaTerm.getSecond());
 		System.out.println("server function store: ");
 		System.out.println(csStaTerm.getThird());
-		
+
 		System.out.println("main client expression: ");
 		System.out.println(csStaTerm.getFirst().toString());
 		System.out.println("evaluates to ");
-		com.example.stacs.StaTerm csstav = TypedCSSta.eval(csStaTerm.getSecond(), csStaTerm.getThird(), csStaTerm.getFirst());
+		com.example.stacs.StaTerm csstav = TypedCSSta.eval(csStaTerm.getSecond(), csStaTerm.getThird(),
+				csStaTerm.getFirst());
 		System.out.println(csstav);
 	}
 }

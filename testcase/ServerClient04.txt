@@ -1,4 +1,0 @@
-(lam^s f. f 1)
-	(lam^c x. (lam^c g. g x)
-			(lam^s y. (lam^s h. h y)
-						(lam^c z.z)))

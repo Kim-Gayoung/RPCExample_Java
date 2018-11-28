@@ -252,6 +252,10 @@ public class CommonParserUtil<Token extends TokenInterface<Token>> {
 			BufferedReader gotoBReader = new BufferedReader(gotoFReader);
 
 			String tmpLine;
+			
+			grammar_rules.clear();
+			action_table.clear();
+			goto_table.clear();
 
 			while ((tmpLine = grammarBReader.readLine()) != null) {
 				// grammarNumber: grammar
@@ -293,7 +297,7 @@ public class CommonParserUtil<Token extends TokenInterface<Token>> {
 		// ]
 		Object[] objGrammar = treeBuilders.keySet().toArray();
 
-		// HashMapÀº ¾ÈµÊ Key°¡ °ãÃÄ¼­ µ¤¾î¾º¿öÁü
+		// HashMapå ì™ì˜™ å ì‹«ë“¸ì˜™ Keyå ì™ì˜™ å ì™ì˜™å ì‹ì‡½ì˜™ å ì™ì˜™å ì˜ì”Œå ì™ì˜™å ì™ì˜™
 		ArrayList<String> nonterminals = new ArrayList<>();
 
 		// nonterminal setting
@@ -314,12 +318,12 @@ public class CommonParserUtil<Token extends TokenInterface<Token>> {
 
 			fileContent += "\tProductionRule \"" + data[0] + "\" [";
 
-			// data[0] ´Â ProductionRule ÅÂ±× ºÙÀÌ±â
-			// data[1] Àº °ø¹éÀ¸·Î ³ª´² Nonterminal Terminal ÆÇ´Ü ÇÊ¿ä
+			// data[0] å ì™ì˜™ ProductionRule å ìŠ¹ê¹ì˜™ å ì™ì˜™å ì‹±ê¹ì˜™
+			// data[1] å ì™ì˜™ å ì™ì˜™å ì™ì˜™å ì™ì˜™å ì™ì˜™ å ì™ì˜™å ì™ì˜™ Nonterminal Terminal å ì‹¤ëŒì˜™ å ì‹­ìš¸ì˜™
 			String[] tok = data[1].split("[ \t\n]");
 
 			for (int j = 0; j < tok.length; j++) {
-				if (nonterminals.contains(tok[j])) { // ÇöÀç tokenÀÌ NonterminalÀÎ °æ¿ì
+				if (nonterminals.contains(tok[j])) { // å ì™ì˜™å ì™ì˜™ tokenå ì™ì˜™ Nonterminalå ì™ì˜™ å ì™ì˜™å ï¿½
 					fileContent += "Nonterminal \"";
 				}
 				else {
@@ -347,7 +351,7 @@ public class CommonParserUtil<Token extends TokenInterface<Token>> {
 		String directory = System.getProperty("user.dir");
 		String grammarPath = directory + "\\mygrammar.grm";
 		
-		// file Ãâ·Â
+		// file å ì™ì˜™å ï¿½
 		try {
 			PrintWriter writer = new PrintWriter(grammarPath);
 			writer.println(fileContent);
@@ -408,9 +412,9 @@ public class CommonParserUtil<Token extends TokenInterface<Token>> {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append(
-				"Expect Trans Table content is \"" + current_state.toString() + " " + index + " <Destination State>\"");
+				"Expect Goto Table content is \"" + current_state.toString() + " " + index + " <Destination State>\"");
 		sb.append("\n");
-		sb.append("but didn't found at Trans Table... Plz Check it");
+		sb.append("but didn't found at Goto Table... Plz Check it");
 		sb.append("\n");
 
 		// For locating the parsing error.
@@ -450,7 +454,6 @@ public class CommonParserUtil<Token extends TokenInterface<Token>> {
 //				index_Token = Token.findToken(data[index1]);
 				index_Token = terminal.getToken().toToken(data[index1]);
 
-
 				if (terminal.getToken() == index_Token) {
 //					String return_string = new String();
 					for (int i = index1 + 1; i < data.length; i++) {
@@ -467,11 +470,11 @@ public class CommonParserUtil<Token extends TokenInterface<Token>> {
 
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("Expect Parsing table content is \"" + current_state.toString() + " " + terminal.toString()
+		sb.append("Expect Action table content is \"" + current_state.toString() + " " + terminal.toString()
 				+ " <Shift/Reduce/Accecpt>\"");
 		sb.append("\n");
 
-		sb.append("but didn't found at Parsing Table... Plz Check it");
+		sb.append("but didn't found at Action Table... Plz Check it");
 		sb.append("\n");
 		sb.append("[" + terminal.getLineIndex() + "," + terminal.getChIndex() + "]");
 		sb.append("\n");
