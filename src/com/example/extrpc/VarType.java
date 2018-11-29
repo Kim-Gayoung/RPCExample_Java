@@ -30,5 +30,10 @@ public class VarType extends Type {
 	public String toString() {
 		return "a" + var;
 	}
+
+	@Override
+	protected Type clone() {
+		return new VarType(var);
+	}
 	
 }

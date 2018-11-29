@@ -30,5 +30,10 @@ public class LocVarType extends TypedLocation {
 	public String toString() {
 		return "l" + var;
 	}
+
+	@Override
+	protected TypedLocation clone() {
+		return new LocVarType(var);
+	}
 	
 }

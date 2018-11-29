@@ -30,5 +30,10 @@ public class LocType extends TypedLocation {
 	public String toString() {
 		return loc.toString();
 	}
+
+	@Override
+	protected TypedLocation clone() {
+		return new LocType(loc);
+	}
 	
 }

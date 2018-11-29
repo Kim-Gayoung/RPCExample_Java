@@ -1,5 +1,8 @@
 package com.example.extrpc;
 
-public class TypedLocation {
+public abstract class TypedLocation {
 
+	@Override
+	protected abstract TypedLocation clone();
+	
 }

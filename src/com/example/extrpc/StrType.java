@@ -14,5 +14,10 @@ public class StrType extends Type {
 	public String toString() {
 		return "string";
 	}
+
+	@Override
+	protected Type clone() {
+		return new StrType();
+	}
 	
 }

@@ -14,5 +14,10 @@ public class BoolType extends Type {
 	public String toString() {
 		return "boolean";
 	}
+
+	@Override
+	protected Type clone() {
+		return new BoolType();
+	}
 	
 }

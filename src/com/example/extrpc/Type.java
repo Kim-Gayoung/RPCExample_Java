@@ -1,5 +1,8 @@
 package com.example.extrpc;
 
-public class Type {
+public abstract class Type {
 
+	@Override
+	protected abstract Type clone();
+	
 }

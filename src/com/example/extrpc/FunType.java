@@ -50,6 +50,11 @@ public class FunType extends Type {
 	public String toString() {
 		return "(" + funTy + "-" + loc + "->" + argTy + ")";
 	}
+
+	@Override
+	protected Type clone() {
+		return new FunType(funTy.clone(), loc.clone(), argTy.clone());
+	}
 	
 	
 }

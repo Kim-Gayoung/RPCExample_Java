@@ -95,19 +95,19 @@ public class Infer {
 
 		return n;
 	}
-	
+
 	private static Type substLocFresh(Type t, int i) {
 		if (t instanceof FunType) {
-			FunType funType = (FunType) t;
-			
+			FunType funType = (FunType) t.clone();
+
 			if (funType.getLoc() instanceof LocVarType)
 				funType.setLoc(new LocVarType(i));
 			if (funType.getArgTy() instanceof FunType)
 				substLocFresh(funType.getArgTy(), i);
-			
+
 			return funType;
 		}
-		
+
 		return t;
 	}
 
@@ -117,7 +117,7 @@ public class Infer {
 				Type ty = p.getValue();
 
 				if (ty instanceof FunType) {
-					FunType funty = (FunType) ty;
+					FunType funty = (FunType) ty.clone();
 
 					if (x.equals("toString")) {
 						funty.setFunTy(new VarType(fresh()));
@@ -286,24 +286,26 @@ public class Infer {
 		else if (t instanceof ExprTerm) {
 			ExprTerm exprTerm = (ExprTerm) t;
 			String op = exprTerm.getOp();
-			
+
 			TripleTup<Term, Type, Equations> oprnd1 = genCst(exprTerm.getOprnd1(), tyenv);
 
 			if (exprTerm.getOprnd2() != null) {
 				TripleTup<Term, Type, Equations> oprnd2 = genCst(exprTerm.getOprnd2(), tyenv);
-				
+
 				Equations constraints = new Equations();
 				constraints.getEqus().addAll(oprnd1.getThird().getEqus());
 				constraints.getEqus().addAll(oprnd2.getThird().getEqus());
 
-				if (op.equals(ExprTerm.ADD) || op.equals(ExprTerm.SUB) || op.equals(ExprTerm.MUL) || op.equals(ExprTerm.DIV)) {
+				if (op.equals(ExprTerm.ADD) || op.equals(ExprTerm.SUB) || op.equals(ExprTerm.MUL)
+						|| op.equals(ExprTerm.DIV)) {
 					Equ constraint1 = new EquTy(oprnd1.getSecond(), new IntType());
 					Equ constraint2 = new EquTy(oprnd2.getSecond(), new IntType());
-					
+
 					constraints.getEqus().add(constraint1);
 					constraints.getEqus().add(constraint2);
-					
-					ret = new TripleTup<>(new ExprTerm(oprnd1.getFirst(), exprTerm.getOp(), oprnd2.getFirst()), new IntType(), constraints);
+
+					ret = new TripleTup<>(new ExprTerm(oprnd1.getFirst(), exprTerm.getOp(), oprnd2.getFirst()),
+							new IntType(), constraints);
 				}
 				else if (op.equals(ExprTerm.AND) || op.equals(ExprTerm.OR)) {
 					Equ constraint1 = new EquTy(oprnd1.getSecond(), new BoolType());
@@ -311,15 +313,17 @@ public class Infer {
 
 					constraints.getEqus().add(constraint1);
 					constraints.getEqus().add(constraint2);
-					
-					ret = new TripleTup<>(new ExprTerm(oprnd1.getFirst(), exprTerm.getOp(), oprnd2.getFirst()), new BoolType(), constraints);
+
+					ret = new TripleTup<>(new ExprTerm(oprnd1.getFirst(), exprTerm.getOp(), oprnd2.getFirst()),
+							new BoolType(), constraints);
 				}
 				else {
 					Equ constraint = new EquTy(oprnd1.getSecond(), oprnd2.getSecond());
-					
+
 					constraints.getEqus().add(constraint);
-					
-					ret = new TripleTup<>(new ExprTerm(oprnd1.getFirst(), exprTerm.getOp(), oprnd2.getFirst()), new BoolType(), constraints);
+
+					ret = new TripleTup<>(new ExprTerm(oprnd1.getFirst(), exprTerm.getOp(), oprnd2.getFirst()),
+							new BoolType(), constraints);
 				}
 			}
 			else {
@@ -329,16 +333,18 @@ public class Infer {
 				if (op.equals(ExprTerm.UNARY)) {
 					Equ constraint = new EquTy(oprnd1.getSecond(), new IntType());
 					constraints.getEqus().add(constraint);
-					
-					ret = new TripleTup<>(new ExprTerm(oprnd1.getFirst(), exprTerm.getOp()), new IntType(), constraints);					
+
+					ret = new TripleTup<>(new ExprTerm(oprnd1.getFirst(), exprTerm.getOp()), new IntType(),
+							constraints);
 				}
-				else {	// ExprTerm.NOT
+				else { // ExprTerm.NOT
 					Equ constraint = new EquTy(oprnd1.getSecond(), new BoolType());
 					constraints.getEqus().add(constraint);
-					
-					ret = new TripleTup<>(new ExprTerm(oprnd1.getFirst(), exprTerm.getOp()), new BoolType(), constraints);
+
+					ret = new TripleTup<>(new ExprTerm(oprnd1.getFirst(), exprTerm.getOp()), new BoolType(),
+							constraints);
 				}
-				
+
 			}
 
 			return ret;
@@ -363,10 +369,10 @@ public class Infer {
 				return equs;
 		}
 	}
-	
+
 	private static void printEqus(Equations equs) {
 		System.out.println("-----------------------");
-		for (Equ eq: equs.getEqus()) {
+		for (Equ eq : equs.getEqus()) {
 			System.out.println(eq);
 		}
 	}
@@ -490,6 +496,8 @@ public class Infer {
 			VarType varTy1 = (VarType) ty1;
 
 			ArrayList<Equ> equList = new ArrayList<>();
+			if (ty2 instanceof VarType && ((VarType) ty2).equals(varTy1))
+				return new Pair<>(new Equations(), false);
 			equList.add(new EquTy(varTy1, ty2));
 
 			retPair = new Pair<>(new Equations(equList), false);
@@ -872,12 +880,12 @@ public class Infer {
 		}
 		else if (t instanceof ExprTerm) {
 			ExprTerm tExprTerm = (ExprTerm) t;
-			
+
 			Term oprnd1 = substTerm(tExprTerm.getOprnd1(), equs);
-			
+
 			if (tExprTerm.getOprnd2() != null) {
 				Term oprnd2 = substTerm(tExprTerm.getOprnd2(), equs);
-				
+
 				return new ExprTerm(oprnd1, tExprTerm.getOp(), oprnd2);
 			}
 			else
@@ -981,7 +989,7 @@ public class Infer {
 			FunType retFunType = new FunType(left, funType.getLoc(), right);
 
 			return retFunType;
-	}
+		}
 		else
 			return null;
 	}

@@ -5,7 +5,7 @@ send = lam^s session block.
 				if (toBool flag) == False then
 					let insertQuery = append (append "session=" (toString session)) (append (append "block=" block) (append "flag=" (toString True))) in
 						let insert = insertRecord tblname insertQuery in
-							()
+							insert
 						end
 					end
 				else

@@ -5,7 +5,7 @@ send = lam^s session.
 			if flag == False then
 				let insertQuery = append (append "session=" session) (append (append "block=" block) (append "flag=" (toString True))) in
 					let insert = insertRecord tblname insertQuery in
-						()
+						insert
 					end
 				end
 			else
@@ -14,11 +14,11 @@ send = lam^s session.
 		
 receive = lam^s session.
 			let flag = query tblname session "flag" in
-				if flag == False then
+				if (toBool flag) == False then
 					receive session
 				else
 					let block = query tblname session "block" in
-						let updateQuery = append (append "session=" session) (append "flag=" (toString False)) in
+						let updateQuery = append (append "session=" (toString session)) (append "flag=" (toString False)) in
 							let update = updateRecord tblname updateQuery in
 								block
 							end
@@ -27,9 +27,9 @@ receive = lam^s session.
 			end;
 
 setupSending = lam^s filename.
-				let recordid = createTable tblname filename in
-					recordid
-				end;
+					let recordid = createTable tblname filename in
+						recordid
+					end;
 				
 setupReceiving = lam^s session.
 					let filename = query tblname session "filename" in
@@ -53,7 +53,7 @@ receiveFile = lam^c session fd.
 receiverClient = lam^c ().
 			let session = readConsole () in
 				let filename = setupReceiving session in
-					let fd = openFile filename "w" in
+					let fd = fileOpen filename "w" in
 						receiveFile session fd
 					end
 				end
@@ -61,7 +61,7 @@ receiverClient = lam^c ().
 
 senderClient = lam^c ().
 			let filename = readConsole () in
-				let fd = openFile filename "r" in
+				let fd = fileOpen filename "r" in
 					let session = setupSending filename in
 						let a = writeConsole session in
 							sendFile session fd
@@ -78,7 +78,7 @@ sendFile = lam^c session fd.
 					end
 				else
 					let block = fromJust maybeblock in
-						let sending = send session block in
+						let run = send session block in
 							sendFile session fd
 						end
 					end

@@ -14,5 +14,10 @@ public class IntType extends Type {
 		else
 			return false;
 	}
+
+	@Override
+	protected Type clone() {
+		return new IntType();
+	}
 	
 }

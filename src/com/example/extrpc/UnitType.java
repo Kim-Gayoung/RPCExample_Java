@@ -14,5 +14,10 @@ public class UnitType extends Type {
 	public String toString() {
 		return "Unit";
 	}
+
+	@Override
+	protected Type clone() {
+		return new UnitType();
+	}
 	
 }
