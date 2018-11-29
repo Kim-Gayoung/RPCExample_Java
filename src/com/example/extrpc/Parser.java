@@ -8,11 +8,13 @@ import com.example.lib.CommonParserUtil;
 import com.example.lib.LexerException;
 import com.example.lib.ParserException;
 
+import com.example.extrpc.Token;
+
 public class Parser {
-	private CommonParserUtil pu;
+	private CommonParserUtil<Token> pu;
 
 	public Parser() throws IOException, LexerException {
-		pu = new CommonParserUtil();
+		pu = new CommonParserUtil<Token>();
 
 		pu.lex("[ \t\n]", text -> { return null; });
 		pu.lex("[0-9]+", text -> { return Token.NUM; });
