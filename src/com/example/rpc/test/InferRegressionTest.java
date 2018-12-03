@@ -50,6 +50,8 @@ public class InferRegressionTest {
 
 		for (File file : listOfFiles) {
 			if (file.isFile() && file.toPath().toString().contains(".txt")) {
+//				if (file.toPath().toString().contains("total"))
+//					continue;
 				System.out.println("\n" + file);
 				FileReader fileReader = new FileReader(file);
 				Term ex1 = parser.Parsing(fileReader);

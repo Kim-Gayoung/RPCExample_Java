@@ -65,7 +65,7 @@ public class Infer {
 		TypedLocation loc = new LocType(Location.Server);
 
 		env.getPairList().add(new Pair<>("createTable",
-				new FunType(new StrType(), loc, new FunType(new StrType(), loc, new BoolType()))));
+				new FunType(new StrType(), loc, new FunType(new StrType(), loc, new IntType()))));
 		env.getPairList().add(new Pair<>("insertRecord",
 				new FunType(new StrType(), loc, new FunType(new StrType(), loc, new BoolType()))));
 		env.getPairList().add(new Pair<>("updateRecord",
@@ -136,6 +136,7 @@ public class Infer {
 				return p.getValue();
 		}
 
+		assert false;
 		return null;
 	}
 
@@ -349,19 +350,21 @@ public class Infer {
 
 			return ret;
 		}
-		else
+		else {
+			assert false;
 			return null;
+		}
 	}
 
 	public static Equations solve(Equations equs) {
 		while (true) {
-			printEqus(equs);
+//			printEqus(equs);
 			Pair<Equations, Boolean> p1 = unifyEqus(equs);
-			printEqus(p1.getKey());
+//			printEqus(p1.getKey());
 			Pair<Equations, Boolean> p2 = mergeAll(p1.getKey());
-			printEqus(p2.getKey());
+//			printEqus(p2.getKey());
 			Pair<Equations, Boolean> p3 = propagate(p2.getKey());
-			printEqus(p3.getKey());
+//			printEqus(p3.getKey());
 
 			if (p1.getValue() || p2.getValue() || p3.getValue())
 				equs = p3.getKey();
@@ -375,6 +378,7 @@ public class Infer {
 		for (Equ eq : equs.getEqus()) {
 			System.out.println(eq);
 		}
+		System.out.println("-----------------------");
 	}
 
 	public static Pair<Equations, Boolean> unifyEqus(Equations equs) {
@@ -407,11 +411,12 @@ public class Infer {
 
 			return unifyLoc_(equLoc.getTyloc1(), equLoc.getTyloc2());
 		}
+		assert false;
 		return null;
 	}
 
 	public static Pair<Equations, Boolean> unify_(Type ty1, Type ty2) {
-		// System.out.println(ty1 + ", " + ty2);
+//		System.out.println(ty1 + ", " + ty2);
 		Pair<Equations, Boolean> retPair;
 		// 타입 추가 필요
 		if (ty1 instanceof IntType) {
@@ -534,6 +539,7 @@ public class Infer {
 				return retPair;
 			}
 		}
+		assert false;
 		return null;
 	}
 
@@ -572,6 +578,7 @@ public class Infer {
 				}
 			}
 		}
+		assert false;
 		return null;
 	}
 
@@ -891,8 +898,10 @@ public class Infer {
 			else
 				return new ExprTerm(oprnd1, tExprTerm.getOp());
 		}
-		else
+		else {
+			assert false;
 			return null;
+		}
 	}
 
 	public static Type substTyEqus(Type ty, Equations equs) {
@@ -990,8 +999,10 @@ public class Infer {
 
 			return retFunType;
 		}
-		else
+		else {
+			assert false;
 			return null;
+		}
 	}
 
 	public static Type substTyTyLoc(Type t, int i, TypedLocation tyloc) {
@@ -1037,11 +1048,15 @@ public class Infer {
 				else
 					return funType;
 			}
-			else
+			else {
+				assert false;
 				return null;
+			}
 		}
-		else
+		else {
+			assert false;
 			return null;
+		}
 	}
 
 	public static TypedLocation substTyLoc(TypedLocation tyloc, int j, TypedLocation jtyloc) {
@@ -1058,8 +1073,10 @@ public class Infer {
 
 			return locType;
 		}
-		else
+		else {
+			assert false;
 			return null;
+		}
 	}
 
 	public static void check(int i, Type ty) {

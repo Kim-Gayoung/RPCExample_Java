@@ -1,9 +1,9 @@
 tblname = "web test";
 
-send = lam^s session.
-		let flag = query tblname session "flag" in
+send = lam^s session block.
+		let flag = toBool (query tblname session "flag") in
 			if flag == False then
-				let insertQuery = append (append "session=" session) (append (append "block=" block) (append "flag=" (toString True))) in
+				let insertQuery = append (append "session=" (toString session)) (append (append "block=" block) (append "flag=" (toString True))) in
 					let insert = insertRecord tblname insertQuery in
 						insert
 					end
@@ -51,25 +51,14 @@ receiveFile = lam^c session fd.
 			end;
 
 receiverClient = lam^c ().
-			let session = readConsole () in
+			let session = toInt (readConsole ()) in
 				let filename = setupReceiving session in
-					let fd = fileOpen filename "w" in
+					let fd = openFile filename "w" in
 						receiveFile session fd
 					end
 				end
 			end;
-
-senderClient = lam^c ().
-			let filename = readConsole () in
-				let fd = fileOpen filename "r" in
-					let session = setupSending filename in
-						let a = writeConsole session in
-							sendFile session fd
-						end
-					end
-				end
-			end;
-
+			
 sendFile = lam^c session fd.
 			let maybeblock = readFile fd in
 				if isNothing maybeblock then
@@ -82,4 +71,22 @@ sendFile = lam^c session fd.
 							sendFile session fd
 						end
 					end
-			end
+			end;
+
+senderClient = lam^c ().
+			let filename = readConsole () in
+				let fd = openFile filename "r" in
+					let session = setupSending filename in
+						let a = writeConsole (toString session) in
+							sendFile session fd
+						end
+					end
+				end
+			end;
+
+main = let cmd = readConsole () in
+			if cmd == "sender" then
+				senderClient ()
+			else
+				receiverClient ()
+		end

@@ -22,6 +22,12 @@ public class MatcherTest {
 		Pattern p2 = Pattern.compile("[a-zA-Z]+");
 		Matcher m3 = p2.matcher("^c x.x");
 		System.out.println(m3.lookingAt() +", " +m3.region(3, 5).lookingAt());
+		
+		Pattern p3 = Pattern.compile("\\blam\\b");
+		Matcher m4 = p3.matcher("lam1 = lam ^c x.x");
+		Matcher m5 = p3.matcher("lam");
+		System.out.println(m4.lookingAt() + ", " + m4.start() + ", " + m4.end());
+		System.out.println(m5.lookingAt() + ", " + m5.start() + ", " + m5.end() + ", " + m5.matches());
 	}
 
 }
