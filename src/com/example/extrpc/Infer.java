@@ -141,7 +141,7 @@ public class Infer {
 	}
 
 	public static TripleTup<TopLevel, Type, Equations> genCstTopLevel(TopLevel top, TyEnv tyenv) {
-		TripleTup<Term, Type, Equations> constraints1 = genCst(top.getTerm(), tyenv);
+		TripleTup<Term, Type, Equations> constraints1 = genCst(top.getTerm(), new LocVarType(1), tyenv);
 
 		if (top.getNext() != null) {
 			TripleTup<TopLevel, Type, Equations> constraints2 = genCstTopLevel(top.getNext(), tyenv);
@@ -165,7 +165,7 @@ public class Infer {
 
 	}
 
-	public static TripleTup<Term, Type, Equations> genCst(Term t, TyEnv tyenv) {
+	public static TripleTup<Term, Type, Equations> genCst(Term t, TypedLocation locCtx, TyEnv tyenv) {
 		TripleTup<Term, Type, Equations> ret;
 
 		if (t instanceof Unit) {
@@ -207,7 +207,7 @@ public class Infer {
 			tyenv1.setPairList(pairList);
 			tyenv1.getPairList().add(0, new Pair<>(tLam.getX(), argTy));
 
-			TripleTup<Term, Type, Equations> quad = genCst(tLam.getM(), tyenv1);
+			TripleTup<Term, Type, Equations> quad = genCst(tLam.getM(), new LocType(tLam.getLoc()), tyenv1);
 			FunType funTy = new FunType(argTy, new LocType(tLam.getLoc()), quad.getSecond());
 
 			ret = new TripleTup<>(new Lam(tLam.getLoc(), tLam.getX(), argTy, quad.getFirst()), funTy, quad.getThird());
@@ -219,19 +219,20 @@ public class Infer {
 		else if (t instanceof App) {
 			App tApp = (App) t;
 
-			TripleTup<Term, Type, Equations> fun = genCst(tApp.getFun(), tyenv);
-			TripleTup<Term, Type, Equations> arg = genCst(tApp.getArg(), tyenv);
+			TripleTup<Term, Type, Equations> fun = genCst(tApp.getFun(), locCtx, tyenv);
+			TripleTup<Term, Type, Equations> arg = genCst(tApp.getArg(), locCtx, tyenv);
 
 			int k = fresh();
-			TypedLocation loc = new LocVarType(k);
+			TypedLocation tyloc = new LocVarType(k);
 			Type retTy = new VarType(k);
 
 			Equations constraints = new Equations();
 			constraints.getEqus().addAll(fun.getThird().getEqus());
 			constraints.getEqus().addAll(arg.getThird().getEqus());
-			constraints.getEqus().add(new EquTy(fun.getSecond(), new FunType(arg.getSecond(), loc, retTy)));
+			constraints.getEqus().add(new EquTy(fun.getSecond(), new FunType(arg.getSecond(), tyloc, retTy)));
+//			constraints.getEqus().add(new EquLoc(tyloc, locCtx));
 
-			ret = new TripleTup<>(new App(fun.getFirst(), arg.getFirst(), loc), retTy, constraints);
+			ret = new TripleTup<>(new App(fun.getFirst(), arg.getFirst(), tyloc), retTy, constraints);
 
 			return ret;
 		}
@@ -246,9 +247,9 @@ public class Infer {
 			cloneEnv.setPairList((ArrayList<Pair<String, Type>>) tyenv.getPairList().clone());
 			cloneEnv.getPairList().add(tmpIdTy);
 
-			TripleTup<Term, Type, Equations> t1Quad = genCst(tLet.getT1(), cloneEnv);
+			TripleTup<Term, Type, Equations> t1Quad = genCst(tLet.getT1(), locCtx, cloneEnv);
 			tyenv.getPairList().add(new Pair<>(id, t1Quad.getSecond()));
-			TripleTup<Term, Type, Equations> t2Quad = genCst(tLet.getT2(), tyenv);
+			TripleTup<Term, Type, Equations> t2Quad = genCst(tLet.getT2(), locCtx, tyenv);
 
 			EquTy constraint = new EquTy(idTy, t1Quad.getSecond());
 
@@ -265,9 +266,9 @@ public class Infer {
 		else if (t instanceof If) {
 			If tIf = (If) t;
 
-			TripleTup<Term, Type, Equations> cond = genCst(tIf.getCond(), tyenv);
-			TripleTup<Term, Type, Equations> thenCst = genCst(tIf.getThenT(), tyenv);
-			TripleTup<Term, Type, Equations> elseCst = genCst(tIf.getElseT(), tyenv);
+			TripleTup<Term, Type, Equations> cond = genCst(tIf.getCond(), locCtx, tyenv);
+			TripleTup<Term, Type, Equations> thenCst = genCst(tIf.getThenT(), locCtx, tyenv);
+			TripleTup<Term, Type, Equations> elseCst = genCst(tIf.getElseT(), locCtx, tyenv);
 
 			Equ constraint1 = new EquTy(cond.getSecond(), new BoolType());
 			Equ constraint2 = new EquTy(thenCst.getSecond(), elseCst.getSecond());
@@ -288,10 +289,10 @@ public class Infer {
 			ExprTerm exprTerm = (ExprTerm) t;
 			String op = exprTerm.getOp();
 
-			TripleTup<Term, Type, Equations> oprnd1 = genCst(exprTerm.getOprnd1(), tyenv);
+			TripleTup<Term, Type, Equations> oprnd1 = genCst(exprTerm.getOprnd1(), locCtx, tyenv);
 
 			if (exprTerm.getOprnd2() != null) {
-				TripleTup<Term, Type, Equations> oprnd2 = genCst(exprTerm.getOprnd2(), tyenv);
+				TripleTup<Term, Type, Equations> oprnd2 = genCst(exprTerm.getOprnd2(), locCtx, tyenv);
 
 				Equations constraints = new Equations();
 				constraints.getEqus().addAll(oprnd1.getThird().getEqus());
@@ -546,7 +547,7 @@ public class Infer {
 	public static Pair<Equations, Boolean> unifyLoc_(TypedLocation tyloc1, TypedLocation tyloc2) {
 		ArrayList<Equ> equList = new ArrayList<>();
 		Pair<Equations, Boolean> retPair;
-
+		
 		if (tyloc1 instanceof LocVarType) {
 			LocVarType locvarty1 = (LocVarType) tyloc1;
 

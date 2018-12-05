@@ -1,6 +1,6 @@
 tblname = "web test";
 
-main = let receive = lam^s session.
+receive = lam^s session.
 			let flag = query tblname session "flag" in
 				if (toBool flag) == False then
 					receive session
@@ -13,6 +13,3 @@ main = let receive = lam^s session.
 						end
 					end
 			end
-		in
-			()
-		end
