@@ -98,12 +98,12 @@ public class ParseRegressionTest {
 
 	public void prettyPrint(ExprTerm exprTerm) {
 		if (exprTerm.getOprnd2() == null) {
-			System.out.print(exprTerm.getOp());
+			System.out.print(exprTerm.get(exprTerm.getOp()));
 			prettyPrint(exprTerm.getOprnd1());
 		}
 		else {
 			prettyPrint(exprTerm.getOprnd1());
-			System.out.print(" " + exprTerm.getOp() + " ");
+			System.out.print(" " + exprTerm.get(exprTerm.getOp()) + " ");
 			prettyPrint(exprTerm.getOprnd2());
 		}
 	}

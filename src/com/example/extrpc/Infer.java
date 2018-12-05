@@ -287,7 +287,7 @@ public class Infer {
 		}
 		else if (t instanceof ExprTerm) {
 			ExprTerm exprTerm = (ExprTerm) t;
-			String op = exprTerm.getOp();
+			int op = exprTerm.getOp();
 
 			TripleTup<Term, Type, Equations> oprnd1 = genCst(exprTerm.getOprnd1(), locCtx, tyenv);
 
@@ -298,8 +298,7 @@ public class Infer {
 				constraints.getEqus().addAll(oprnd1.getThird().getEqus());
 				constraints.getEqus().addAll(oprnd2.getThird().getEqus());
 
-				if (op.equals(ExprTerm.ADD) || op.equals(ExprTerm.SUB) || op.equals(ExprTerm.MUL)
-						|| op.equals(ExprTerm.DIV)) {
+				if (op >= 0 && op <= 3) {				// ADD, SUB, MUL, DIV
 					Equ constraint1 = new EquTy(oprnd1.getSecond(), new IntType());
 					Equ constraint2 = new EquTy(oprnd2.getSecond(), new IntType());
 
@@ -309,7 +308,7 @@ public class Infer {
 					ret = new TripleTup<>(new ExprTerm(oprnd1.getFirst(), exprTerm.getOp(), oprnd2.getFirst()),
 							new IntType(), constraints);
 				}
-				else if (op.equals(ExprTerm.AND) || op.equals(ExprTerm.OR)) {
+				else if (op == 11 || op == 12) {		// AND, OR
 					Equ constraint1 = new EquTy(oprnd1.getSecond(), new BoolType());
 					Equ constraint2 = new EquTy(oprnd2.getSecond(), new BoolType());
 
@@ -319,7 +318,7 @@ public class Infer {
 					ret = new TripleTup<>(new ExprTerm(oprnd1.getFirst(), exprTerm.getOp(), oprnd2.getFirst()),
 							new BoolType(), constraints);
 				}
-				else {
+				else {									// GTHAN, GEQUAL, LTHAN, LEQUAL, EQUAL, NOTEQUAL
 					Equ constraint = new EquTy(oprnd1.getSecond(), oprnd2.getSecond());
 
 					constraints.getEqus().add(constraint);
@@ -332,14 +331,14 @@ public class Infer {
 				Equations constraints = new Equations();
 				constraints.getEqus().addAll(oprnd1.getThird().getEqus());
 
-				if (op.equals(ExprTerm.UNARY)) {
+				if (op == 4) {			// UNARY
 					Equ constraint = new EquTy(oprnd1.getSecond(), new IntType());
 					constraints.getEqus().add(constraint);
 
 					ret = new TripleTup<>(new ExprTerm(oprnd1.getFirst(), exprTerm.getOp()), new IntType(),
 							constraints);
 				}
-				else { // ExprTerm.NOT
+				else { 					// NOT
 					Equ constraint = new EquTy(oprnd1.getSecond(), new BoolType());
 					constraints.getEqus().add(constraint);
 
