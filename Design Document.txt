@@ -1,0 +1,188 @@
+Program = TopLevel {id (Type) Term}+
+Program = Term
+
+Term = Let id (Type) Term Term
+     | App Term Term (Location)
+     | If Term Term Term
+     | ExprTerm op [Term]
+     | Value
+
+ExprTerm = Add Term Term
+     	 | Sub Term Term 
+     	 | Mul Term Term 
+     	 | Div Term Term 
+     	 | UnaryMinus Term 
+     	 | GThan Term Term 
+	 | GEqual Term Term 
+	 | LThan Term Term 
+	 | LEqual Term Term 
+	 | Equal Term Term 
+	 | NotEqual Term Term 
+	 | And Term Term 
+	 | Or Term Term 
+	 | Not Term
+
+Value = Unit
+      | Str string
+      | Num number
+      | Bool boolean
+      | Var id
+      | Lam location id (Type) Term
+
+
+--
+
+Type = Int
+     | String
+     | Boolean
+     | UnitType
+     | FunType Type Location Type
+     | VarType int
+
+Location = Server
+         | Client
+         | LocVar int
+
+Constraint = EquTy Type Type
+	   | EquLoc Location Location
+
+--
+genCstTopLevel:: TopLevel -> TyEnv -> ({Constraint}*, Type, TopLevel)
+genCstTopLevel (TopLevel term next) tyenv =
+   let (constraints1, ty1, tyterm1) = genCst term (LocVar 1) tyenv
+       (constraints2, ty2, tyterm2) = genCstTopLevel idOptTypeTermList tyenv
+   in
+       (constraints1 ++ constraints2 ++ [constraint], ty2, TopLevel tyterm1 tyterm2)
+
+genCst:: Term -> Location -> TyEnv -> ({Constraint}*, Type, TypedTerm)
+genCst Unit locCtx tyenv = ([], UnitType, Unit)
+genCst (Str string) locCtx tyenv = ([], String, Str string)
+genCst (Num number) locCtx tyenv = ([], Int, Num number)
+genCst (Bool boolean) locCtx tyenv = ([], Boolean, Bool boolean)
+genCst (Var id) locCtx tyenv = ([], lookup id tyenv, Var id)
+genCst (Lam location id _ term) locCtx tyenv = 
+    let argTy = VarType (fresh ())
+        (constraints, bodyTy) = genCst term location tyenv
+	    funTy = FunType argTy location bodyTy
+    in (constraints, funTy, Lam location id argTy term)
+genCst (App term1 term2 _) locCtx tyenv =
+    let (constraints1, funTy, tyterm1) = genCst term1 locCtx tyenv
+        (constraints2, argTy, tyterm2) = genCst term2 locCtx tyenv
+        loc = LocVar (fresh ())
+	retTy = VarType (fresh ())
+	constraint = EquTy funTy (FunType argTy loc retTy)
+	constraintLoc = EquLoc loc locCtx
+    in (constraints1 ++ constraints2 ++ [constraint, constraintLoc],
+		retTy, App tyterm1 tyterm2 loc)
+genCst (Let id _ term1 term2) locCtx tyenv = 
+    let idTy = VarType (fresh ())
+        tyenv1 = (id, idTy): tyenv
+        (constraints1, t1Ty, tyterm1) = genCst term1 locCtx tyenv1
+	(constraints2, t2Ty, tyterm2) = genCst term2 locCtx ((id, t1Ty): tyenv)
+        constraint = EquTy idTy t1Ty
+    in (constraints1 ++ constraints2 ++ [constraint], t2Ty, Let id t1Ty tyterm1 tyterm2)
+
+genCst (If cond thenTerm elseTerm) locCtx tyenv =
+    let (constraints, condTy, tyCond) = genCst cond locCtx tyenv
+        (constraints1, thenTy, tyThenTerm) = genCst thenTerm locCtx tyenv
+        (constraints2, elseTy, tyElseTerm) = genCst elseTerm locCtx tyenv
+        constraint1 = EquTy condTy Boolean
+        constraint2 = EquTy thenTy elseTy
+    in (constraints ++ constraints1 ++ constraints2 ++ [constraint1, constraint2], thenTy,
+            If tyCond tyThenTerm tyElseTerm)
+genCst (ExprTerm op [term]) locCtx tyenv =
+    let (constraints1, term1Ty, tyterm1) = genCst term1 locCtx tyenv
+	if op >= 0 and op <= 3 then
+	    let (constraints2, term2Ty, tyterm2) = genCst term2 locCtx tyenv
+		constraint1 = EquTy term1Ty Int
+		constraint2 = EquTy term2Ty Int
+	    in (constraints1 ++ constraints2 ++ [constraint1, constraint2], Int, ExprTerm op [term])
+	else if	op == 4 then
+	    let constraint1 = EquTy term1Ty Int
+	    in (constraints1 ++ [constraint1], Int, ExprTerm op [term])
+	else if op >= 5 and op <= 10 then
+	    let (constraints2, term2Ty, tyterm2) = genCst term2 locCtx tyenv
+		constraint = EquTy term1Ty term2Ty
+	    in (constraints1 ++ constraints2 ++ [constraint], Boolean, ExprTerm op [term])
+	else if op == 11 or op == 12 then
+	    let (constraint2, term2Ty, tyterm2) = genCst term2 locCtx tyenv
+		constraint1 = EquTy term1Ty Boolean
+		constraint2 = EquTy term2Ty Boolean
+	    in (constraints1 ++ constraints2 ++ [constraint1, constraint2], Boolean, ExprTerm op [term])
+	else
+	    let constraint = EquTy term1Ty Boolean
+	    in (constraints1 ++ [constraint], Boolean, ExprTerm op [term])
+
+--
+
+substTerm:: TypedTerm -> {Constraint}* -> TypedTerm
+substTerm Unit constraints = Unit
+substTerm (Str string) constraints = Str string
+substTerm (Num number) constraints = Num number
+substTerm (Bool boolean) constraints = Bool boolean
+substTerm (Var id) constraints = Var id
+substTerm (Lam location id ty term) constraints =
+    Lam location id (substType ty constraints) (substTerm term constraints)
+substTerm (App term1 location term2) constraints =
+    App (substTerm term1 constraints)
+	(substLocation location constraints)
+        (substTerm term2 constraints)
+substTerm (Let id ty term1 term2) constraints =
+    Let id (substType ty constraints) (substTerm term1 constraints) (substTerm term2 constraints)
+substTerm (If cond thenTerm elseTerm) constraints =
+    If (substTerm cond constraints) (substTerm thenTerm constraints) (substTerm elseTerm constraints)
+
+substTerm (Arithmetic _ term1 term2) constraints = 
+    Arithmetic _ (substTerm term1 constraints) (substTerm term2 constraints)
+substTerm (Arithmetic UnaryMinus term1) constraints = 
+    Arithmetic UnaryMinus (substTerm term1 constraints)
+
+substTerm (Comp _ term1 term2) constraints = 
+    Comp _ (substTerm term1 constraints) (substTerm term2 constraints)
+
+substTerm (Logical _ term1 term2) constraints =
+    Logical _ (substTerm term1 constraints) (substTerm term2 constraints)
+substTerm (Logical Not term1) constraints = 
+    Logical Not (substTerm term1 constraints)
+
+
+
+-- general Library
+
+isNothing: forall l. String-l->Boolean
+fromJust: forall l. String-l->String
+
+openFile: String-c->String-c->String
+closeFile: String-c->Unit
+writeFile: String-c->String-c->String
+readFile: String-c->String
+
+readConsole: Unit-c->String
+writeConsole: String-c->Unit
+
+toString: forall l. forall a. a-l->String
+reverse: forall l. String-l->String
+append: forall l. String-l->String-l->String
+length: forall l. String-l->Int
+
+getHour: forall l. Unit-l->Int
+getYear: forall l. Unit-l->Int
+getMonth: forall l. Unit-l->Int
+getDay: forall l. Unit-l->Int
+getDate: forall l. Unit-l->Int
+
+toInt: forall l. String-l->Int
+toBool: forall l. String-l->Bool
+
+-- Database Library
+
+createTable: String-s->String-s->Bool		
+insertRecord: String-s->String-s->Unit
+updateRecord: String-s->String-s->Bool		---> update를 성공했다/실패했다
+deleteRecord: String-s->Int-s->Bool		---> delete를 성공했다/실패했다
+query: String-s->Int-s->String-s->String
+
+
+fromRecord: String-s->Int-s->String
+
+--
