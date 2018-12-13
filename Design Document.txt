@@ -44,7 +44,40 @@ Location = Server
          | LocVar int
 
 Constraint = EquTy Type Type
-	   | EquLoc Location Location
+	   		| EquLoc Location Location
+	   		| CallableLoc FunLocation CtxLocation
+	   		
+case 1. Monomophic Type(Int, Bool, ...)
+    + Monomophic Location(c or s)
+    + 모든 사용자/라이브러리 함수가 Monomophic Location
+  
+   Constraint는 EquTy 또는 EquLoc
+   Step1. Repeat Until no change (unifyEqus, mergeAll, propagate)
+   
+case 2. Monomophic Type(Int, Bool, ...)
+    + Monomophic Location(c or s)
+    + 모든 사용자 함수가 Monomophic Location이고 라이브러리 함수에서 Polymophic Location 허용
+    
+   Constraint는 EquTy 또는 EquLoc 또는 CallableLoc(Monomophic CtxLocation)
+   
+   Step1. Repeat Until no change (unifyEqus, mergeAll, propagate)
+   Step2. 제약식 equs에 포함된 각 CallableLoc funLoc ctxLoc에 대하여
+                       다음 과정을 수행하여 새로운 equs'을 생성
+     1. funLoc이 c or s인 경우, skip
+     2. funLoc이 locVar인 경우, locVar |-> ctxLoc
+    
+case 3. Monomophic Type(Int, Bool, ...)
+    + Monomophic Location(c or s)
+    + 모든 사용자/라이브러리 함수에서 Polymophic Location 허용
+    
+    Constraint는 EquTy 또는 EquLoc 또는 CallableLoc(Polymophic CtxLocation 허용)
+   
+   Step1. Repeat Until no change (unifyEqus, mergeAll, propagate)
+   Step2. 제약식 equs에 포함된 각 CallableLoc funLoc ctxLoc에 대하여
+                       다음 과정을 수행하여 새로운 equs'을 생성
+     1. funLoc이 c or s인 경우, skip
+     2. funLoc이 locVar인 경우, locVar |-> ctxLoc
+   Step3. Repeat Until no change(Step1과 Step2 반복)
 
 --
 genCstTopLevel:: TopLevel -> TyEnv -> ({Constraint}*, Type, TopLevel)
@@ -69,9 +102,9 @@ genCst (App term1 term2 _) locCtx tyenv =
     let (constraints1, funTy, tyterm1) = genCst term1 locCtx tyenv
         (constraints2, argTy, tyterm2) = genCst term2 locCtx tyenv
         loc = LocVar (fresh ())
-	retTy = VarType (fresh ())
-	constraint = EquTy funTy (FunType argTy loc retTy)
-	constraintLoc = EquLoc loc locCtx
+		retTy = VarType (fresh ())
+		constraint = EquTy funTy (FunType argTy loc retTy)
+		constraintLoc = CallableLoc loc locCtx
     in (constraints1 ++ constraints2 ++ [constraint, constraintLoc],
 		retTy, App tyterm1 tyterm2 loc)
 genCst (Let id _ term1 term2) locCtx tyenv = 
@@ -178,11 +211,12 @@ toBool: forall l. String-l->Bool
 
 createTable: String-s->String-s->Bool		
 insertRecord: String-s->String-s->Unit
-updateRecord: String-s->String-s->Bool		---> update�� �����ߴ�/�����ߴ�
-deleteRecord: String-s->Int-s->Bool		---> delete�� �����ߴ�/�����ߴ�
+updateRecord: String-s->String-s->Bool		---> update�� �����ߴ�/�����ߴ�
+deleteRecord: String-s->Int-s->Bool		---> delete�� �����ߴ�/�����ߴ�
 query: String-s->Int-s->String-s->String
 
 
 fromRecord: String-s->Int-s->String
 
 --
+
