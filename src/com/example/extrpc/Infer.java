@@ -141,7 +141,7 @@ public class Infer {
 	}
 
 	public static TripleTup<TopLevel, Type, Equations> genCstTopLevel(TopLevel top, TyEnv tyenv) {
-		TripleTup<Term, Type, Equations> constraints1 = genCst(top.getTerm(), new LocVarType(1), tyenv);
+		TripleTup<Term, Type, Equations> constraints1 = genCst(top.getTerm(), new LocType(Location.Client), tyenv);
 
 		if (top.getNext() != null) {
 			TripleTup<TopLevel, Type, Equations> constraints2 = genCstTopLevel(top.getNext(), tyenv);
@@ -230,7 +230,7 @@ public class Infer {
 			constraints.getEqus().addAll(fun.getThird().getEqus());
 			constraints.getEqus().addAll(arg.getThird().getEqus());
 			constraints.getEqus().add(new EquTy(fun.getSecond(), new FunType(arg.getSecond(), tyloc, retTy)));
-//			constraints.getEqus().add(new EquLoc(tyloc, locCtx));
+			constraints.getEqus().add(new CallableLoc(tyloc, locCtx));
 
 			ret = new TripleTup<>(new App(fun.getFirst(), arg.getFirst(), tyloc), retTy, constraints);
 
@@ -298,7 +298,7 @@ public class Infer {
 				constraints.getEqus().addAll(oprnd1.getThird().getEqus());
 				constraints.getEqus().addAll(oprnd2.getThird().getEqus());
 
-				if (op >= 0 && op <= 3) {				// ADD, SUB, MUL, DIV
+				if (op >= 0 && op <= 3) { // ADD, SUB, MUL, DIV
 					Equ constraint1 = new EquTy(oprnd1.getSecond(), new IntType());
 					Equ constraint2 = new EquTy(oprnd2.getSecond(), new IntType());
 
@@ -308,7 +308,7 @@ public class Infer {
 					ret = new TripleTup<>(new ExprTerm(oprnd1.getFirst(), exprTerm.getOp(), oprnd2.getFirst()),
 							new IntType(), constraints);
 				}
-				else if (op == 11 || op == 12) {		// AND, OR
+				else if (op == 11 || op == 12) { // AND, OR
 					Equ constraint1 = new EquTy(oprnd1.getSecond(), new BoolType());
 					Equ constraint2 = new EquTy(oprnd2.getSecond(), new BoolType());
 
@@ -318,7 +318,7 @@ public class Infer {
 					ret = new TripleTup<>(new ExprTerm(oprnd1.getFirst(), exprTerm.getOp(), oprnd2.getFirst()),
 							new BoolType(), constraints);
 				}
-				else {									// GTHAN, GEQUAL, LTHAN, LEQUAL, EQUAL, NOTEQUAL
+				else { // GTHAN, GEQUAL, LTHAN, LEQUAL, EQUAL, NOTEQUAL
 					Equ constraint = new EquTy(oprnd1.getSecond(), oprnd2.getSecond());
 
 					constraints.getEqus().add(constraint);
@@ -331,14 +331,14 @@ public class Infer {
 				Equations constraints = new Equations();
 				constraints.getEqus().addAll(oprnd1.getThird().getEqus());
 
-				if (op == 4) {			// UNARY
+				if (op == 4) { // UNARY
 					Equ constraint = new EquTy(oprnd1.getSecond(), new IntType());
 					constraints.getEqus().add(constraint);
 
 					ret = new TripleTup<>(new ExprTerm(oprnd1.getFirst(), exprTerm.getOp()), new IntType(),
 							constraints);
 				}
-				else { 					// NOT
+				else { // NOT
 					Equ constraint = new EquTy(oprnd1.getSecond(), new BoolType());
 					constraints.getEqus().add(constraint);
 
@@ -358,19 +358,30 @@ public class Infer {
 
 	public static Equations solve(Equations equs) {
 		while (true) {
-//			printEqus(equs);
-			Pair<Equations, Boolean> p1 = unifyEqus(equs);
-//			printEqus(p1.getKey());
-			Pair<Equations, Boolean> p2 = mergeAll(p1.getKey());
-//			printEqus(p2.getKey());
-			Pair<Equations, Boolean> p3 = propagate(p2.getKey());
-//			printEqus(p3.getKey());
+			while (true) {
+//				printEqus(equs);
+				Pair<Equations, Boolean> p1 = unifyEqus(equs);
+//				printEqus(p1.getKey());
+				Pair<Equations, Boolean> p2 = mergeAll(p1.getKey());
+//				printEqus(p2.getKey());
+				Pair<Equations, Boolean> p3 = propagate(p2.getKey());
+//				printEqus(p3.getKey());
 
-			if (p1.getValue() || p2.getValue() || p3.getValue())
-				equs = p3.getKey();
+				if (p1.getValue() || p2.getValue() || p3.getValue())
+					equs = p3.getKey();
+				else
+					break;
+			}
+			// CallableLoc 중 FunLocation
+			Pair<Equations, Boolean> p5 = unifyCallable(equs);
+			
+			if (p5.getValue())
+				equs = p5.getKey();
 			else
-				return equs;
+				break;
 		}
+		
+		return equs;
 	}
 
 	private static void printEqus(Equations equs) {
@@ -411,12 +422,19 @@ public class Infer {
 
 			return unifyLoc_(equLoc.getTyloc1(), equLoc.getTyloc2());
 		}
+		else if (equ instanceof CallableLoc) {
+			ArrayList<Equ> equList = new ArrayList<>();
+			equList.add((CallableLoc) equ);
+
+			return new Pair<>(new Equations(equList), false);
+		}
+
 		assert false;
 		return null;
 	}
 
 	public static Pair<Equations, Boolean> unify_(Type ty1, Type ty2) {
-//		System.out.println(ty1 + ", " + ty2);
+		// System.out.println(ty1 + ", " + ty2);
 		Pair<Equations, Boolean> retPair;
 		// 타입 추가 필요
 		if (ty1 instanceof IntType) {
@@ -546,7 +564,7 @@ public class Infer {
 	public static Pair<Equations, Boolean> unifyLoc_(TypedLocation tyloc1, TypedLocation tyloc2) {
 		ArrayList<Equ> equList = new ArrayList<>();
 		Pair<Equations, Boolean> retPair;
-		
+
 		if (tyloc1 instanceof LocVarType) {
 			LocVarType locvarty1 = (LocVarType) tyloc1;
 
@@ -580,6 +598,52 @@ public class Infer {
 		}
 		assert false;
 		return null;
+	}
+
+	public static Pair<Equations, Boolean> unifyCallable(Equations callable) {
+		ArrayList<Equ> equList = callable.getEqus();
+		ArrayList<Equ> retList = new ArrayList<>();
+		boolean changed = false;
+
+		if (equList == null || equList.isEmpty())
+			return new Pair<>(new Equations(retList), changed);
+		else {
+			for (Equ equ : equList) {
+				if (equ instanceof EquTy) {
+					retList.add(equ);
+				}
+				else if (equ instanceof EquLoc) {
+					retList.add(equ);
+				}
+				else if (equ instanceof CallableLoc) {
+					CallableLoc callableEqu = (CallableLoc) equ;
+					Pair<Equations, Boolean> p1 = unifyCallable_(callableEqu.getFunLoc(), callableEqu.getCtxLoc());
+					changed = changed || p1.getValue();
+
+					retList.addAll(p1.getKey().getEqus());
+				}
+			}
+
+			return new Pair<>(new Equations(retList), changed);
+		}
+	}
+
+	public static Pair<Equations, Boolean> unifyCallable_(TypedLocation funLoc, TypedLocation ctxLoc) {
+		Pair<Equations, Boolean> retPair;
+
+		if (funLoc instanceof LocType) {
+			retPair = new Pair<>(new Equations(), false);
+
+			return retPair;
+		}
+		else {
+			ArrayList<Equ> equList = new ArrayList<>();
+			equList.add(new EquLoc(funLoc, ctxLoc));
+
+			retPair = new Pair<>(new Equations(equList), true);
+
+			return retPair;
+		}
 	}
 
 	public static Pair<Equations, Boolean> mergeAll(Equations equs) {
@@ -632,7 +696,6 @@ public class Infer {
 
 				if (equty1.getTy1() == equty2.getTy1()) {
 					Pair<Equations, Boolean> p = unify(new EquTy(equty1.getTy2(), equty2.getTy2()));
-					retList = new ArrayList<>();
 					retList.addAll(p.getKey().getEqus());
 					retList.addAll(merg.getFirst().getEqus());
 
@@ -642,7 +705,6 @@ public class Infer {
 					return retTrip;
 				}
 				else {
-					retList = new ArrayList<>();
 					retList.add(equty2);
 					retList.addAll(merg.getSecond().getEqus());
 
@@ -660,7 +722,6 @@ public class Infer {
 				if (equloc1.getTyloc1() == equloc2.getTyloc1()) {
 					Pair<Equations, Boolean> p = unify(new EquLoc(equloc1.getTyloc2(), equloc2.getTyloc2()));
 
-					retList = new ArrayList<>();
 					retList.addAll(p.getKey().getEqus());
 					retList.addAll(merg.getFirst().getEqus());
 
@@ -670,7 +731,6 @@ public class Infer {
 					return retTrip;
 				}
 				else {
-					retList = new ArrayList<>();
 					retList.addAll(merg.getSecond().getEqus());
 					retList.add(equloc2);
 
@@ -682,7 +742,6 @@ public class Infer {
 			else {
 				TripleTup<Equations, Equations, Boolean> merg = mergeTheRest(equ, new Equations(equList));
 
-				retList = new ArrayList<>();
 				retList.add(e);
 				retList.addAll(merg.getSecond().getEqus());
 
@@ -740,6 +799,12 @@ public class Infer {
 					changed = changed || p1.getValue() || p2.getValue();
 				}
 			}
+			else if (equ instanceof CallableLoc) {
+				Pair<Equations, Boolean> p = propagate_(cloneEqus, equs2);
+
+				retEqus.getEqus().addAll(p.getKey().getEqus());
+				changed = changed || p.getValue();
+			}
 
 			retPair = new Pair<>(retEqus, changed);
 			return retPair;
@@ -763,7 +828,7 @@ public class Infer {
 				if (equ instanceof EquTy) {
 					EquTy equty = (EquTy) equ;
 
-					Type ty1 = /* TypedRPCMain. */subst(equty.getTy2(), i, ity);
+					Type ty1 = subst(equty.getTy2(), i, ity);
 					changed = changed || !ty1.equals(equty.getTy2());
 					retEqus.getEqus().add(new EquTy(equty.getTy1(), ty1));
 				}
@@ -771,6 +836,9 @@ public class Infer {
 					EquLoc equloc = (EquLoc) equ;
 
 					retEqus.getEqus().add(equloc);
+				}
+				else if (equ instanceof CallableLoc) {
+					retEqus.getEqus().add(equ);
 				}
 			}
 			retPair = new Pair<>(retEqus, changed);
@@ -800,9 +868,17 @@ public class Infer {
 				else if (equ instanceof EquLoc) {
 					EquLoc equloc = (EquLoc) equ;
 
-					TypedLocation tyloc1 = /* TypedRPCMain. */substTyLoc(equloc.getTyloc2(), i, ilocty);
+					TypedLocation tyloc1 = substTyLoc(equloc.getTyloc2(), i, ilocty);
 					changed = changed || !equloc.getTyloc2().equals(tyloc1);
 					retEqus.getEqus().add(new EquLoc(equloc.getTyloc1(), tyloc1));
+				}
+				else if (equ instanceof CallableLoc) {
+					CallableLoc callableloc = (CallableLoc) equ;
+
+					TypedLocation funLoc = substTyLoc(callableloc.getFunLoc(), i, ilocty);
+					changed = changed || !callableloc.getFunLoc().equals(funLoc);
+
+					retEqus.getEqus().add(new CallableLoc(funLoc, callableloc.getCtxLoc()));
 				}
 			}
 			retPair = new Pair<>(retEqus, changed);
@@ -929,6 +1005,9 @@ public class Infer {
 						ty = substTyTyLoc(ty, locvarty.getVar(), equloc.getTyloc2());
 					}
 				}
+				else if (equ instanceof CallableLoc) {
+
+				}
 			}
 			return ty;
 		}
@@ -952,6 +1031,9 @@ public class Infer {
 						LocVarType locvarty = (LocVarType) tyloc1;
 						tyloc = substTyLoc(tyloc, locvarty.getVar(), equloc.getTyloc2());
 					}
+				}
+				else if (equ instanceof CallableLoc) {
+
 				}
 			}
 
