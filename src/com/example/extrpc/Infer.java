@@ -373,11 +373,12 @@ public class Infer {
 					break;
 			}
 			// CallableLoc 중 FunLocation
-			Pair<Equations, Boolean> p5 = unifyCallable(equs);
+			Pair<Equations, Boolean> p4 = unifyCallable(equs);
+			equs = p4.getKey();
 			
-			if (p5.getValue())
-				equs = p5.getKey();
-			else
+			if (p4.getValue())		// true는 ctx가 Polymorphic한 경우를 의미
+				continue;
+			else 
 				break;
 		}
 		
@@ -630,17 +631,21 @@ public class Infer {
 
 	public static Pair<Equations, Boolean> unifyCallable_(TypedLocation funLoc, TypedLocation ctxLoc) {
 		Pair<Equations, Boolean> retPair;
+		boolean changed = false;
 
 		if (funLoc instanceof LocType) {
-			retPair = new Pair<>(new Equations(), false);
+			retPair = new Pair<>(new Equations(), changed);
 
 			return retPair;
 		}
 		else {
 			ArrayList<Equ> equList = new ArrayList<>();
 			equList.add(new EquLoc(funLoc, ctxLoc));
+			
+			if (ctxLoc instanceof LocVarType)
+				changed = true;
 
-			retPair = new Pair<>(new Equations(equList), true);
+			retPair = new Pair<>(new Equations(equList), changed);
 
 			return retPair;
 		}
