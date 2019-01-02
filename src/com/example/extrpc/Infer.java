@@ -642,8 +642,8 @@ public class Infer {
 			ArrayList<Equ> equList = new ArrayList<>();
 			equList.add(new EquLoc(funLoc, ctxLoc));
 			
-			if (ctxLoc instanceof LocVarType)
-				changed = true;
+//			if (ctxLoc instanceof LocVarType)
+			changed = true;
 
 			retPair = new Pair<>(new Equations(equList), changed);
 
