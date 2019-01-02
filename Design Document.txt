@@ -79,6 +79,13 @@ case 3. Monomophic Type(Int, Bool, ...)
      2. funLoc이 locVar인 경우, locVar |-> ctxLoc
    Step3. Repeat Until no change(Step1과 Step2 반복)
 
+case 4. Polymophic Type(Int, Bool, alpha, beta ...)
+	  + Polymophic Location(c, s, l, ...)
+	  + 모든 사용자/라이브러리 함수
+	  
+	ex. lam^l (x: a): a. x
+	    forall l. forall a. a -l-> a
+
 --
 genCstTopLevel:: TopLevel -> TyEnv -> ({Constraint}*, Type, TopLevel)
 genCstTopLevel (TopLevel term next) tyenv =
