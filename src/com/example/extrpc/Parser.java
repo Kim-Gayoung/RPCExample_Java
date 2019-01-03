@@ -8,8 +8,6 @@ import com.example.lib.CommonParserUtil;
 import com.example.lib.LexerException;
 import com.example.lib.ParserException;
 
-import com.example.extrpc.Token;
-
 public class Parser {
 	private CommonParserUtil<Token> pu;
 
@@ -71,7 +69,7 @@ public class Parser {
 		pu.lex("=", text -> { return Token.ASSIGN; });
 
 		pu.lex("\"[^(\")]*\"", text -> { return Token.STR; });
-		pu.lex("\\^[cs]", text -> {	return Token.LOC; });
+		pu.lex("\\^[csl]", text -> {	return Token.LOC; });
 		pu.lex("\\(", text -> {	return Token.OPENPAREN; });
 		pu.lex("\\)", text -> { return Token.CLOSEPAREN; });
 		pu.lex("\\.", text -> { return Token.DOT; });
@@ -204,7 +202,9 @@ public class Parser {
 	private Location getLoc(String loc) {
 		if (loc.equals("^s"))
 			return Location.Server;
-		else
+		else if (loc.equals("^c"))
 			return Location.Client;
+		else
+			return Location.Polymorphic;
 	}
 }

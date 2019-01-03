@@ -1,0 +1,3 @@
+identity = lam^l x. x;
+clientTest = lam^c (). identity 1;
+serverTest = lam^s (). identity 2

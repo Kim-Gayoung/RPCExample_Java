@@ -133,7 +133,7 @@ public class Infer {
 
 		for (Pair<String, Type> p : tyenv.getPairList()) {
 			if (p.getKey().equals(x))
-				return p.getValue();
+				return substLocFresh(p.getValue(), fresh());
 		}
 
 		assert false;
@@ -200,6 +200,12 @@ public class Infer {
 			Lam tLam = (Lam) t;
 
 			Type argTy = new VarType(fresh());
+			TypedLocation lamLocCtx;
+			
+			if (tLam.getLoc() == Location.Polymorphic)
+				lamLocCtx = new LocVarType(fresh());
+			else
+				lamLocCtx = new LocType(tLam.getLoc());
 
 			TyEnv tyenv1 = new TyEnv();
 			ArrayList<Pair<String, Type>> pairList = tyenv.getPairList();
@@ -207,8 +213,8 @@ public class Infer {
 			tyenv1.setPairList(pairList);
 			tyenv1.getPairList().add(0, new Pair<>(tLam.getX(), argTy));
 
-			TripleTup<Term, Type, Equations> quad = genCst(tLam.getM(), new LocType(tLam.getLoc()), tyenv1);
-			FunType funTy = new FunType(argTy, new LocType(tLam.getLoc()), quad.getSecond());
+			TripleTup<Term, Type, Equations> quad = genCst(tLam.getM(), lamLocCtx, tyenv1);
+			FunType funTy = new FunType(argTy, lamLocCtx, quad.getSecond());
 
 			ret = new TripleTup<>(new Lam(tLam.getLoc(), tLam.getX(), argTy, quad.getFirst()), funTy, quad.getThird());
 
