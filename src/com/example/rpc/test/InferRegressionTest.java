@@ -223,11 +223,11 @@ public class InferRegressionTest {
 		else if (ty instanceof FunType) {
 			FunType funTy = (FunType) ty;
 			
-			prettyPrintType(funTy.getFunTy());
+			prettyPrintType(funTy.getArgTy());
 			System.out.print("-");
 			prettyPrintLoc(funTy.getLoc());
 			System.out.print("->");
-			prettyPrintType(funTy.getArgTy());
+			prettyPrintType(funTy.getRetTy());
 		}
 	}
 	

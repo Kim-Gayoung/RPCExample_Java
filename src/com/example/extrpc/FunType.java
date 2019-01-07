@@ -1,30 +1,14 @@
 package com.example.extrpc;
 
 public class FunType extends Type {
-	private Type funTy;
-	private TypedLocation loc;
 	private Type argTy;
+	private TypedLocation loc;
+	private Type retTy;
 
-	public FunType(Type funTy, TypedLocation loc, Type argTy) {
-		this.funTy = funTy;
-		this.loc = loc;
+	public FunType(Type argTy, TypedLocation loc, Type retTy) {
 		this.argTy = argTy;
-	}
-
-	public Type getFunTy() {
-		return funTy;
-	}
-
-	public void setFunTy(Type funTy) {
-		this.funTy = funTy;
-	}
-
-	public TypedLocation getLoc() {
-		return loc;
-	}
-
-	public void setLoc(TypedLocation loc) {
 		this.loc = loc;
+		this.retTy = retTy;
 	}
 
 	public Type getArgTy() {
@@ -35,12 +19,28 @@ public class FunType extends Type {
 		this.argTy = argTy;
 	}
 
+	public TypedLocation getLoc() {
+		return loc;
+	}
+
+	public void setLoc(TypedLocation loc) {
+		this.loc = loc;
+	}
+
+	public Type getRetTy() {
+		return retTy;
+	}
+
+	public void setRetTy(Type retTy) {
+		this.retTy = retTy;
+	}
+
 	@Override
 	public boolean equals(Object arg0) {
 		if (arg0 instanceof FunType) {
 			FunType argFunTy = (FunType) arg0;
 			
-			return argFunTy.getFunTy().equals(this.funTy) && argFunTy.getArgTy().equals(this.argTy) && argFunTy.getLoc().equals(this.loc);
+			return argFunTy.getArgTy().equals(this.argTy) && argFunTy.getRetTy().equals(this.retTy) && argFunTy.getLoc().equals(this.loc);
 		}
 		else
 			return false;
@@ -48,12 +48,12 @@ public class FunType extends Type {
 
 	@Override
 	public String toString() {
-		return "(" + funTy + "-" + loc + "->" + argTy + ")";
+		return "(" + argTy + "-" + loc + "->" + retTy + ")";
 	}
 
 	@Override
 	protected Type clone() {
-		return new FunType(funTy.clone(), loc.clone(), argTy.clone());
+		return new FunType(argTy.clone(), loc.clone(), retTy.clone());
 	}
 	
 	
