@@ -1,6 +1,8 @@
 package com.example.extrpc;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.example.utils.TripleTup;
 
@@ -550,9 +552,9 @@ public class Infer {
 			else if (ty2 instanceof FunType) {
 				FunType funTy2 = (FunType) ty2;
 
-				Pair<Equations, Boolean> p1 = unify_(funTy1.getFunTy(), funTy2.getFunTy());
+				Pair<Equations, Boolean> p1 = unify_(funTy1.getArgTy(), funTy2.getArgTy());
 				Pair<Equations, Boolean> p2 = unifyLoc_(funTy1.getLoc(), funTy2.getLoc());
-				Pair<Equations, Boolean> p3 = unify_(funTy1.getArgTy(), funTy2.getArgTy());
+				Pair<Equations, Boolean> p3 = unify_(funTy1.getRetTy(), funTy2.getRetTy());
 
 				ArrayList<Equ> equList = new ArrayList<>();
 				equList.addAll(p1.getKey().getEqus());
@@ -1085,8 +1087,8 @@ public class Infer {
 		}
 		else if (t instanceof FunType) {
 			FunType funType = (FunType) t;
-			Type left = subst(funType.getFunTy(), i, ty);
-			Type right = subst(funType.getArgTy(), i, ty);
+			Type left = subst(funType.getArgTy(), i, ty);
+			Type right = subst(funType.getRetTy(), i, ty);
 
 			FunType retFunType = new FunType(left, funType.getLoc(), right);
 
@@ -1137,7 +1139,7 @@ public class Infer {
 				LocVarType locVarType = (LocVarType) funTypedLocation;
 
 				if (i == locVarType.getVar())
-					return new FunType(funType.getFunTy(), tyloc, funType.getArgTy());
+					return new FunType(funType.getArgTy(), tyloc, funType.getRetTy());
 				else
 					return funType;
 			}
@@ -1171,6 +1173,71 @@ public class Infer {
 			return null;
 		}
 	}
+	
+	public static Type generalize(Type ty, TyEnv tyenv) {
+		Set<Integer> tyFreeLocTys = freeLocTyVars(ty);
+		Set<Integer> tyenvFreeLocTys = new HashSet<>();
+		
+		for(Pair<String, Type> p: tyenv.getPairList()) {
+			tyenvFreeLocTys.addAll(freeLocTyVars(p.getValue()));
+		}
+		
+		tyFreeLocTys.removeAll(tyenvFreeLocTys);
+		
+		Set<Integer> tyFreeTys = freeTypeVars(ty);
+		Set<Integer> tyenvFreeTys = new HashSet<>();
+		
+		for(Pair<String, Type> p: tyenv.getPairList()) {
+			tyenvFreeTys.addAll(freeTypeVars(p.getValue()));
+		}
+		
+		tyFreeTys.removeAll(tyenvFreeTys);
+		
+		return new ForAll(freeLocTys, tyFreeTys, ty);
+	}
+	
+	public static Set<Integer> freeLocTyVars(Type ty) {
+		Set<Integer> retSet = new HashSet<>();
+		
+		if (ty instanceof FunType) {
+			FunType funTy = (FunType) ty;
+			
+			Set<Integer> argTyLocVars = freeLocTyVars(funTy.getArgTy());
+			Set<Integer> retTyLocVars = freeLocTyVars(funTy.getRetTy());
+			
+			retSet.addAll(argTyLocVars);
+			retSet.addAll(retTyLocVars);
+			
+			return retSet;
+		}
+		else {
+			return retSet;
+		}
+	}
+	
+	public static Set<Integer> freeTypeVars(Type ty) {
+		Set<Integer> retSet = new HashSet<>();
+		
+		if (ty instanceof VarType) {
+			VarType varTy = (VarType) ty;
+			retSet.add(varTy.getVar());
+			
+			return retSet;
+		}
+		else if (ty instanceof FunType) {
+			FunType funTy = (FunType) ty;
+			
+			Set<Integer> argTyVars = freeTypeVars(funTy.getArgTy());
+			Set<Integer> retTyVars = freeTypeVars(funTy.getRetTy());
+			
+			retSet.addAll(argTyVars);
+			retSet.addAll(retTyVars);
+			
+			return retSet;
+		}
+		else
+			return retSet;
+	}
 
 	public static void check(int i, Type ty) {
 		if (ty instanceof IntType) {
@@ -1185,8 +1252,8 @@ public class Infer {
 		else if (ty instanceof FunType) {
 			FunType fTy = (FunType) ty;
 
-			check(i, fTy.getFunTy());
 			check(i, fTy.getArgTy());
+			check(i, fTy.getRetTy());
 		}
 
 	}
