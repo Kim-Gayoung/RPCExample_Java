@@ -69,7 +69,7 @@ public class Parser {
 		pu.lex("=", text -> { return Token.ASSIGN; });
 
 		pu.lex("\"[^(\")]*\"", text -> { return Token.STR; });
-		pu.lex("\\^[csl]", text -> {	return Token.LOC; });
+		pu.lex("\\^[cs]", text -> {	return Token.LOC; });
 		pu.lex("\\(", text -> {	return Token.OPENPAREN; });
 		pu.lex("\\)", text -> { return Token.CLOSEPAREN; });
 		pu.lex("\\.", text -> { return Token.DOT; });
@@ -112,9 +112,9 @@ public class Parser {
 
 			return tree;
 		});
-		pu.rule("LExpr -> lam loc Params . LExpr", () -> {
+		pu.rule("LExpr -> lam Params . LExpr", () -> {
 			Object tree = pu.get(5);
-			Location loc = getLoc(pu.getText(2));
+			Location loc = Location.Polymorphic;
 			Params params = (Params) pu.get(3);
 			ArrayList<String> strParams = new ArrayList<>();
 			int idx = 0;
@@ -224,9 +224,7 @@ public class Parser {
 	private Location getLoc(String loc) {
 		if (loc.equals("^s"))
 			return Location.Server;
-		else if (loc.equals("^c"))
-			return Location.Client;
 		else
-			return Location.Polymorphic;
+			return Location.Client;
 	}
 }
