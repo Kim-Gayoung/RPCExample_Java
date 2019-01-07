@@ -27,7 +27,7 @@ Value = Unit
       | Num number
       | Bool boolean
       | Var id
-      | Lam location id (Type) Term
+      | Lam maybeLocation id (Type) Term
 
 
 --
@@ -38,6 +38,7 @@ Type = Int
      | UnitType
      | FunType Type Location Type
      | VarType int
+     | ForAll [ int ] [ int ] Type
 
 Location = Server
          | Client
@@ -100,11 +101,20 @@ genCst (Str string) locCtx tyenv = ([], String, Str string)
 genCst (Num number) locCtx tyenv = ([], Int, Num number)
 genCst (Bool boolean) locCtx tyenv = ([], Boolean, Bool boolean)
 genCst (Var id) locCtx tyenv = ([], lookup id tyenv, Var id)
-genCst (Lam location id _ term) locCtx tyenv = 
+    let s = lookup id tyenv
+	    ty = specialize s
+	in ([], ty, Var id)
+genCst (Lam (Just location) id _ term) locCtx tyenv = 				location은 c or s
     let argTy = VarType (fresh ())
         (constraints, bodyTy) = genCst term location tyenv
 	    funTy = FunType argTy location bodyTy
-    in (constraints, funTy, Lam location id argTy term)
+    in (constraints, funTy, Lam (Just location) id argTy term)
+genCst (Lam Nothing id _ term) locCtx tyenv = 						location은 polymorphic
+    let argTy = VarType (fresh ())
+        locTy = LocVarType (fresh ())
+        (constraints, bodyTy) = genCst term locTy tyenv
+	    funTy = FunType argTy locTy bodyTy
+    in (constraints, funTy, Lam (Just locTy) id argTy term)
 genCst (App term1 term2 _) locCtx tyenv =
     let (constraints1, funTy, tyterm1) = genCst term1 locCtx tyenv
         (constraints2, argTy, tyterm2) = genCst term2 locCtx tyenv
@@ -118,10 +128,10 @@ genCst (Let id _ term1 term2) locCtx tyenv =
     let idTy = VarType (fresh ())
         tyenv1 = (id, idTy): tyenv
         (constraints1, t1Ty, tyterm1) = genCst term1 locCtx tyenv1
-	(constraints2, t2Ty, tyterm2) = genCst term2 locCtx ((id, t1Ty): tyenv)
+        s1Ty = generalize t1Ty tyenv
+		(constraints2, t2Ty, tyterm2) = genCst term2 locCtx ((id, s1Ty): tyenv)
         constraint = EquTy idTy t1Ty
     in (constraints1 ++ constraints2 ++ [constraint], t2Ty, Let id t1Ty tyterm1 tyterm2)
-
 genCst (If cond thenTerm elseTerm) locCtx tyenv =
     let (constraints, condTy, tyCond) = genCst cond locCtx tyenv
         (constraints1, thenTy, tyThenTerm) = genCst thenTerm locCtx tyenv
@@ -131,7 +141,7 @@ genCst (If cond thenTerm elseTerm) locCtx tyenv =
     in (constraints ++ constraints1 ++ constraints2 ++ [constraint1, constraint2], thenTy,
             If tyCond tyThenTerm tyElseTerm)
 genCst (ExprTerm op [term]) locCtx tyenv =
-    let (constraints1, term1Ty, tyterm1) = genCst term1 locCtx tyenv
+    let (constraints1, term1Ty, tyterm1) = genCst term1 locCtx tyenv in
 	if op >= 0 and op <= 3 then
 	    let (constraints2, term2Ty, tyterm2) = genCst term2 locCtx tyenv
 		constraint1 = EquTy term1Ty Int
@@ -156,10 +166,6 @@ genCst (ExprTerm op [term]) locCtx tyenv =
 --
 
 substTerm:: TypedTerm -> {Constraint}* -> TypedTerm
-substTerm Unit constraints = Unit
-substTerm (Str string) constraints = Str string
-substTerm (Num number) constraints = Num number
-substTerm (Bool boolean) constraints = Bool boolean
 substTerm (Var id) constraints = Var id
 substTerm (Lam location id ty term) constraints =
     Lam location id (substType ty constraints) (substTerm term constraints)
@@ -185,7 +191,73 @@ substTerm (Logical _ term1 term2) constraints =
 substTerm (Logical Not term1) constraints = 
     Logical Not (substTerm term1 constraints)
 
+--
+generalize ty tyenv =
+    let freeLocTys = freeLocTyVars ty - freeLocTyVars tyenv
+        freeTys = freeTyVars ty - freeTyVars tyenv
+    in ForAll freeLocTys freeTys ty
 
+specialize (ForAll locInts tyInts ty) =
+    let locInts' = fresh locInts
+        tyInts' = fresh tyInts
+        subst = {locInts' / locInts, tyInts' / tyInts}
+    in substTy subst ty
+    
+specialize ty = ty
+    
+subst Int i tyi = Int
+subst UnitType i tyi = UnitType
+subst Boolean i tyi = Boolean
+subst String i tyi = String
+subst (VarType j) i tyi =
+    if j == i then 
+      tyi
+    else
+      (VarType j)
+subst (FunType argTy loc retTy) i tyi =
+  let argTy' = subst argTy i tyi
+      retTy' = subst retTy i tyi
+  in (FunType argTy' loc retTy')
+subst (ForAll locInts tyInts ty) i tyi =
+  if i isIn tyInts then
+     (ForAll locInts tyInts ty)
+  else
+     (ForAll locInts tyInts (subst ty i tyi))
+
+substTyTyLoc Int i tyloc = Int
+substTyTyLoc UnitType i tyloc = UnitType
+substTyTyLoc Boolean i tyloc = Boolean
+substTyTyLoc String i tyloc = String
+substTyTyLoc (VarType j) i tyloc = VarType j
+substTyTyLoc (FunType argTy loc retTy) i tyloc =
+  let argTy' = substTyTyLoc argTy i tyloc
+      retTy' = substTyTyLoc retTy i tyloc
+  in  if loc == Client or loc == Server then
+         (FunType argTy' loc retTy')
+      else
+         if loc == LocVarType i then
+           (FunType argTy' tyloc retTy')
+         else
+           (FunType argTy' loc retTy')
+substTyTyLoc (ForAll locInts tyInts ty) i tyloc = 
+  if i isIn locInts then
+    (ForAll locInts tyInts ty)
+  else
+    (ForAll locInts tyInts (substTyTyLoc ty i tyloc))
+
+freeLocTyVars UnitType = []
+freeLocTyVars Boolean = []
+freeLocTyVars Int = []
+freeLocTyVars String = []
+freeLocTyVars (VarType int) = []
+freeLocTyVars (FunType funTy loc argTy) = [ loc , freeLocTyVars funTy, freeLocTyVars argTy ]
+
+freeTypeVars UnitType = []
+freeTypeVars Boolean = []
+freeTypeVars Int = []
+freeTypeVars String = []
+freeTypeVars (VarType int) = [ VarType int ]
+freeTypeVars (FunType funTy loc argTy) = [ freeTypeVars funTy, freeTypeVars argTy ]
 
 -- general Library
 

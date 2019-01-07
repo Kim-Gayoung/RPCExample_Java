@@ -112,6 +112,28 @@ public class Parser {
 
 			return tree;
 		});
+		pu.rule("LExpr -> lam loc Params . LExpr", () -> {
+			Object tree = pu.get(5);
+			Location loc = getLoc(pu.getText(2));
+			Params params = (Params) pu.get(3);
+			ArrayList<String> strParams = new ArrayList<>();
+			int idx = 0;
+			
+			if (params.getId() == null) {
+				params.setId(new Var("_tempParam"));
+			}
+
+			while (params != null && (params.getId() != null || params.getIds() != null)) {
+				strParams.add(params.getId().getVar());
+				params = params.getIds();
+			}
+			
+			for (int i = strParams.size() - 1; i >= 0; i--) {
+				tree = new Lam(loc, strParams.get(i), (Term) tree);
+			}
+
+			return tree;
+		});
 		pu.rule("LExpr -> let id = LExpr in LExpr end", () -> {
 			return new Let(pu.getText(2), (Term) pu.get(4), (Term) pu.get(6));
 		});
