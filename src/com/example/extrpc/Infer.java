@@ -97,6 +97,16 @@ public class Infer {
 
 		return n;
 	}
+	
+	private static Set<Integer> freshAll(Set<Integer> ints) {
+		Set<Integer> retSet = new HashSet<>();
+		
+		for (int i: ints) {
+			retSet.add(fresh());
+		}
+		
+		return retSet;
+	}
 
 	private static Type substLocFresh(Type t, int i) {
 		if (t instanceof FunType) {
@@ -122,7 +132,7 @@ public class Infer {
 					FunType funty = (FunType) ty.clone();
 
 					if (x.equals("toString")) {
-						funty.setFunTy(new VarType(fresh()));
+						funty.setArgTy(new VarType(fresh()));
 					}
 
 					if (funty.getLoc() instanceof LocVarType)
@@ -1193,7 +1203,33 @@ public class Infer {
 		
 		tyFreeTys.removeAll(tyenvFreeTys);
 		
-		return new ForAll(freeLocTys, tyFreeTys, ty);
+		// free location type variable이 존재해야 ForAll로 만들어줌
+		if (tyFreeLocTys.isEmpty())
+			return ty;
+		else
+			return new ForAll(tyFreeLocTys, tyFreeTys, ty);
+	}
+	
+	public static Type specialize(Type ty) {
+		if (ty instanceof ForAll) {
+			ForAll tyForAll = (ForAll) ty;
+			
+			Set<Integer> locInts_ = freshAll(tyForAll.getLocInts());
+			Set<Integer> tyInts_ = freshAll(tyForAll.getTyInts());
+			
+			
+			Set<Integer> locInts = new HashSet<>();
+			for (int i: locInts_) {
+				
+			}
+			
+			Set<Integer> tyInts = new HashSet<>();
+			for (int i: tyInts_) {
+				
+			}
+		}
+		else
+			return ty;
 	}
 	
 	public static Set<Integer> freeLocTyVars(Type ty) {
