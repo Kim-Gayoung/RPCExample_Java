@@ -40,7 +40,26 @@ public class ForAll extends Type {
 
 	@Override
 	public String toString() {
-		return "ForAll [";
+		String ret = "ForAll [{";
+		
+		for(int i: locInts) {
+			ret += "l" + i;
+			
+			if (locInts.iterator().hasNext())
+				ret += ", ";
+		}
+		ret += "}, {";
+		
+		for(int i: tyInts) {
+			ret += "a" + i;
+			
+			if (tyInts.iterator().hasNext())
+				ret += ", ";
+		}
+		
+		ret += "}, " + ty + "]";
+		
+		return ret;
 	}
 
 	@Override

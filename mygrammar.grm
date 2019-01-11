@@ -4,6 +4,7 @@ CFG "TopLevel'" [
 	ProductionRule "TopLevel" [Terminal "id", Terminal "=", Nonterminal "LExpr", Terminal ";", Nonterminal "TopLevel"],
 	ProductionRule "LExpr" [Nonterminal "Expr"],
 	ProductionRule "LExpr" [Terminal "lam", Terminal "loc", Nonterminal "Params", Terminal ".", Nonterminal "LExpr"],
+	ProductionRule "LExpr" [Terminal "lam", Nonterminal "Params", Terminal ".", Nonterminal "LExpr"],
 	ProductionRule "LExpr" [Terminal "let", Terminal "id", Terminal "=", Nonterminal "LExpr", Terminal "in", Nonterminal "LExpr", Terminal "end"],
 	ProductionRule "LExpr" [Terminal "if", Nonterminal "Expr", Terminal "then", Nonterminal "LExpr", Terminal "else", Nonterminal "LExpr"],
 	ProductionRule "Expr" [Nonterminal "Expr", Nonterminal "Term"],
