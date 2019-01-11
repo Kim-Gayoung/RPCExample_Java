@@ -54,10 +54,16 @@ public class Lam extends Value {
 	@Override
 	public String toString() {
 		if (idTy != null) {
-			return "lam^" + loc + "(" + x + ": " + idTy + ").\n" + m.toString();
+			if (loc == Location.Polymorphic)
+				return "lam" + " (" + x + ": " + idTy + ").\n" + m.toString();
+			else
+				return "lam^" + loc + "(" + x + ": " + idTy + ").\n" + m.toString();
 		}
 		else {
-			return "lam^" + loc + "(" + x + ").\n" + m.toString();
+			if (loc == Location.Polymorphic)
+				return "lam" + " (" + x + ").\n" + m.toString();
+			else
+				return "lam^" + loc + "(" + x + ").\n" + m.toString();
 		}
 	}
 }

@@ -113,9 +113,9 @@ public class Parser {
 			return tree;
 		});
 		pu.rule("LExpr -> lam Params . LExpr", () -> {
-			Object tree = pu.get(5);
+			Object tree = pu.get(4);
 			Location loc = Location.Polymorphic;
-			Params params = (Params) pu.get(3);
+			Params params = (Params) pu.get(2);
 			ArrayList<String> strParams = new ArrayList<>();
 			int idx = 0;
 			

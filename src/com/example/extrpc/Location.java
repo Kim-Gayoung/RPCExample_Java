@@ -1,7 +1,7 @@
 package com.example.extrpc;
 
 public enum Location {
-	Client("c"), Server("s"), Polymorphic("l");
+	Client("c"), Server("s"), Polymorphic("");
 	
 	private String loc;
 	

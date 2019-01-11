@@ -1,7 +1,9 @@
 package com.example.extrpc;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import com.example.utils.TripleTup;
@@ -98,14 +100,14 @@ public class Infer {
 		return n;
 	}
 	
-	private static Set<Integer> freshAll(Set<Integer> ints) {
-		Set<Integer> retSet = new HashSet<>();
+	private static Map<Integer, Integer> freshAll(Set<Integer> ints) {
+		Map<Integer, Integer> retMap = new HashMap<>();
 		
 		for (int i: ints) {
-			retSet.add(fresh());
+			retMap.put(i, fresh());
 		}
 		
-		return retSet;
+		return retMap;
 	}
 
 	private static Type substLocFresh(Type t, int i) {
@@ -203,7 +205,7 @@ public class Infer {
 		else if (t instanceof Var) {
 			Var tVar = (Var) t;
 			Type varTy = tylookup(tVar.getVar(), tyenv);
-
+			varTy = specialize(varTy);
 			ret = new TripleTup<>(tVar, varTy, new Equations());
 
 			return ret;
@@ -266,7 +268,8 @@ public class Infer {
 			cloneEnv.getPairList().add(tmpIdTy);
 
 			TripleTup<Term, Type, Equations> t1Quad = genCst(tLet.getT1(), locCtx, cloneEnv);
-			tyenv.getPairList().add(new Pair<>(id, t1Quad.getSecond()));
+			Type s1Ty = generalize(t1Quad.getSecond(), tyenv);
+			tyenv.getPairList().add(new Pair<>(id, s1Ty));
 			TripleTup<Term, Type, Equations> t2Quad = genCst(tLet.getT2(), locCtx, tyenv);
 
 			EquTy constraint = new EquTy(idTy, t1Quad.getSecond());
@@ -574,6 +577,27 @@ public class Infer {
 				retPair = new Pair<>(new Equations(equList), p1.getValue() || p2.getValue() || p3.getValue());
 
 				return retPair;
+			}
+		}
+		else if (ty1 instanceof ForAll) {
+			ForAll forAllTy1 = (ForAll) ty1;
+			
+			if (ty2 instanceof VarType) {
+				VarType varTy2 = (VarType) ty2;
+				
+				ArrayList<Equ> equList = new ArrayList<>();
+				equList.add(new EquTy(varTy2, forAllTy1));
+				
+				retPair = new Pair<>(new Equations(equList), true);
+				
+				return retPair;
+			}
+			else if (ty2 instanceof FunType) {
+				FunType funTy2 = (FunType) ty2;
+				
+				ArrayList<Equ> equList = new ArrayList<>();
+				
+				
 			}
 		}
 		assert false;
@@ -1104,6 +1128,18 @@ public class Infer {
 
 			return retFunType;
 		}
+		else if (t instanceof ForAll) {
+			ForAll forAllType = (ForAll) t;
+			
+			if (forAllType.getTyInts().contains(i)) {
+				return forAllType;
+			}
+			else {
+				Type forAllTy = subst(forAllType.getTy(), i, ty);
+				
+				return new ForAll(forAllType.getLocInts(), forAllType.getTyInts(), forAllTy);
+			}
+		}
 		else {
 			assert false;
 			return null;
@@ -1158,6 +1194,18 @@ public class Infer {
 				return null;
 			}
 		}
+		else if (t instanceof ForAll) {
+			ForAll forAllType = (ForAll) t;
+			
+			if (forAllType.getLocInts().contains(i)) {
+				return forAllType;
+			}
+			else {
+				Type ty = substTyTyLoc(forAllType.getTy(), i, tyloc);
+				
+				return new ForAll(forAllType.getLocInts(), forAllType.getTyInts(), ty);
+			}
+		}
 		else {
 			assert false;
 			return null;
@@ -1204,7 +1252,7 @@ public class Infer {
 		tyFreeTys.removeAll(tyenvFreeTys);
 		
 		// free location type variable이 존재해야 ForAll로 만들어줌
-		if (tyFreeLocTys.isEmpty())
+		if (tyFreeLocTys.isEmpty() && tyFreeTys.isEmpty())
 			return ty;
 		else
 			return new ForAll(tyFreeLocTys, tyFreeTys, ty);
@@ -1213,20 +1261,22 @@ public class Infer {
 	public static Type specialize(Type ty) {
 		if (ty instanceof ForAll) {
 			ForAll tyForAll = (ForAll) ty;
+
+			Type retType = tyForAll.clone();
+			Map<Integer, Integer> locInts_ = freshAll(tyForAll.getLocInts());
+			Map<Integer, Integer> tyInts_ = freshAll(tyForAll.getTyInts());
 			
-			Set<Integer> locInts_ = freshAll(tyForAll.getLocInts());
-			Set<Integer> tyInts_ = freshAll(tyForAll.getTyInts());
-			
-			
-			Set<Integer> locInts = new HashSet<>();
-			for (int i: locInts_) {
-				
+			for (int i: locInts_.keySet()) {
+				int newLocInt = locInts_.get(i);
+				retType = substTyTyLoc(retType, i, new LocVarType(newLocInt));
 			}
 			
-			Set<Integer> tyInts = new HashSet<>();
-			for (int i: tyInts_) {
-				
+			for (int i: tyInts_.keySet()) {
+				int newTyInt = tyInts_.get(i);
+				retType = subst(retType, i, new VarType(newTyInt));
 			}
+			
+			return retType;
 		}
 		else
 			return ty;
@@ -1237,6 +1287,12 @@ public class Infer {
 		
 		if (ty instanceof FunType) {
 			FunType funTy = (FunType) ty;
+			
+			if (funTy.getLoc() instanceof LocVarType) {
+				LocVarType funLoc = (LocVarType) funTy.getLoc();
+				
+				retSet.add(funLoc.getVar());
+			}
 			
 			Set<Integer> argTyLocVars = freeLocTyVars(funTy.getArgTy());
 			Set<Integer> retTyLocVars = freeLocTyVars(funTy.getRetTy());
