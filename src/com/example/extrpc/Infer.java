@@ -580,27 +580,7 @@ public class Infer {
 			}
 		}
 		else if (ty1 instanceof ForAll) {
-			ForAll forAllTy1 = (ForAll) ty1;
-			
-			if (ty2 instanceof VarType) {
-				VarType varTy2 = (VarType) ty2;
-				
-				ArrayList<Equ> equList = new ArrayList<>();
-				equList.add(new EquTy(varTy2, forAllTy1));
-				
-				
-				
-				retPair = new Pair<>(new Equations(equList), true);
-				
-				return retPair;
-			}
-			else if (ty2 instanceof FunType) {
-				FunType funTy2 = (FunType) ty2;
-				
-				ArrayList<Equ> equList = new ArrayList<>();
-				
-				
-			}
+			return null;
 		}
 		assert false;
 		return null;
