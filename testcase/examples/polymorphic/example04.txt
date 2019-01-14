@@ -1,0 +1,18 @@
+locTyFreeFun = lam a b.
+  append (toString a) (toString b);
+  
+test1 = locTyFreeFun 123 456;
+test2 = locTyFreeFun "abc" test1;
+test3 = locTyFreeFun True test2;
+test4 = locTyFreeFun test3 ();
+
+test5 = lam^s (). locTyFreeFun 123 456;
+test6 = lam^s (). locTyFreeFun "def" test5;
+test7 = lam^s a. locTyFreeFun a True;
+test8 = lam^s a b. locTyFreeFun a b;
+
+test9 = test5;
+test10 = test6;
+test11 =  test7 test9;
+test12 = test7 test10;
+test13 = test8 test11 test12
