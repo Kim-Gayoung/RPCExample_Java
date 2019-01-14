@@ -588,6 +588,8 @@ public class Infer {
 				ArrayList<Equ> equList = new ArrayList<>();
 				equList.add(new EquTy(varTy2, forAllTy1));
 				
+				
+				
 				retPair = new Pair<>(new Equations(equList), true);
 				
 				return retPair;
@@ -1131,7 +1133,7 @@ public class Infer {
 		else if (t instanceof ForAll) {
 			ForAll forAllType = (ForAll) t;
 			
-			if (forAllType.getTyInts().contains(i)) {
+			if (!forAllType.getTyInts().contains(i)) {
 				return forAllType;
 			}
 			else {
@@ -1197,7 +1199,7 @@ public class Infer {
 		else if (t instanceof ForAll) {
 			ForAll forAllType = (ForAll) t;
 			
-			if (forAllType.getLocInts().contains(i)) {
+			if (!forAllType.getLocInts().contains(i)) {
 				return forAllType;
 			}
 			else {
@@ -1274,6 +1276,12 @@ public class Infer {
 			for (int i: tyInts_.keySet()) {
 				int newTyInt = tyInts_.get(i);
 				retType = subst(retType, i, new VarType(newTyInt));
+			}
+			
+			if (retType instanceof ForAll) {
+				ForAll retForAll = (ForAll) retType;
+				
+				retType = retForAll.getTy();
 			}
 			
 			return retType;
