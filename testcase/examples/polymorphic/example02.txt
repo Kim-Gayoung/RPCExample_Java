@@ -1,0 +1,7 @@
+customToString = lam^c x.
+  (append "Text: " (toString x));
+  
+test1 = customToString "a";
+test2 = customToString 1;
+test3 = customToString True;
+test4 = customToString (123 + 456)

@@ -1,0 +1,20 @@
+locFreeFun = lam x y.
+  x + y;
+
+test1 = lam^c (). locFreeFun 1 3;
+test2 = lam^s (). locFreeFun 123 456;
+test3 = lam^c a. locFreeFun a 123;
+test4 = lam^s a. locFreeFun a 456;
+test5 = lam^c a b. locFreeFun a b;
+test6 = lam^s a b. locFreeFun a b;
+test7 = lam^c a b. locFreeFun (locFreeFun a 123) (locFreeFun b 456);
+test8 = lam^s a b c. locFreeFun (locFreeFun a c) (locFreeFun b c);
+
+a = test1;
+b = test2;
+c = test3 a;
+d = test4 b;
+e = test5 a b;
+f = test6 c d;
+g = test7 a b;
+h = test8 a b c
