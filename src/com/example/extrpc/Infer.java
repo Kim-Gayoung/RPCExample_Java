@@ -268,7 +268,7 @@ public class Infer {
 			cloneEnv.getPairList().add(tmpIdTy);
 
 			TripleTup<Term, Type, Equations> t1Quad = genCst(tLet.getT1(), locCtx, cloneEnv);
-			Type s1Ty = generalize(t1Quad.getSecond(), tyenv);
+			Type s1Ty = generalize(t1Quad.getSecond(), cloneEnv);
 			tyenv.getPairList().add(new Pair<>(id, s1Ty));
 			TripleTup<Term, Type, Equations> t2Quad = genCst(tLet.getT2(), locCtx, tyenv);
 
@@ -279,7 +279,7 @@ public class Infer {
 			constraints.getEqus().addAll(t2Quad.getThird().getEqus());
 			constraints.getEqus().add(constraint);
 
-			ret = new TripleTup<>(new Let(tLet.getId(), t1Quad.getSecond(), t1Quad.getFirst(), t2Quad.getFirst()),
+			ret = new TripleTup<>(new Let(tLet.getId(), s1Ty, t1Quad.getFirst(), t2Quad.getFirst()),
 					t2Quad.getSecond(), constraints);
 
 			return ret;
@@ -1131,10 +1131,11 @@ public class Infer {
 		else if (t instanceof ForAll) {
 			ForAll forAllType = (ForAll) t;
 			
-			if (forAllType.getTyInts().contains(i)) {
+			if (!forAllType.getTyInts().contains(i)) {
 				return forAllType;
 			}
 			else {
+				forAllType.getTyInts().remove(i);
 				Type forAllTy = subst(forAllType.getTy(), i, ty);
 				
 				return new ForAll(forAllType.getLocInts(), forAllType.getTyInts(), forAllTy);
@@ -1197,10 +1198,11 @@ public class Infer {
 		else if (t instanceof ForAll) {
 			ForAll forAllType = (ForAll) t;
 			
-			if (forAllType.getLocInts().contains(i)) {
+			if (!forAllType.getLocInts().contains(i)) {
 				return forAllType;
 			}
 			else {
+				forAllType.getLocInts().remove(i);
 				Type ty = substTyTyLoc(forAllType.getTy(), i, tyloc);
 				
 				return new ForAll(forAllType.getLocInts(), forAllType.getTyInts(), ty);
@@ -1262,7 +1264,7 @@ public class Infer {
 		if (ty instanceof ForAll) {
 			ForAll tyForAll = (ForAll) ty;
 
-			Type retType = tyForAll.clone();
+			Type retType = tyForAll.getTy().clone();
 			Map<Integer, Integer> locInts_ = freshAll(tyForAll.getLocInts());
 			Map<Integer, Integer> tyInts_ = freshAll(tyForAll.getTyInts());
 			
