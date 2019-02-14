@@ -88,6 +88,7 @@ public class Infer {
 		initEnv();
 
 		TripleTup<TopLevel, Type, Equations> quadGenCst = genCstTopLevel((TopLevel) m, new TyEnv());
+		System.out.println(quadGenCst.getFirst());
 		Equations equs1 = solve(quadGenCst.getThird());
 		TopLevel tym = substTopLevel(quadGenCst.getFirst(), equs1);
 
@@ -252,6 +253,7 @@ public class Infer {
 			constraints.getEqus().add(new EquTy(fun.getSecond(), new FunType(arg.getSecond(), tyloc, retTy)));
 			constraints.getEqus().add(new CallableLoc(tyloc, locCtx));
 
+			fresh();
 			ret = new TripleTup<>(new App(fun.getFirst(), arg.getFirst(), tyloc), retTy, constraints);
 
 			return ret;
@@ -268,7 +270,7 @@ public class Infer {
 			cloneEnv.getPairList().add(tmpIdTy);
 
 			TripleTup<Term, Type, Equations> t1Quad = genCst(tLet.getT1(), locCtx, cloneEnv);
-			Type s1Ty = generalize(t1Quad.getSecond(), tyenv);
+			Type s1Ty = generalize(t1Quad.getSecond(), cloneEnv);
 			tyenv.getPairList().add(new Pair<>(id, s1Ty));
 			TripleTup<Term, Type, Equations> t2Quad = genCst(tLet.getT2(), locCtx, tyenv);
 
@@ -279,7 +281,7 @@ public class Infer {
 			constraints.getEqus().addAll(t2Quad.getThird().getEqus());
 			constraints.getEqus().add(constraint);
 
-			ret = new TripleTup<>(new Let(tLet.getId(), t1Quad.getSecond(), t1Quad.getFirst(), t2Quad.getFirst()),
+			ret = new TripleTup<>(new Let(tLet.getId(), s1Ty, t1Quad.getFirst(), t2Quad.getFirst()),
 					t2Quad.getSecond(), constraints);
 
 			return ret;
@@ -380,13 +382,13 @@ public class Infer {
 	public static Equations solve(Equations equs) {
 		while (true) {
 			while (true) {
-//				printEqus(equs);
+				printEqus(equs);
 				Pair<Equations, Boolean> p1 = unifyEqus(equs);
-//				printEqus(p1.getKey());
+				printEqus(p1.getKey());
 				Pair<Equations, Boolean> p2 = mergeAll(p1.getKey());
-//				printEqus(p2.getKey());
+				printEqus(p2.getKey());
 				Pair<Equations, Boolean> p3 = propagate(p2.getKey());
-//				printEqus(p3.getKey());
+				printEqus(p3.getKey());
 
 				if (p1.getValue() || p2.getValue() || p3.getValue())
 					equs = p3.getKey();
@@ -1244,7 +1246,7 @@ public class Infer {
 		if (ty instanceof ForAll) {
 			ForAll tyForAll = (ForAll) ty;
 
-			Type retType = tyForAll.clone();
+			Type retType = tyForAll.getTy().clone();
 			Map<Integer, Integer> locInts_ = freshAll(tyForAll.getLocInts());
 			Map<Integer, Integer> tyInts_ = freshAll(tyForAll.getTyInts());
 			
@@ -1256,12 +1258,6 @@ public class Infer {
 			for (int i: tyInts_.keySet()) {
 				int newTyInt = tyInts_.get(i);
 				retType = subst(retType, i, new VarType(newTyInt));
-			}
-			
-			if (retType instanceof ForAll) {
-				ForAll retForAll = (ForAll) retType;
-				
-				retType = retForAll.getTy();
 			}
 			
 			return retType;
