@@ -1,6 +1,6 @@
 package com.example.extrpc;
 
-public class ExprTerm extends Cond {
+public class ExprTerm extends Term {
 	private Term oprnd1;
 	private int op;
 	private Term oprnd2;
