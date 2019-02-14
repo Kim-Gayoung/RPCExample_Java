@@ -1113,7 +1113,7 @@ public class Infer {
 		else if (t instanceof ForAll) {
 			ForAll forAllType = (ForAll) t;
 			
-			if (!forAllType.getTyInts().contains(i)) {
+			if (forAllType.getTyInts().contains(i)) {
 				return forAllType;
 			}
 			else {
@@ -1179,7 +1179,7 @@ public class Infer {
 		else if (t instanceof ForAll) {
 			ForAll forAllType = (ForAll) t;
 			
-			if (!forAllType.getLocInts().contains(i)) {
+			if (forAllType.getLocInts().contains(i)) {
 				return forAllType;
 			}
 			else {
