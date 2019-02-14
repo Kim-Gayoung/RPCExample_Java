@@ -1,3 +1,6 @@
+Program = TopLevel {id (Type) Term}+
+Program = Term
+
 StaTerm = Let id (Type) StaTerm StaTerm
         | App StaValue [StaValue]
 		| Call StaValue [StaValue]
@@ -28,11 +31,21 @@ StaValue = Unit
 		| Var id
 		| Lam Location [id] StaTerm
 
-compStaTerm:: Term -> StaTerm
-compStaTerm t =  compTopLevel t
+compStaTerm:: Program -> StaTerm
+compStaTerm t = 
+  let copyTop = copyFunc t
+      convTop = convertTerm copyTop
+  in compTopLevel convTop
 
 compTopLevel:: Term -> StaTerm
-compTopLevel (topLevelTerm) = compClient topLevelTerm
+compTopLevel Term t =
+  let compTerm = compClient t
+  in (TopLevel compTerm)
+compTopLevel TopLevel top next =
+  let compTerm = compClient top
+      compNext = compTopLevel next
+  in (TopLevel compTerm compNext)
+
 
 compClient:: Term -> StaTerm
 compClient Unit = Unit
