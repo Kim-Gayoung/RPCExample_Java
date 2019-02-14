@@ -99,7 +99,7 @@ public class Main {
 			If mIf = (If) m;
 			If ret;
 
-			Cond cond = (Cond) subst(mIf.getCond(), x, v);
+			Term cond = subst(mIf.getCond(), x, v);
 			Term thenT = subst(mIf.getThenT(), x, v);
 			Term elseT = subst(mIf.getElseT(), x, v);
 
