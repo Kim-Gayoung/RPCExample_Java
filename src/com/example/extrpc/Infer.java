@@ -88,6 +88,7 @@ public class Infer {
 		initEnv();
 
 		TripleTup<TopLevel, Type, Equations> quadGenCst = genCstTopLevel((TopLevel) m, new TyEnv());
+		System.out.println(quadGenCst.getFirst().toString());
 		Equations equs1 = solve(quadGenCst.getThird());
 		TopLevel tym = substTopLevel(quadGenCst.getFirst(), equs1);
 
@@ -165,7 +166,7 @@ public class Infer {
 			constraints.getEqus().addAll(constraints2.getThird().getEqus());
 
 			TopLevel tyTopLevel = new TopLevel(constraints1.getFirst(), constraints2.getFirst());
-
+ 
 			return new TripleTup<>(tyTopLevel, constraints2.getSecond(), constraints);
 		}
 		else {
@@ -252,6 +253,7 @@ public class Infer {
 			constraints.getEqus().add(new EquTy(fun.getSecond(), new FunType(arg.getSecond(), tyloc, retTy)));
 			constraints.getEqus().add(new CallableLoc(tyloc, locCtx));
 
+			fresh();
 			ret = new TripleTup<>(new App(fun.getFirst(), arg.getFirst(), tyloc), retTy, constraints);
 
 			return ret;
@@ -380,13 +382,13 @@ public class Infer {
 	public static Equations solve(Equations equs) {
 		while (true) {
 			while (true) {
-//				printEqus(equs);
+				printEqus(equs);
 				Pair<Equations, Boolean> p1 = unifyEqus(equs);
-//				printEqus(p1.getKey());
+				printEqus(p1.getKey());
 				Pair<Equations, Boolean> p2 = mergeAll(p1.getKey());
-//				printEqus(p2.getKey());
+				printEqus(p2.getKey());
 				Pair<Equations, Boolean> p3 = propagate(p2.getKey());
-//				printEqus(p3.getKey());
+				printEqus(p3.getKey());
 
 				if (p1.getValue() || p2.getValue() || p3.getValue())
 					equs = p3.getKey();
@@ -1138,6 +1140,8 @@ public class Infer {
 				forAllType.getTyInts().remove(i);
 				Type forAllTy = subst(forAllType.getTy(), i, ty);
 				
+				if (forAllType.getLocInts().isEmpty() && forAllType.getTyInts().isEmpty())
+					return forAllTy;
 				return new ForAll(forAllType.getLocInts(), forAllType.getTyInts(), forAllTy);
 			}
 		}
@@ -1205,6 +1209,8 @@ public class Infer {
 				forAllType.getLocInts().remove(i);
 				Type ty = substTyTyLoc(forAllType.getTy(), i, tyloc);
 				
+				if (forAllType.getLocInts().isEmpty() && forAllType.getTyInts().isEmpty())
+					return ty;
 				return new ForAll(forAllType.getLocInts(), forAllType.getTyInts(), ty);
 			}
 		}

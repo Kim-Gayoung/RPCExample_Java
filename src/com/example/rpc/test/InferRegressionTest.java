@@ -10,6 +10,7 @@ import com.example.extrpc.App;
 import com.example.extrpc.Bool;
 import com.example.extrpc.BoolType;
 import com.example.extrpc.ExprTerm;
+import com.example.extrpc.ForAll;
 import com.example.extrpc.FunType;
 import com.example.extrpc.If;
 import com.example.extrpc.Infer;
@@ -228,6 +229,25 @@ public class InferRegressionTest {
 			prettyPrintLoc(funTy.getLoc());
 			System.out.print("->");
 			prettyPrintType(funTy.getRetTy());
+		}
+		else if (ty instanceof ForAll) {
+			ForAll forallTy = (ForAll) ty;
+			
+			System.out.print("ForAll [{");
+			for (int i: forallTy.getLocInts()) {
+				System.out.print("l"+i);
+				if (forallTy.getLocInts().iterator().hasNext())
+					System.out.print(", ");
+			}
+			System.out.print("}, {");
+			for (int i: forallTy.getTyInts()) {
+				System.out.print("a" + i);
+				if (forallTy.getTyInts().iterator().hasNext())
+					System.out.print(", ");
+			}
+			System.out.print("}, (");
+			prettyPrintType(forallTy.getTy());
+			System.out.print(")]");
 		}
 	}
 	
