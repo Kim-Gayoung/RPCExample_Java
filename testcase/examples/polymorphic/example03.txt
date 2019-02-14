@@ -10,8 +10,8 @@ test6 = lam^s a b. locFreeFun a b;
 test7 = lam^c a b. locFreeFun (locFreeFun a 123) (locFreeFun b 456);
 test8 = lam^s a b c. locFreeFun (locFreeFun a c) (locFreeFun b c);
 
-a = test1;
-b = test2;
+a = test1 ();
+b = test2 ();
 c = test3 a;
 d = test4 b;
 e = test5 a b;
