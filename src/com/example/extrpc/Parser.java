@@ -74,7 +74,7 @@ public class Parser {
 		pu.lex("\\)", text -> { return Token.CLOSEPAREN; });
 		pu.lex("\\.", text -> { return Token.DOT; });
 		pu.lex(";", text -> { return Token.SEMICOLON; });
-		pu.lexEndToken("$", Token.END_OF_TOKEN);
+		pu.lexEndToken("$", text -> { return Token.END_OF_TOKEN; });
 
 		pu.ruleStartSymbol("TopLevel'");
 		pu.rule("TopLevel' -> TopLevel", () -> { return pu.get(1); });
