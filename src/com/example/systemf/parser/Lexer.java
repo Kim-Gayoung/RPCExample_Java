@@ -23,6 +23,7 @@ public class Lexer {
 		pu.lexKeyword("bool", text -> { return Token.TYPE; });
 		pu.lexKeyword("unit", text -> { return Token.TYPE; });
 		
+		pu.lex("t[0-9]+", text -> { return Token.TYPE; });
 		pu.lex("[0-9]+", text -> { return Token.NUM; });
 		pu.lex("[a-zA-Z]+[0-9]*", text -> { return Token.ID; });
 		
