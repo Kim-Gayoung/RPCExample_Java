@@ -6,6 +6,7 @@ import java.io.Reader;
 import com.example.lib.CommonParserUtil;
 import com.example.lib.LexerException;
 import com.example.lib.ParserException;
+import com.example.systemf.ast.All;
 import com.example.systemf.ast.App;
 import com.example.systemf.ast.Bool;
 import com.example.systemf.ast.BoolType;
@@ -14,10 +15,12 @@ import com.example.systemf.ast.If;
 import com.example.systemf.ast.IntType;
 import com.example.systemf.ast.Lam;
 import com.example.systemf.ast.Let;
+import com.example.systemf.ast.LocType;
 import com.example.systemf.ast.Location;
 import com.example.systemf.ast.Num;
 import com.example.systemf.ast.Str;
 import com.example.systemf.ast.StrType;
+import com.example.systemf.ast.TApp;
 import com.example.systemf.ast.Term;
 import com.example.systemf.ast.TopLevel;
 import com.example.systemf.ast.Type;
@@ -79,6 +82,14 @@ public class Parser {
 			
 			return new Lam(loc, id, body);
 		});
+		pu.rule("LExpr -> lam id . LExpr", () -> {
+			String strLoc = pu.getText(2);
+			Location loc = Location.Polymorphic;
+			String id = pu.getText(2);
+			Term body = (Term) pu.get(5);
+			
+			return new Lam(loc, id, body);
+		});
 		pu.rule("LExpr -> lam loc id : type . LExpr", () -> {
 			String strLoc = pu.getText(2);
 			Location loc = getLoc(strLoc);
@@ -89,6 +100,16 @@ public class Parser {
 			
 			return new Lam(loc, id, ty, body);
 		});
+		pu.rule("LExpr -> lam id : type . LExpr", () -> {
+			String strLoc = pu.getText(2);
+			Location loc = Location.Polymorphic;
+			String id = pu.getText(2);
+			String strTy = pu.getText(4);
+			Type ty = getType(strTy);
+			Term body = (Term) pu.get(6);
+			
+			return new Lam(loc, id, ty, body);
+		});
 		pu.rule("LExpr -> lam loc ( ) . LExpr", () -> {
 			String strLoc = pu.getText(2);
 			Location loc = getLoc(strLoc);
@@ -96,6 +117,13 @@ public class Parser {
 			Term body = (Term) pu.get(6);
 			
 			return new Lam(loc, id, new UnitType(), body);
+		});
+		pu.rule("LExpr -> all type . LExpr", () -> {
+			String strTy = pu.getText(2);
+			Type ty = getType(strTy);
+			Term body = (Term) pu.get(4);
+			
+			return new All(ty, body);
 		});
 		pu.rule("LExpr -> let id = LExpr in LExpr end", () -> {
 			return new Let(pu.getText(2), (Term) pu.get(4), (Term) pu.get(6));
@@ -116,6 +144,18 @@ public class Parser {
 		pu.rule("Expr -> Expr Term", () -> {
 			return new App((Term) pu.get(1), (Term) pu.get(2));
 		});
+		pu.rule("Expr -> Expr loc Term", () -> {
+			Location loc = getLoc(pu.getText(2));
+		
+			return new App((Term) pu.get(1), (Term) pu.get(3), new LocType(loc));
+		});
+		pu.rule("Expr -> Expr type", () -> {
+			String strTy = pu.getText(2);
+			Type ty = getType (strTy);
+			
+			return new TApp((Term) pu.get(1), ty);
+		});
+		
 		pu.rule("Expr -> Cond", () -> { return pu.get(1); });
 
 		pu.rule("Cond -> LogicNot", () -> { return pu.get(1); });

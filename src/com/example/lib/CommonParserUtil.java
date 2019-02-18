@@ -77,7 +77,7 @@ public class CommonParserUtil<Token extends TokenInterface<Token>> {
 		int length = splitRule.length - 2;
 
 		int last_stack_tree_index = stack.size() - 1;
-		int offset = (length * 2) - ((i - 1) * 2 + 1);
+		int offset = Math.abs((length * 2) - ((i - 1) * 2 + 1));
 		Nonterminal nt = (Nonterminal) stack.get(last_stack_tree_index - offset);
 
 		return nt.getTree();

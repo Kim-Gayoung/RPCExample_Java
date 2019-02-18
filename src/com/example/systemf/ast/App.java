@@ -4,7 +4,7 @@ public class App extends Term {
 	private Term fun;
 	private Term arg;
 	private TypedLocation loc;
-	
+
 	public App(Term fun, Term arg, TypedLocation loc) {
 		this.fun = fun;
 		this.arg = arg;
@@ -42,14 +42,14 @@ public class App extends Term {
 
 	@Override
 	public String toString() {
-String ret = "(" + fun.toString() + ")";
-		
+		String ret = "(" + fun.toString() + ")";
+
 		if (loc != null)
-			 ret += "^" + loc + "^(" + arg.toString() + ")";
+			ret += "^" + loc + "^(" + arg.toString() + ")";
 		else
-			ret +=  " (" + arg.toString() + ")";
-		
+			ret += " (" + arg.toString() + ")";
+
 		return ret;
 	}
-	
+
 }

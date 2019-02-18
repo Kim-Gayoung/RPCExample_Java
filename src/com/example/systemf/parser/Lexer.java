@@ -7,6 +7,7 @@ public class Lexer {
 		pu.lexEndToken("\\$", text -> { return Token.END_OF_TOKEN; });
 		
 		pu.lexKeyword("lam", text -> { return Token.LAM; });
+		pu.lexKeyword("all", text -> { return Token.ALL; });
 		pu.lexKeyword("let", text -> { return Token.LET; });
 		pu.lexKeyword("in", text -> { return Token.IN; });
 		pu.lexKeyword("end", text -> { return Token.END; });
@@ -23,6 +24,7 @@ public class Lexer {
 		pu.lexKeyword("bool", text -> { return Token.TYPE; });
 		pu.lexKeyword("unit", text -> { return Token.TYPE; });
 		
+		pu.lex("[ \t\n]", text -> { return null; }); 
 		pu.lex("t[0-9]+", text -> { return Token.TYPE; });
 		pu.lex("[0-9]+", text -> { return Token.NUM; });
 		pu.lex("[a-zA-Z]+[0-9]*", text -> { return Token.ID; });
@@ -32,11 +34,11 @@ public class Lexer {
 		pu.lex("\\*", text -> { return Token.MUL; });
 		pu.lex("\\/", text -> { return Token.DIV; });
 		
-		pu.lex("\\=\\=", text -> { return Token.EQUAL; });
-		pu.lex("\\=", text -> { return Token.ASSIGN; });
-		pu.lex("\\>\\=", text -> { return Token.GEQUAL; });
-		pu.lex("\\>", text -> { return Token.GTHAN; });
-		pu.lex("\\<\\=", text -> { return Token.LEQUAL; });
+		pu.lex("==", text -> { return Token.EQUAL; });
+		pu.lex("=", text -> { return Token.ASSIGN; });
+		pu.lex(">=", text -> { return Token.GEQUAL; });
+		pu.lex(">", text -> { return Token.GTHAN; });
+		pu.lex("<=", text -> { return Token.LEQUAL; });
 		pu.lex("\\<", text -> { return Token.LTHAN; });
 		
 		pu.lex("\\!\\=", text -> { return Token.NOTEQ; });

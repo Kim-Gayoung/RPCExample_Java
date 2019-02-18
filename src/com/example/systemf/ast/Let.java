@@ -57,7 +57,7 @@ public class Let extends Term {
 			return "let " + id + ": " + idTy + " = " + t1 + " in\n\t" + t2 + "\nend";
 		}
 		else
-			return "let" + id + " = " + t1 + " in\n\t" + t2 + "\nend";
+			return "let " + id + " = " + t1 + " in\n\t" + t2 + "\nend";
 	}
 	
 }
