@@ -1,17 +1,17 @@
 package com.example.systemf.ast;
 
 public class VarType extends Type {
-	private int var;
+	private String var;
 
-	public VarType(int var) {
+	public VarType(String var) {
 		this.var = var;
 	}
 
-	public int getVar() {
+	public String getVar() {
 		return var;
 	}
 
-	public void setVar(int var) {
+	public void setVar(String var) {
 		this.var = var;
 	}
 
@@ -28,7 +28,7 @@ public class VarType extends Type {
 
 	@Override
 	public String toString() {
-		return "a" + var;
+		return var;
 	}
 
 	@Override

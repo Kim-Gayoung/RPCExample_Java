@@ -133,7 +133,7 @@ public class TypeChecker {
 						argTy = checkTerm(tApp.getArg(), tyenv, Location.Server);
 					}
 					
-					if (argType != argTy)
+					if (argType.getClass() != argTy.getClass())
 						flag = true;
 				}
 				else
@@ -189,7 +189,6 @@ public class TypeChecker {
 			Type t1Ty = checkTerm(t1, tyenv, loc);
 			tyenv.getPairList().add(pair);
 			Type t2Ty = checkTerm(t2, tyenv, loc);
-			tyenv.getPairList().remove(pair);
 			
 			if (t1Ty.equals(tLet.getIdTy()))
 				return t2Ty;
@@ -204,7 +203,7 @@ public class TypeChecker {
 			Type elseTy = checkTerm(tIf.getElseT(), tyenv, loc);
 			
 			if (condTy instanceof BoolType) {
-				if (thenTy == elseTy)
+				if (thenTy.getClass() == elseTy.getClass())
 					return thenTy;
 			}
 			else
@@ -237,7 +236,7 @@ public class TypeChecker {
 				else
 					throw new TypeCheckException("Oprnd1(" + oprnd1 + ") type is " + oprnd1Ty);
 			}
-			else if (op >= 5 && op <= 10) {
+			else if (op >= 5 && op <= 8) {
 				Term oprnd1 = tExpr.getOprnd1();
 				Term oprnd2 = tExpr.getOprnd2();
 				
@@ -247,6 +246,18 @@ public class TypeChecker {
 				if (oprnd1Ty instanceof IntType && oprnd2Ty instanceof IntType) {
 					return new BoolType();
 				}
+				else
+					throw new TypeCheckException("Oprnd1(" + oprnd1 + ") type is " + oprnd1Ty + ", Oprnd2(" + oprnd2 + ") type is " + oprnd2Ty);
+			}
+			else if (op >= 9 && op <= 10) {
+				Term oprnd1 = tExpr.getOprnd1();
+				Term oprnd2 = tExpr.getOprnd2();
+				
+				Type oprnd1Ty = checkTerm(oprnd1, tyenv, loc);
+				Type oprnd2Ty = checkTerm(oprnd2, tyenv, loc);
+				
+				if (oprnd1Ty.getClass() == oprnd2Ty.getClass())
+					return new BoolType();
 				else
 					throw new TypeCheckException("Oprnd1(" + oprnd1 + ") type is " + oprnd1Ty + ", Oprnd2(" + oprnd2 + ") type is " + oprnd2Ty);
 			}

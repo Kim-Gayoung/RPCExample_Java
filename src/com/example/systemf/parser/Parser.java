@@ -11,11 +11,13 @@ import com.example.systemf.ast.App;
 import com.example.systemf.ast.Bool;
 import com.example.systemf.ast.BoolType;
 import com.example.systemf.ast.ExprTerm;
+import com.example.systemf.ast.FunType;
 import com.example.systemf.ast.If;
 import com.example.systemf.ast.IntType;
 import com.example.systemf.ast.Lam;
 import com.example.systemf.ast.Let;
 import com.example.systemf.ast.LocType;
+import com.example.systemf.ast.LocVarType;
 import com.example.systemf.ast.Location;
 import com.example.systemf.ast.Num;
 import com.example.systemf.ast.Str;
@@ -45,118 +47,91 @@ public class Parser {
 			
 			return new TopLevel(top);
 		});
-		pu.rule("TopLevel -> id = LExpr", () -> {
+		pu.rule("TopLevel -> id OptType = LExpr", () -> {
 			String id = pu.getText(1);
+			Type ty = pu.get(2) != null? (Type) pu.get(2) : null;
+			Term t1 = (Term) pu.get(4);
 			
-			return new TopLevel(new Let(id, (Term) pu.get(3), new Var(id)));
+			if (ty != null)
+				return new TopLevel(new Let(id, ty, t1, new Var(id)));
+			else
+				return new TopLevel(new Let(id, t1, new Var(id)));
 		});
-		pu.rule("TopLevel -> id : type = LExpr", () -> {
+		pu.rule("TopLevel -> id OptType = LExpr ; TopLevel", () -> {
 			String id = pu.getText(1);
-			String strTy = pu.getText(3);
-			Type ty = getType(strTy);
-			Term t1 = (Term) pu.get(5);
+			Type ty = pu.get(2) != null? (Type) pu.get(2) : null;
+			Term t1 = (Term) pu.get(4);
+			TopLevel next = (TopLevel) pu.get(6);
 			
-			return new TopLevel(new Let(id, ty, t1, new Var(id)));
-		});
-		pu.rule("TopLevel -> id = LExpr ; TopLevel" , () -> {
-			String id = pu.getText(1);
-			TopLevel next = (TopLevel) pu.get(5);
-			
-			return new TopLevel(new Let(id, (Term) pu.get(3), new Var(id)), next);
-		});
-		pu.rule("TopLevel -> id : type = LExpr ; TopLevel", () -> {
-			String id = pu.getText(1);
-			String strTy = pu.getText(3);
-			Type ty = getType(strTy);
-			Term t1 = (Term) pu.get(5);
-			TopLevel next = (TopLevel) pu.get(7);
-			
-			return new TopLevel(new Let(id, ty, t1, new Var(id)), next);
+			if (ty != null)
+				return new TopLevel(new Let(id, ty, t1, new Var(id)), next);
+			else
+				return new TopLevel(new Let(id, t1, new Var(id)), next);
 		}); 
-		pu.rule("LExpr -> Expr", () -> { return pu.get(1); });
-		pu.rule("LExpr -> lam loc id . LExpr", () -> {
-			String strLoc = pu.getText(2);
+		pu.rule("LExpr -> lam ^ id id OptType . LExpr", () -> {
+			String strLoc = pu.getText(3);
 			Location loc = getLoc(strLoc);
-			String id = pu.getText(3);
-			Term body = (Term) pu.get(5);
-			
-			return new Lam(loc, id, body);
-		});
-		pu.rule("LExpr -> lam id . LExpr", () -> {
-			String strLoc = pu.getText(2);
-			Location loc = Location.Polymorphic;
-			String id = pu.getText(2);
-			Term body = (Term) pu.get(5);
-			
-			return new Lam(loc, id, body);
-		});
-		pu.rule("LExpr -> lam loc id : type . LExpr", () -> {
-			String strLoc = pu.getText(2);
-			Location loc = getLoc(strLoc);
-			String id = pu.getText(3);
-			String strTy = pu.getText(5);
-			Type ty = getType(strTy);
+			String id = pu.getText(4);
+			Type ty = pu.get(5) != null? (Type) pu.get(5) : null;
 			Term body = (Term) pu.get(7);
 			
-			return new Lam(loc, id, ty, body);
+			if (ty != null)
+				return new Lam(loc, id, ty, body);
+			else
+				return new Lam(loc, id, body);
 		});
-		pu.rule("LExpr -> lam id : type . LExpr", () -> {
-			String strLoc = pu.getText(2);
+		pu.rule("LExpr -> lam id OptType . LExpr", () -> {
 			Location loc = Location.Polymorphic;
 			String id = pu.getText(2);
-			String strTy = pu.getText(4);
-			Type ty = getType(strTy);
-			Term body = (Term) pu.get(6);
+			Type ty = pu.get(3) != null ? (Type) pu.get(3) : null;
+			Term body = (Term) pu.get(5);
 			
-			return new Lam(loc, id, ty, body);
+			if (ty != null)
+				return new Lam(loc, id, ty, body);
+			else
+				return new Lam(loc, id, body);
 		});
-		pu.rule("LExpr -> lam loc ( ) . LExpr", () -> {
-			String strLoc = pu.getText(2);
-			Location loc = getLoc(strLoc);
-			String id = "_tempVar";
-			Term body = (Term) pu.get(6);
-			
-			return new Lam(loc, id, new UnitType(), body);
-		});
-		pu.rule("LExpr -> all type . LExpr", () -> {
+		pu.rule("LExpr -> tylam id . LExpr", () -> {
 			String strTy = pu.getText(2);
-			Type ty = getType(strTy);
 			Term body = (Term) pu.get(4);
 			
-			return new All(ty, body);
+			return new All(new VarType(strTy), body);
 		});
-		pu.rule("LExpr -> let id = LExpr in LExpr end", () -> {
-			return new Let(pu.getText(2), (Term) pu.get(4), (Term) pu.get(6));
-		});
-		pu.rule("LExpr -> let id : type = LExpr in LExpr end", () -> {
+		pu.rule("LExpr -> let id OptType = LExpr in LExpr end", () -> {
 			String id = pu.getText(2);
-			String strTy = pu.getText(4);
-			Type ty = getType(strTy);
-			Term t1 = (Term) pu.get(6);
-			Term t2 = (Term) pu.get(8);
+			Type ty = pu.get(3) != null ? (Type) pu.get(3) : null;
+			Term t1 = (Term) pu.get(5);
+			Term t2 = (Term) pu.get(7);
 			
-			return new Let(id, ty, t1, t2);
+			if (ty != null)
+				return new Let(id, ty, t1, t2);
+			else
+				return new Let(id, t1, t2);
 		});
 		pu.rule("LExpr -> if Expr then LExpr else LExpr", () -> {
 			return new If((Term) pu.get(2), (Term) pu.get(4), (Term) pu.get(6));
 		});
+		pu.rule("LExpr -> Expr", () -> { return pu.get(1); });
 
 		pu.rule("Expr -> Expr Term", () -> {
 			return new App((Term) pu.get(1), (Term) pu.get(2));
 		});
-		pu.rule("Expr -> Expr loc Term", () -> {
-			Location loc = getLoc(pu.getText(2));
+		pu.rule("Expr -> Expr ^ id ^ Term", () -> {
+			Location loc = getLoc(pu.getText(3));
 		
-			return new App((Term) pu.get(1), (Term) pu.get(3), new LocType(loc));
+			return new App((Term) pu.get(1), (Term) pu.get(5), new LocType(loc));
 		});
-		pu.rule("Expr -> Expr type", () -> {
-			String strTy = pu.getText(2);
-			Type ty = getType (strTy);
+		pu.rule("Expr -> AppExpr", () -> {
+			return pu.get(1);
+		});
+		pu.rule("AppExpr -> AppExpr [ Type ]", () -> {
+			// TAPP
+			Term term = (Term) pu.get(1);
+			Type ty = (Type) pu.get(3);
 			
-			return new TApp((Term) pu.get(1), ty);
+			return new TApp(term, ty);
 		});
-		
-		pu.rule("Expr -> Cond", () -> { return pu.get(1); });
+		pu.rule("AppExpr -> Cond", () -> { return pu.get(1); });
 
 		pu.rule("Cond -> LogicNot", () -> { return pu.get(1); });
 		pu.rule("LogicNot -> ! LogicOr", () -> {
@@ -218,6 +193,66 @@ public class Parser {
 		pu.rule("Term -> bool", () -> { return new Bool(pu.getText(1)); });
 		pu.rule("Term -> ( )", () -> { return new Unit(); });
 		pu.rule("Term -> ( LExpr )", () -> { return pu.get(2); });
+		
+		pu.rule("Type -> ForAllType LocArrow Type", () -> {
+			Type argTy = (Type) pu.get(1);
+			Location loc = (Location) pu.get(2);
+			Type retTy = (Type) pu.get(3);
+			
+			if (loc == Location.Polymorphic) {
+				return new FunType(argTy, new LocVarType(n++), retTy);
+			}
+			else
+				return new FunType(argTy, new LocType(loc), retTy);
+		});
+		pu.rule("Type -> ForAllType", () -> {
+			return pu.get(1);
+		});
+		
+		pu.rule("ForAllType -> forall identifier . PrimaryType", () -> {
+			String id = pu.getText(2);
+			Type ty = (Type) pu.get(4);
+			
+//			return new ForAll();
+			return null;
+		});
+		pu.rule("ForAllType -> PrimaryType", () -> {
+			return pu.get(1);
+		});
+		
+		pu.rule("PrimaryType -> Unit", () -> {
+			return new UnitType();
+		});
+		pu.rule("PrimaryType -> Int", () -> {
+			return new IntType();
+		});
+		pu.rule("PrimaryType -> Bool", () -> {
+			return new BoolType();
+		}); 
+		pu.rule("PrimaryType -> String", () -> {
+			return new StrType();
+		});
+		pu.rule("PrimaryType -> id", () -> {
+			return new VarType(pu.getText(1));
+		});
+		pu.rule("PrimaryType -> ( Type )", () -> {
+			return pu.get(2);
+		});
+		
+		pu.rule("LocArrow -> - id ->", () -> {
+			Location loc = getLoc(pu.getText(2));
+			
+			return loc;
+		});
+		pu.rule("LocArrow -> ->", () -> {
+			return Location.Polymorphic;
+		});
+		pu.rule("OptType -> : Type", () -> {
+			return pu.get(2);
+		});
+		pu.rule("OptType -> ", () -> {
+			return null;
+		});
 	}
 	
 	public Term Parsing(Reader r) throws ParserException, IOException, LexerException {
@@ -225,22 +260,9 @@ public class Parser {
 	}
 
 	private Location getLoc(String loc) {
-		if (loc.equals("^s"))
+		if (loc.equals("s"))
 			return Location.Server;
 		else
 			return Location.Client;
-	}
-	
-	private Type getType(String ty) {
-		if (ty.equals("int"))
-			return new IntType();
-		else if (ty.equals("string"))
-			return new StrType();
-		else if (ty.equals("bool"))
-			return new BoolType();
-		else if (ty.equals("unit"))
-			return new UnitType();
-		else
-			return new VarType(n++);
 	}
 }

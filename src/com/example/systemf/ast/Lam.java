@@ -55,15 +55,15 @@ public class Lam extends Term {
 	public String toString() {
 		if (idTy != null) {
 			if (loc == Location.Polymorphic)
-				return "lam" + " (" + x + ": " + idTy + ").\n" + m.toString();
+				return "lam" + " (" + x + ": " + idTy + ")." + m.toString();
 			else
-				return "lam^" + loc + "(" + x + ": " + idTy + ").\n" + m.toString();
+				return "lam^" + loc + "(" + x + ": " + idTy + ")." + m.toString();
 		}
 		else {
 			if (loc == Location.Polymorphic)
-				return "lam" + " (" + x + ").\n" + m.toString();
+				return "lam" + " (" + x + ")." + m.toString();
 			else
-				return "lam^" + loc + "(" + x + ").\n" + m.toString();
+				return "lam^" + loc + "(" + x + ")." + m.toString();
 		}
 	}
 	

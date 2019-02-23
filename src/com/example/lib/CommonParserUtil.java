@@ -392,8 +392,9 @@ public class CommonParserUtil<Token extends TokenInterface<Token>> {
 			// data[1] �뜝�룞�삕 �뜝�룞�삕�뜝�룞�삕�뜝�룞�삕�뜝�룞�삕 �뜝�룞�삕�뜝�룞�삕 Nonterminal Terminal �뜝�떎�뙋�삕 �뜝�떗�슱�삕
 			if (data.length > 1 && data[1].trim().length() > 0) {
 				String[] tok = data[1].trim().split("[ \t\n]");
-	
+				
 				for (int j = 0; j < tok.length; j++) {
+//					System.out.println(data[1] + ": " + tok[j]);
 					if (nonterminals.contains(tok[j])) { // �뜝�룞�삕�뜝�룞�삕 token�뜝�룞�삕 Nonterminal�뜝�룞�삕 �뜝�룞�삕�뜝��
 						fileContent += "Nonterminal \"";
 					}

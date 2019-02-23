@@ -14,7 +14,10 @@ public enum Token implements TokenInterface<Token> {
 	LAM("lam"), ID("id"), NUM("num"), STR("str"), BOOL("bool"),
 	LET("let"), IN("in"), END("end"),
 	IF("if"), THEN("then"), ELSE("else"),
-	TYPE("type"), ALL("all");
+	UNITTYPE("Unit"), INTTYPE("Int"), BOOLTYPE("Bool"), STRTYPE("String"),
+	ARROW("->"), FORALL("forall"),
+	AT("^"), TYLAM("tylam");
+
 	
 	private String strToken;
 	
