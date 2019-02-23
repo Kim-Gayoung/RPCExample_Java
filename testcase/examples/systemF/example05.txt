@@ -1,0 +1,7 @@
+identity_client: all t1. t1-c->t1 = all t1. lam^c x: t1. x;
+identity_server: all t2. t2-s->t2 = all t2. lam^s x: t2. x;
+
+clientTest1 = identity_client "abc";
+serverTest1 = identity_server 123;
+clientTest2 = identity_server 123;
+serverTest2 = identity_client "abC"

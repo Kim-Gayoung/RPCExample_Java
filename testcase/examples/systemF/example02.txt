@@ -1,0 +1,12 @@
+simpleCond: bool-c->string = lam^c b: bool.
+  if b == True then
+    "This value is True"
+  else
+  	"This value is False"
+;
+
+test1: string = simpleCond ^c True;
+test2: unit-s->string = lam^s (). simpleCond ^c False;
+test3: bool-s->string = lam^s b: bool. simpleCond ^c b;
+test4: string = test2 ^s ();
+test5: string = test3 ^s True
