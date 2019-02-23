@@ -1,15 +1,15 @@
-simpleCond: int-c->(int-c->string) =
-	lam^c x: int.
-	  lam^c y: int.
+simpleCond: Int-c->(Int-c->String) =
+	lam^c x: Int.
+	  lam^c y: Int.
 		if x >= y then
 		  "x GEQ y"
 		else
 		  "x LT y";
 		  
-test1: string = simpleCond ^c 123 ^c 456;
-test2: string = simpleCond ^c 987 ^c 543;
-test3: int-s->(int-s->string) =
-	lam^s x: int.
-	  lam^s y: int. simpleCond ^c x ^c y;
-test4: unit-s->string = lam^s (). test3 111 222;
-test5: string = test3 ^s 12345 ^s 5678 
+test1: String = simpleCond Int Int ^c^ 123 ^c^ 456;
+test2: String = simpleCond Int Int ^c^ 987 ^c^ 543;
+test3: Int-s->(Int-s->String) =
+	lam^s x: Int.
+	  lam^s y: Int. simpleCond Int Int ^c^ x ^c^ y;
+test4: Unit-s->String = lam^s x: Unit. test3 Int Int ^s^ 111 ^s^ 222;
+test5: String = test3 Int Int ^s^ 12345 ^s^ 5678 
