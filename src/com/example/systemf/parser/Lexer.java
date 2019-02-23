@@ -26,10 +26,12 @@ public class Lexer {
 				
 		
 		pu.lex("[ \t\n]", text -> { return null; }); 
-		pu.lex("[cs]", text -> { return Token.LOC; });
 		pu.lex("[0-9]+", text -> { return Token.NUM; });
 		pu.lex("[_a-zA-Z]+[0-9]*", text -> { return Token.ID; });
 		pu.lex("\\-\\>", text -> { return Token.ARROW; });
+		
+		pu.lex("\\[", text -> { return Token.OPENBRACKET; });
+		pu.lex("\\]", text -> { return Token.CLOSEBRACKET; });
 		
 		pu.lex("\\+", text -> { return Token.ADD; });
 		pu.lex("\\-", text -> { return Token.SUB; });

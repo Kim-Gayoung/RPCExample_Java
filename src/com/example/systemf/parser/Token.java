@@ -6,8 +6,7 @@ import com.example.lib.TokenInterface;
 public enum Token implements TokenInterface<Token> {
 	END_OF_TOKEN("$"),
 	OPENPAREN("("), CLOSEPAREN(")"), SEMICOLON(";"), COLON(":"),
-	DOT("."), LOC("loc"),
-	ADD("+"), SUB("-"), MUL("*"), DIV("/"),
+	DOT("."), ADD("+"), SUB("-"), MUL("*"), DIV("/"),
 	ASSIGN("="), EQUAL("=="), NOTEQ("!="),
 	AND("and"), OR("or"), NOT("!"),
 	GTHAN(">"), GEQUAL(">="), LTHAN("<"), LEQUAL("<="),
@@ -15,7 +14,7 @@ public enum Token implements TokenInterface<Token> {
 	LET("let"), IN("in"), END("end"),
 	IF("if"), THEN("then"), ELSE("else"),
 	UNITTYPE("Unit"), INTTYPE("Int"), BOOLTYPE("Bool"), STRTYPE("String"),
-	ARROW("->"), FORALL("forall"),
+	ARROW("->"), FORALL("forall"), OPENBRACKET("["), CLOSEBRACKET("]"),
 	AT("^"), TYLAM("tylam");
 
 	
