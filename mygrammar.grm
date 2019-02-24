@@ -45,7 +45,7 @@ CFG "TopLevel'" [
 	ProductionRule "Term" [Terminal "(", Nonterminal "LExpr", Terminal ")"],
 	ProductionRule "Type" [Nonterminal "ForAllType", Nonterminal "LocArrow", Nonterminal "Type"],
 	ProductionRule "Type" [Nonterminal "ForAllType"],
-	ProductionRule "ForAllType" [Terminal "forall", Terminal "identifier", Terminal ".", Nonterminal "PrimaryType"],
+	ProductionRule "ForAllType" [Terminal "forall", Terminal "id", Terminal ".", Nonterminal "PrimaryType"],
 	ProductionRule "ForAllType" [Nonterminal "PrimaryType"],
 	ProductionRule "PrimaryType" [Terminal "Unit"],
 	ProductionRule "PrimaryType" [Terminal "Int"],
