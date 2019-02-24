@@ -1,6 +1,6 @@
 simplePlus: Int-c->Int = lam^c x: Int. x + 1;
 
-test1: Int = simplePlus [Int] ^c^ 345;
-test2: Unit-s->Int = lam^s x: Unit.simplePlus [Int] ^c^ 123;
-test3: Int-s->Int = lam^s x: Int. simplePlus [Int] ^c^ x;
-test4: Int = test3 [Int] ^s^ 1236
+test1: Int = simplePlus ^c^ 345;
+test2: Unit-s->Int = lam^s x: Unit.simplePlu ^c^ 123;
+test3: Int-s->Int = lam^s x: Int. simplePlus ^c^ x;
+test4: Int = test3 ^s^ 1236
