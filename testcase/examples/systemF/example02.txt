@@ -5,8 +5,8 @@ simpleCond: Bool-c->String = lam^c b: Bool.
   	"This value is False"
 ;
 
-test1: String = simpleCond Bool ^c^ True;
-test2: Unit-s->String = lam^s x: Unit. simpleCond Bool ^c^ False;
-test3: Bool-s->string = lam^s b: Bool. simpleCond Bool ^c^ b;
-test4: String = test2 Unit ^s^ ();
-test5: String = test3 Bool ^s^ True
+test1: String = simpleCond [Bool] ^c^ True;
+test2: Unit-s->String = lam^s x: Unit. simpleCond [Bool] ^c^ False;
+test3: Bool-s->string = lam^s b: Bool. simpleCond [Bool] ^c^ b;
+test4: String = test2 [Unit] ^s^ ();
+test5: String = test3 [Bool] ^s^ True
