@@ -1,0 +1,15 @@
+max: Int-c->Int-c->Int =
+	lam^c num1: Int.
+		lam^c num2: Int.
+			if num1 > num2 then
+				num1
+			else
+				num2;
+
+test1: Int-c->Int-c->Int-c->Int = 
+	lam^c a: Int. lam^c b: Int. lam^c c:Int.
+		if a != 0 and b != 0 and c != 0 then
+				max ^c^ (a / b) ^c^ (max ^c^ (a / c) ^c^ (max ^c^ (b / a) ^c^ (max ^c^ (b / c) ^c^ (max ^c^ (c / a) ^c^ (c / b)))))
+			else
+				-1;
+test2: Int = test1 ^c^ 345 ^c^ 467 ^c^ 234

@@ -1,0 +1,11 @@
+logicalTest: String-c->Bool-c->Bool-c->Bool =
+	lam^c str: String.
+		lam^c oprnd1: Bool.
+			lam^c oprnd2: Bool.
+				if str != "or" then
+					oprnd1 and oprnd2
+				else
+					oprnd1 or oprnd2;
+					
+test1: Bool = logicalTest ^c^ "and" ^c^ True ^c^ False;
+test2: Bool = logicalTest ^c^ "or" ^c^ True ^c^ False
