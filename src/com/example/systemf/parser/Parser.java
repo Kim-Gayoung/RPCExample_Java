@@ -6,11 +6,11 @@ import java.io.Reader;
 import com.example.lib.CommonParserUtil;
 import com.example.lib.LexerException;
 import com.example.lib.ParserException;
-import com.example.systemf.ast.All;
 import com.example.systemf.ast.App;
 import com.example.systemf.ast.Bool;
 import com.example.systemf.ast.BoolType;
 import com.example.systemf.ast.ExprTerm;
+import com.example.systemf.ast.ForAll;
 import com.example.systemf.ast.FunType;
 import com.example.systemf.ast.If;
 import com.example.systemf.ast.IntType;
@@ -25,6 +25,7 @@ import com.example.systemf.ast.StrType;
 import com.example.systemf.ast.TApp;
 import com.example.systemf.ast.Term;
 import com.example.systemf.ast.TopLevel;
+import com.example.systemf.ast.Tylam;
 import com.example.systemf.ast.Type;
 import com.example.systemf.ast.Unit;
 import com.example.systemf.ast.UnitType;
@@ -95,7 +96,7 @@ public class Parser {
 			String strTy = pu.getText(2);
 			Term body = (Term) pu.get(4);
 			
-			return new All(new VarType(strTy), body);
+			return new Tylam(new VarType(strTy), body);
 		});
 		pu.rule("LExpr -> let id OptType = LExpr in LExpr end", () -> {
 			String id = pu.getText(2);
@@ -209,12 +210,12 @@ public class Parser {
 			return pu.get(1);
 		});
 		
-		pu.rule("ForAllType -> forall identifier . PrimaryType", () -> {
+		pu.rule("ForAllType -> forall id . PrimaryType", () -> {
 			String id = pu.getText(2);
+			VarType tyId = new VarType(id);
 			Type ty = (Type) pu.get(4);
 			
-//			return new ForAll();
-			return null;
+			return new ForAll(tyId, ty);
 		});
 		pu.rule("ForAllType -> PrimaryType", () -> {
 			return pu.get(1);

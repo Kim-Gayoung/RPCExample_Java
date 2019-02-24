@@ -1,33 +1,34 @@
 package com.example.systemf.ast;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
 public class ForAll extends Type {
-	private Set<Integer> locInts;
-	private Set<Integer> tyInts;
+	private Type tyId;
+	private TypedLocation tyedLoc;
 	private Type ty;
 	
-	public ForAll(Set<Integer> locInts, Set<Integer> tyInts, Type ty) {
-		this.locInts = locInts;
-		this.tyInts = tyInts;
+	public ForAll(Type tyId, Type ty) {
+		this.tyId = tyId;
+		this.ty = ty;
+	}
+	
+	public ForAll(TypedLocation tyedLoc, Type ty) {
+		this.tyedLoc = tyedLoc;
 		this.ty = ty;
 	}
 
-	public Set<Integer> getLocInts() {
-		return locInts;
+	public Type getTyId() {
+		return tyId;
 	}
 
-	public void setLocInts(Set<Integer> locInts) {
-		this.locInts = locInts;
+	public void setTyId(Type tyId) {
+		this.tyId = tyId;
 	}
 
-	public Set<Integer> getTyInts() {
-		return tyInts;
+	public TypedLocation getTyedLoc() {
+		return tyedLoc;
 	}
 
-	public void setTyInts(Set<Integer> tyInts) {
-		this.tyInts = tyInts;
+	public void setTyedLoc(TypedLocation tyedLoc) {
+		this.tyedLoc = tyedLoc;
 	}
 
 	public Type getTy() {
@@ -40,33 +41,18 @@ public class ForAll extends Type {
 
 	@Override
 	public String toString() {
-		String ret = "ForAll [{";
-		
-		for(int i: locInts) {
-			ret += "l" + i;
-			
-			if (locInts.iterator().hasNext())
-				ret += ", ";
-		}
-		ret += "}, {";
-		
-		for(int i: tyInts) {
-			ret += "a" + i;
-			
-			if (tyInts.iterator().hasNext())
-				ret += ", ";
-		}
-		
-		ret += "}, " + ty + "]";
-		
-		return ret;
+		if (tyId != null)
+			return "forall " + tyId + "." + ty;
+		else
+			return "forall " + tyedLoc + "." + ty;
 	}
 
 	@Override
 	protected Type clone() {
-		return new ForAll(locInts.stream().collect(Collectors.toSet()),
-						tyInts.stream().collect(Collectors.toSet()),
-						ty.clone());
+		if (tyId != null)
+			return new ForAll(tyId.clone(), ty.clone());
+		else
+			return new ForAll(tyedLoc.clone(), ty.clone());
 	}
 
 }

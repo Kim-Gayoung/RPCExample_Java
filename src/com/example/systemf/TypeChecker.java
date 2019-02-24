@@ -1,9 +1,5 @@
 package com.example.systemf;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import com.example.systemf.ast.All;
 import com.example.systemf.ast.App;
 import com.example.systemf.ast.Bool;
 import com.example.systemf.ast.BoolType;
@@ -22,6 +18,7 @@ import com.example.systemf.ast.StrType;
 import com.example.systemf.ast.TApp;
 import com.example.systemf.ast.Term;
 import com.example.systemf.ast.TopLevel;
+import com.example.systemf.ast.Tylam;
 import com.example.systemf.ast.Type;
 import com.example.systemf.ast.TypedLocation;
 import com.example.systemf.ast.Unit;
@@ -88,20 +85,13 @@ public class TypeChecker {
 			
 			return new FunType(varTy, new LocType(lamLoc), termTy);
 		}
-		else if (t instanceof All) {
-			All tAll = (All) t;
+		else if (t instanceof Tylam) {
+			Tylam tylam = (Tylam) t;
 			
-			Term term = tAll.getTerm();
+			Term term = tylam.getTerm();
 			Type termTy = checkTerm(term, tyenv, loc);
 			
-			Set<Integer> tyInts = new HashSet<>();
-			
-			if (tAll.getTy() instanceof VarType) {
-				VarType varTy = (VarType) tAll.getTy();
-				tyInts.add(varTy.getVar());
-			}
-			
-			return new ForAll(new HashSet<>(), tyInts, termTy);
+			return new ForAll(tylam.getTy(), termTy);
 		}
 		else if (t instanceof App) {
 			App tApp = (App) t;
@@ -156,28 +146,27 @@ public class TypeChecker {
 		else if (t instanceof TApp) {
 			TApp tTApp = (TApp) t;
 			
-			Type funTy = tTApp.getTy();
+			Type tfunTy = tTApp.getTy();
 			
-			Term fun = tTApp.getFun();
-			Type funType = checkTerm(fun, tyenv, loc);
+			Term tFun = tTApp.getFun();
+			Type tFunType = checkTerm(tFun, tyenv, loc);
 			
-			if (funType instanceof ForAll) {
-				ForAll forallTy = (ForAll) funType;
-				Type ty = forallTy.getTy();
+			if (tFunType instanceof ForAll) {
+				ForAll forAll = (ForAll) tFunType;
 				
-				if (ty instanceof VarType) {
-					VarType varTy = (VarType) ty;
-					int i = varTy.getVar();
+				Type tyId = forAll.getTyId();
+				
+				if (tyId instanceof VarType) {
+					VarType var = (VarType) tyId;
+					Type substForAll = subst(forAll.getTy(), var.getVar(), tfunTy);
 					
-					Type substTy = subst(forallTy.getTy(), i, funTy);
-					
-					return substTy;
+					return substForAll;
 				}
 				else
-					throw new TypeCheckException("ForAll(" + ty + ") is not VarType.");
+					throw new TypeCheckException("ForAll type id is not VarType(" + tyId + ")");
 			}
 			else
-				throw new TypeCheckException("Function(" + fun + ": " + funType + ") is not ForAll Type");
+				throw new TypeCheckException("Function(" + tFun + ": " + tFunType + ") is not ForAll Type");
 		}
 		else if (t instanceof Let) {
 			Let tLet = (Let) t;
@@ -190,7 +179,7 @@ public class TypeChecker {
 			tyenv.getPairList().add(pair);
 			Type t2Ty = checkTerm(t2, tyenv, loc);
 			
-			if (t1Ty.equals(tLet.getIdTy()))
+			if (t1Ty.toString().equals(tLet.getIdTy().toString()))
 				return t2Ty;
 			else
 				throw new TypeCheckException("T1(" + t1 + ": " + t1Ty + ") is not equal ID type(" + tLet.getId() + ": " + tLet.getIdTy() + ")");
@@ -290,8 +279,8 @@ public class TypeChecker {
 		
 		return null;
 	}
-	public static Type subst(Type t, int i, Type ty) {
-		check(i, ty);
+	public static Type subst(Type t, String s, Type ty) {
+		check(s, ty);
 
 		if (t instanceof IntType) {
 			IntType intType = (IntType) t;
@@ -316,15 +305,15 @@ public class TypeChecker {
 		else if (t instanceof VarType) {
 			VarType varType = (VarType) t;
 
-			if (i == varType.getVar())
+			if (s.equals(varType.getVar()))
 				return ty;
 			else
 				return varType;
 		}
 		else if (t instanceof FunType) {
 			FunType funType = (FunType) t;
-			Type left = subst(funType.getArgTy(), i, ty);
-			Type right = subst(funType.getRetTy(), i, ty);
+			Type left = subst(funType.getArgTy(), s, ty);
+			Type right = subst(funType.getRetTy(), s, ty);
 
 			FunType retFunType = new FunType(left, funType.getLoc(), right);
 
@@ -333,13 +322,13 @@ public class TypeChecker {
 		else if (t instanceof ForAll) {
 			ForAll forAllType = (ForAll) t;
 			
-			if (forAllType.getTyInts().contains(i)) {
+			if (forAllType.getTyId().equals(s)) {
 				return forAllType;
 			}
 			else {
-				Type forAllTy = subst(forAllType.getTy(), i, ty);
+				Type forAllTy = subst(forAllType.getTy(), s, ty);
 				
-				return new ForAll(forAllType.getLocInts(), forAllType.getTyInts(), forAllTy);
+				return new ForAll(forAllType.getTyId(), forAllTy);
 			}
 		}
 		else {
@@ -348,21 +337,21 @@ public class TypeChecker {
 		}
 	}
 	
-	public static void check(int i, Type ty) {
+	public static void check(String s, Type ty) {
 		if (ty instanceof IntType) {
 
 		}
 		else if (ty instanceof VarType) {
 			VarType vTy = (VarType) ty;
 
-			if (vTy.getVar() == i)
-				throw new RuntimeException(i + " occurs in " + ty);
+			if (vTy.getVar().equals(s))
+				throw new RuntimeException(s + " occurs in " + ty);
 		}
 		else if (ty instanceof FunType) {
 			FunType fTy = (FunType) ty;
 
-			check(i, fTy.getArgTy());
-			check(i, fTy.getRetTy());
+			check(s, fTy.getArgTy());
+			check(s, fTy.getRetTy());
 		}
 
 	}
