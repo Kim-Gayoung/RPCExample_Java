@@ -3,8 +3,7 @@ CFG "TopLevel'" [
 	ProductionRule "TopLevel" [Nonterminal "LExpr"],
 	ProductionRule "TopLevel" [Terminal "id", Nonterminal "OptType", Terminal "=", Nonterminal "LExpr"],
 	ProductionRule "TopLevel" [Terminal "id", Nonterminal "OptType", Terminal "=", Nonterminal "LExpr", Terminal ";", Nonterminal "TopLevel"],
-	ProductionRule "LExpr" [Terminal "lam", Terminal "^", Terminal "id", Terminal "id", Nonterminal "OptType", Terminal ".", Nonterminal "LExpr"],
-	ProductionRule "LExpr" [Terminal "lam", Terminal "id", Nonterminal "OptType", Terminal ".", Nonterminal "LExpr"],
+	ProductionRule "LExpr" [Terminal "lam", Nonterminal "OptLoc", Terminal "id", Nonterminal "OptType", Terminal ".", Nonterminal "LExpr"],
 	ProductionRule "LExpr" [Terminal "tylam", Terminal "id", Terminal ".", Nonterminal "LExpr"],
 	ProductionRule "LExpr" [Terminal "let", Terminal "id", Nonterminal "OptType", Terminal "=", Nonterminal "LExpr", Terminal "in", Nonterminal "LExpr", Terminal "end"],
 	ProductionRule "LExpr" [Terminal "if", Nonterminal "Expr", Terminal "then", Nonterminal "LExpr", Terminal "else", Nonterminal "LExpr"],
@@ -45,7 +44,7 @@ CFG "TopLevel'" [
 	ProductionRule "Term" [Terminal "(", Nonterminal "LExpr", Terminal ")"],
 	ProductionRule "Type" [Nonterminal "ForAllType", Nonterminal "LocArrow", Nonterminal "Type"],
 	ProductionRule "Type" [Nonterminal "ForAllType"],
-	ProductionRule "ForAllType" [Terminal "forall", Terminal "id", Terminal ".", Nonterminal "PrimaryType"],
+	ProductionRule "ForAllType" [Terminal "forall", Terminal "id", Terminal ".", Nonterminal "ForAllType"],
 	ProductionRule "ForAllType" [Nonterminal "PrimaryType"],
 	ProductionRule "PrimaryType" [Terminal "Unit"],
 	ProductionRule "PrimaryType" [Terminal "Int"],
@@ -56,5 +55,7 @@ CFG "TopLevel'" [
 	ProductionRule "LocArrow" [Terminal "-", Terminal "id", Terminal "->"],
 	ProductionRule "LocArrow" [Terminal "->"],
 	ProductionRule "OptType" [Terminal ":", Nonterminal "Type"],
-	ProductionRule "OptType" []
+	ProductionRule "OptType" [],
+	ProductionRule "OptLoc" [Terminal "^", Terminal "id"],
+	ProductionRule "OptLoc" []
 ]

@@ -159,18 +159,23 @@ public class TypeChecker {
 			return new FunType(varTy, new LocType(lamLoc), termTy);
 		}
 		else if (t instanceof Tylam) {
+			// tylam id. ty
 			Tylam tylam = (Tylam) t;
 			
 			Term term = tylam.getTerm();
 			
+			assert (tylam.getTy() instanceof VarType);
+			
 			ArrayList<Pair<String, Type>> envList = tyenv.getPairList();
+
+			VarType tylamId = (VarType) tylam.getTy();
 			
 			for (Pair<String, Type> p: envList) {
-				if (p.getValue().toString().equals(tylam.getTy().toString()))
+				if (p.getValue().toString().equals(tylamId.getVar()))
 					throw new TypeCheckException("Type Environment contains " + tylam.getTy());
 			}
 			
-			Pair<String, Type> tmpPair = new Pair<>("_tmpTyLamId", tylam.getTy());
+			Pair<String, Type> tmpPair = new Pair<>(tylamId.getVar(), tylam.getTy());
 			tyenv.getPairList().add(tmpPair);
 			
 			Type termTy = checkTerm(term, tyenv, loc);

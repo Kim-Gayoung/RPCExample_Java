@@ -23,6 +23,7 @@ public class TypeCheckTest {
 		parser = new Parser();
 		String directory = System.getProperty("user.dir");
 		recursiveRead(new File(directory + "/testcase/examples/systemF/"));
+		duplicateTypeVarFail();
 	}
 	
 	public void recursiveRead(File file) throws ParserException, IOException, LexerException, TypeCheckException {
@@ -38,6 +39,25 @@ public class TypeCheckTest {
 				System.out.println("Type: " + ty1.toString());
 			}
 		}
+	}
+	
+	public void duplicateTypeVarFail() throws ParserException, IOException, LexerException {
+		boolean flag = false;
+		try {
+			String directory = System.getProperty("user.dir");
+			File f = new File(directory + "/testcase/examples/systemF/failure/example_duplicate_typevar_fail.txt");
+			
+			System.out.println("\n" + f);
+			FileReader fileReader = new FileReader(f);
+			TopLevel ex1 = (TopLevel) parser.Parsing(fileReader);
+			Type ty1 = TypeChecker.checkTopLevel(ex1, new TyEnv());
+			System.out.println(ex1);
+			System.out.println("Type: " + ty1.toString());
+		} catch(TypeCheckException e) {
+			flag = true;
+		}
+		
+		assert(flag);
 	}
 
 }

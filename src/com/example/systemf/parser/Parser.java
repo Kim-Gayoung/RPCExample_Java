@@ -69,29 +69,28 @@ public class Parser {
 			else
 				return new TopLevel(new Let(id, t1, new Var(id)), next);
 		}); 
-		pu.rule("LExpr -> lam ^ id id OptType . LExpr", () -> {
-			String strLoc = pu.getText(3);
-			Location loc = getLoc(strLoc);
-			String id = pu.getText(4);
-			Type ty = pu.get(5) != null? (Type) pu.get(5) : null;
-			Term body = (Term) pu.get(7);
+		pu.rule("LExpr -> lam OptLoc id OptType . LExpr", () -> {
+			Location loc = pu.get(2) != null? (Location) pu.get(2) : null;
+			String id = pu.getText(3);
+			Type ty = pu.get(4) != null? (Type) pu.get(4) : null;
+			Term body = (Term) pu.get(6);
 			
 			if (ty != null)
 				return new Lam(loc, id, ty, body);
 			else
 				return new Lam(loc, id, body);
 		});
-		pu.rule("LExpr -> lam id OptType . LExpr", () -> {
-			Location loc = Location.Polymorphic;
-			String id = pu.getText(2);
-			Type ty = pu.get(3) != null ? (Type) pu.get(3) : null;
-			Term body = (Term) pu.get(5);
-			
-			if (ty != null)
-				return new Lam(loc, id, ty, body);
-			else
-				return new Lam(loc, id, body);
-		});
+//		pu.rule("LExpr -> lam id OptType . LExpr", () -> {
+//			Location loc = Location.Polymorphic;
+//			String id = pu.getText(2);
+//			Type ty = pu.get(3) != null ? (Type) pu.get(3) : null;
+//			Term body = (Term) pu.get(5);
+//			
+//			if (ty != null)
+//				return new Lam(loc, id, ty, body);
+//			else
+//				return new Lam(loc, id, body);
+//		});
 		pu.rule("LExpr -> tylam id . LExpr", () -> {
 			String strTy = pu.getText(2);
 			Term body = (Term) pu.get(4);
@@ -210,7 +209,7 @@ public class Parser {
 			return pu.get(1);
 		});
 		
-		pu.rule("ForAllType -> forall id . PrimaryType", () -> {
+		pu.rule("ForAllType -> forall id . ForAllType", () -> {
 			String id = pu.getText(2);
 			VarType tyId = new VarType(id);
 			Type ty = (Type) pu.get(4);
@@ -252,6 +251,12 @@ public class Parser {
 			return pu.get(2);
 		});
 		pu.rule("OptType -> ", () -> {
+			return null;
+		});
+		pu.rule("OptLoc -> ^ id", () -> {
+			return getLoc(pu.getText(2));
+		});
+		pu.rule("OptLoc -> ", () -> {
 			return null;
 		});
 	}
