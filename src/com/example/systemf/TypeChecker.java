@@ -1,5 +1,7 @@
 package com.example.systemf;
 
+import java.util.ArrayList;
+
 import com.example.systemf.ast.App;
 import com.example.systemf.ast.Bool;
 import com.example.systemf.ast.BoolType;
@@ -30,6 +32,7 @@ import javafx.util.Pair;
 
 public class TypeChecker {	
 	public static Type checkTopLevel(TopLevel top, TyEnv tyenv) throws TypeCheckException {
+		initLibrary(tyenv);
 		Term term = top.getTop();
 		Type termTy = checkTerm(term, tyenv, Location.Client);
 		
@@ -42,6 +45,76 @@ public class TypeChecker {
 		else {
 			return termTy;
 		}
+	}
+	
+	private static void initLibrary(TyEnv env) {
+		generalLibrary(env);
+		dbLibrary(env);
+	}
+	
+	private static void generalLibrary(TyEnv env) {
+		ArrayList<Pair<String, Type>> envList = new ArrayList<>();
+		TypedLocation client = new LocType(Location.Client);
+		TypedLocation server = new LocType(Location.Server);
+		
+		// isNothing, fromJust -> client, server
+		envList.add(new Pair<>("isNothing_client", new FunType(new StrType(), client, new BoolType())));
+		envList.add(new Pair<>("isNothing_server", new FunType(new StrType(), server, new BoolType())));
+		envList.add(new Pair<>("fromJust_client", new FunType(new StrType(), client, new StrType())));
+		envList.add(new Pair<>("fromJust_server", new FunType(new StrType(), server, new StrType())));
+		
+		envList.add(new Pair<>("openFile_client", new FunType(new StrType(), client, new FunType(new StrType(), client, new StrType()))));
+		envList.add(new Pair<>("openFile_server", new FunType(new StrType(), client, new FunType(new StrType(), client, new StrType()))));
+		envList.add(new Pair<>("closeFile_client", new FunType(new StrType(), client, new UnitType())));
+		envList.add(new Pair<>("closeFile_server", new FunType(new StrType(), server, new UnitType())));
+		envList.add(new Pair<>("writeFile_client", new FunType(new StrType(), client, new FunType(new StrType(), client, new StrType()))));
+		envList.add(new Pair<>("writeFile_server", new FunType(new StrType(), client, new FunType(new StrType(), client, new StrType()))));
+		envList.add(new Pair<>("readFile_client", new FunType(new StrType(), client, new StrType())));
+		envList.add(new Pair<>("readFile_server", new FunType(new StrType(), server, new StrType())));
+		
+		envList.add(new Pair<>("readConsole", new FunType(new UnitType(), client, new StrType())));
+		envList.add(new Pair<>("writeConsole", new FunType(new StrType(), client, new UnitType())));
+		
+		envList.add(new Pair<>("toString_client", new ForAll(new VarType("toStringTy_client"), new FunType(new VarType("toStringTy_client"), client, new StrType()))));
+		envList.add(new Pair<>("toString_server", new ForAll(new VarType("toStringTy_server"), new FunType(new VarType("toStringTy_server"), server, new StrType()))));
+		envList.add(new Pair<>("toInt_client", new FunType(new StrType(), client, new IntType())));
+		envList.add(new Pair<>("toInt_server", new FunType(new StrType(), server, new IntType())));
+		envList.add(new Pair<>("toBool_client", new FunType(new StrType(), client, new BoolType())));
+		envList.add(new Pair<>("toBool_server", new FunType(new StrType(), server, new BoolType())));
+		
+		envList.add(new Pair<>("reverse_client", new FunType(new StrType(), client, new StrType())));
+		envList.add(new Pair<>("reverse_server", new FunType(new StrType(), server, new StrType())));
+		envList.add(new Pair<>("append_client", new FunType(new StrType(), client, new FunType(new StrType(), client, new StrType()))));
+		envList.add(new Pair<>("append_server", new FunType(new StrType(), server, new FunType(new StrType(), server, new StrType()))));
+		envList.add(new Pair<>("length_client", new FunType(new StrType(), client, new IntType())));
+		envList.add(new Pair<>("length_server", new FunType(new StrType(), server, new IntType())));
+		
+		envList.add(new Pair<>("getHour_client", new FunType(new UnitType(), client, new IntType())));
+		envList.add(new Pair<>("getHour_server", new FunType(new UnitType(), server, new IntType())));
+		envList.add(new Pair<>("getYear_client", new FunType(new UnitType(), client, new IntType())));
+		envList.add(new Pair<>("getYear_server", new FunType(new UnitType(), server, new IntType())));
+		envList.add(new Pair<>("getMonth_client", new FunType(new UnitType(), client, new IntType())));
+		envList.add(new Pair<>("getMonth_server", new FunType(new UnitType(), server, new IntType())));
+		envList.add(new Pair<>("getDay_client", new FunType(new UnitType(), client, new IntType())));
+		envList.add(new Pair<>("getDay_server", new FunType(new UnitType(), server, new IntType())));
+		envList.add(new Pair<>("getDate_client", new FunType(new UnitType(), client, new IntType())));
+		envList.add(new Pair<>("getDate_server", new FunType(new UnitType(), server, new IntType())));
+		
+		env.getPairList().addAll(envList);
+	}
+	
+	private static void dbLibrary(TyEnv env) {
+		ArrayList<Pair<String, Type>> envList = new ArrayList<>();
+		TypedLocation server = new LocType(Location.Server);
+		
+		envList.add(new Pair<>("createTable", new FunType(new StrType(), server, new FunType(new StrType(), server, new IntType()))));
+		envList.add(new Pair<>("insertRecord", new FunType(new StrType(), server, new FunType(new StrType(), server, new BoolType()))));
+		envList.add(new Pair<>("updateRecord", new FunType(new StrType(), server, new FunType(new StrType(), server, new BoolType()))));
+		envList.add(new Pair<>("deleteRecord", new FunType(new StrType(), server, new FunType(new StrType(), server, new BoolType()))));
+		envList.add(new Pair<>("query", new FunType(new StrType(), server, new FunType(new IntType(), server, new FunType(new StrType(), server, new StrType())))));
+		envList.add(new Pair<>("fromRecord", new FunType(new StrType(), server, new FunType(new IntType(), server, new StrType()))));
+		
+		env.getPairList().addAll(envList);
 	}
 	
 	public static Type tylookup(String x, TyEnv tyenv) {
@@ -89,7 +162,20 @@ public class TypeChecker {
 			Tylam tylam = (Tylam) t;
 			
 			Term term = tylam.getTerm();
+			
+			ArrayList<Pair<String, Type>> envList = tyenv.getPairList();
+			
+			for (Pair<String, Type> p: envList) {
+				if (p.getValue().toString().equals(tylam.getTy().toString()))
+					throw new TypeCheckException("Type Environment contains " + tylam.getTy());
+			}
+			
+			Pair<String, Type> tmpPair = new Pair<>("_tmpTyLamId", tylam.getTy());
+			tyenv.getPairList().add(tmpPair);
+			
 			Type termTy = checkTerm(term, tyenv, loc);
+			
+			tyenv.getPairList().remove(tmpPair);
 			
 			return new ForAll(tylam.getTy(), termTy);
 		}
@@ -174,9 +260,9 @@ public class TypeChecker {
 			Term t1 = tLet.getT1();
 			Term t2 = tLet.getT2();
 			Pair<String, Type> pair = new Pair<>(tLet.getId(), tLet.getIdTy());
-			
-			Type t1Ty = checkTerm(t1, tyenv, loc);
+
 			tyenv.getPairList().add(pair);
+			Type t1Ty = checkTerm(t1, tyenv, loc);
 			Type t2Ty = checkTerm(t2, tyenv, loc);
 			
 			if (t1Ty.toString().equals(tLet.getIdTy().toString()))
