@@ -1,0 +1,15 @@
+tblname: String = "test";
+
+send: Int-s->String-s->Bool =
+	lam^s session: Int.
+		lam^s block: String.
+			let flag: String = query ^s^ tblname ^s^ session ^s^ "flag" in
+				if (toBool_server ^s^ flag) == False then
+					let insertQuery: String = append_server ^s^ (append_server ^s^ "session=" ^s^ (toString_server [Int] ^s^ session)) ^s^ (append_server ^s^ (append_server ^s^ "block=" ^s^ block) ^s^ (append_server ^s^ "flag=" ^s^ (toString_server [Bool] ^s^ True))) in
+						let insert: Bool = insertRecord ^s^ tblname ^s^ insertQuery in
+							insert
+						end
+					end
+		  		else
+		  			send ^s^ session ^s^ block
+			end

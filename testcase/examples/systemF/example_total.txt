@@ -1,0 +1,101 @@
+tblname: String = "test";
+
+send: Int-s->String-s->Bool =
+	lam^s session: Int.
+		lam^s block: String.
+			let flag: String = query ^s^ tblname ^s^ session ^s^ "flag" in
+				if (toBool_server ^s^ flag) == False then
+					let insertQuery: String = append_server ^s^ (append_server ^s^ "session=" ^s^ (toString_server [Int] ^s^ session)) ^s^ (append_server ^s^ (append_server ^s^ "block=" ^s^ block) ^s^ (append_server ^s^ "flag=" ^s^ (toString_server [Bool] ^s^ True))) in
+						let insert: Bool = insertRecord ^s^ tblname ^s^ insertQuery in
+							insert
+						end
+					end
+		  		else
+		  			send ^s^ session ^s^ block
+			end;
+
+receive: Int-s->String = lam^s session: Int.
+	let flag: String = query ^s^ tblname ^s^ session ^s^ "flag" in
+		if (toBool_server ^s^ flag) == False then
+			receive ^s^ session
+		else
+			let block: String = query ^s^ tblname ^s^ session ^s^ "block" in
+				let updateQuery: String = append_server ^s^ (append_server ^s^ "session=" ^s^ (toString_server [Int] ^s^ session)) ^s^ (append_server ^s^ "flag=" ^s^ (toString_server [Bool] ^s^ False)) in
+					let update: Bool = updateRecord ^s^ tblname ^s^ updateQuery in
+						block
+					end
+				end
+			end
+	end;
+	
+setupSending: String-s->Int=
+	lam^s fileName: String.
+		let recordId: Int = createTable ^s^ tblname ^s^ fileName in
+			recordId
+		end;
+		
+setupReceiving: Int-s->String =
+	lam^s session: Int.
+		let fileName: String = query ^s^ tblname ^s^ session ^s^ "filename" in
+			fileName
+		end;
+
+receiveFile: Int-c->String-c->Unit =
+	lam^c session: Int.
+		lam^c fd: String.
+			let maybeblock: String = receive ^s^ session in
+				if isNothing_client ^c^ maybeblock then
+					let close: Unit = closeFile_client ^c^ fd in
+						close
+					end
+				else
+					let block: String = fromJust_client ^c^ maybeblock in
+						let run: String = writeFile_client ^c^ fd ^c^ block in
+							receiveFile ^c^ session ^c^ fd
+						end
+					end
+			end;
+
+receiverClient: Unit-c->Unit = lam^c x: Unit.
+	let session: Int = toInt_client ^c^ (readConsole ^c^ ()) in
+		let fileName: String = setupReceiving ^s^ session in
+			let fd: String = openFile_client ^c^ fileName ^c^ "w" in
+				receiveFile ^c^ session ^c^ fd
+			end
+		end
+	end;
+	
+sendFile: Int-c->String-c->Unit =
+	lam^c session: Int.
+		lam^c fd: String.
+			let maybeblock: String = readFile_client ^c^ fd in
+				if isNothing_client maybeblock then
+					let close: Unit = closeFile_client ^c^ fd in
+						close
+					end
+				else
+					let block: String = fromJust_client ^c^ maybeblock in
+						let run: Bool = send ^s^ session ^s^ block in
+							sendFile ^c^ session ^c^ fd
+						end
+					end
+			end;
+			
+senderClient: Unit-c->Unit = lam^c x: Unit.
+	let fileName: String = readConsole ^c^ () in
+		let fd: String = openFile_client ^c^ fileName ^c^ "r" in
+			let session: Int = setupSending ^s^ fileName in
+				let a: Unit = writeConsole ^c^ (toString_client [Int] ^c^ session) in
+					sendFile ^c^ session ^c^ fd
+				end
+			end
+		end
+	end;
+	
+main: Unit =
+	let cmd: String = readConsole () in
+		if cmd == "sender" then
+			senderClient ^c^ ()
+		else
+			receiverClient ^c^ ()
+	end

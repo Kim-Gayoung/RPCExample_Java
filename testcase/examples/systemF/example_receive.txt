@@ -1,0 +1,15 @@
+tblname: String = "test";
+
+receive: Int-s->String = lam^s session: Int.
+	let flag: String = query ^s^ tblname ^s^ session ^s^ "flag" in
+		if (toBool_server ^s^ flag) == False then
+			receive ^s^ session
+		else
+			let block: String = query ^s^ tblname ^s^ session ^s^ "block" in
+				let updateQuery: String = append_server ^s^ (append_server ^s^ "session=" ^s^ (toString_server [Int] ^s^ session)) ^s^ (append_server ^s^ "flag=" ^s^ (toString_server [Bool] ^s^ False)) in
+					let update: Bool = updateRecord ^s^ tblname ^s^ updateQuery in
+						block
+					end
+				end
+			end
+	end
