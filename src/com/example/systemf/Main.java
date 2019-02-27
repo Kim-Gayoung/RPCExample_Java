@@ -13,7 +13,7 @@ import com.example.systemf.ast.Type;
 import com.example.systemf.parser.Parser;
 
 public class Main {
-	public static void main(String[] args) throws ParserException, IOException, LexerException, TypeCheckException {
+	public static void main(String[] args) throws ParserException, IOException, LexerException, TypeCheckException, CompException {
 		Parser parser = new Parser();
 
 		System.out.println("1: File, the other: Console");
@@ -44,5 +44,8 @@ public class Main {
 		
 		Type checkTy = TypeChecker.checkTopLevel((TopLevel) ex1, new TyEnv());
 		System.out.println("Type: " + checkTy);
+		
+		Term compStaRpcTerm = CompStaRpc.compStaRpc((TopLevel) ex1);
+		System.out.println(compStaRpcTerm);
 	}
 }
