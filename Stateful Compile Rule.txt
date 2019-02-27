@@ -1,7 +1,7 @@
 StaTerm = Let id (Type) StaTerm StaTerm
         | App StaValue [StaValue]
-	| Call StaValue [StaValue]
-	| Req StaValue [StaValue]
+		| Call StaValue [StaValue]
+		| Req StaValue [StaValue]
         | If StaValue StaTerm StaTerm
         | StaExprTerm op [StaValue]
         | StaValue
@@ -22,11 +22,11 @@ StaExpr = Add StaValue StaValue
         | Not StaValue
 
 StaValue = Unit
-	| Num number
-	| Str string
-	| Bool boolean
-	| Var id
-	| Lam Location [id] StaTerm
+		| Num number
+		| Str string
+		| Bool boolean
+		| Var id
+		| Lam Location [id] StaTerm
 
 compStaTerm:: Term -> StaTerm
 compStaTerm t =  compTopLevel t
@@ -46,6 +46,9 @@ compClient (Lam Client id idTy term) =
 compClient (Lam Server id idTy term) = 
     let term' = compServer term
     in (Lam Server id idTy term')
+compClient (Tylam tyvar term) =
+    let term' = compClient term
+    in (Tylam tyvar term')
 compClient (App fun arg (TypedLocation Client)) =
     let fvar = "f" ++ fresh()
         xvar = "x" ++ fresh()
@@ -54,7 +57,7 @@ compClient (App fun arg (TypedLocation Client)) =
         x = Var xvar
         r = Var rvar
         fun' = compClient fun
-	arg' = compClient arg
+		arg' = compClient arg
     in (Let fvar fun' (Let xvar arg' (Let rvar (App f [x]) r)))
 compClient (App fun arg (TypedLocation Server)) =
     let fvar = "f" ++ fresh()
@@ -64,31 +67,39 @@ compClient (App fun arg (TypedLocation Server)) =
         x = Var xvar
         r = Var rvar
         fun' = compClient fun
-	arg' = compClient arg
+		arg' = compClient arg
     in (Let fvar fun' (Let xvar arg' (Let rvar (Req f [x]) r)))
+compClient (TApp fun tyarg) =
+    let fvar = "f" ++ fresh()
+        rvar = "r" ++ fresh()
+        f = Var fvar
+        r = Var rvar
+        fun' = compClient fun
+    in (Let fvar fun' (Let rvar (TApp f [tyarg]) r)))
 compClient (Let id idTy term1 term2) =
     let term1' = compClient term1
-	term2' = compClient term2
+		term2' = compClient term2
     in (Let id idTy term1' term2')
 compClient (If cond then else) = 
     let fvar = "f" ++ fresh()
-	f = Var fvar
-	cond' = compClient cond
-	then' = compClient then
-	else' = compClient else
+		f = Var fvar
+		cond' = compClient cond
+		then' = compClient then
+		else' = compClient else
     in (Let fvar cond' (If f then' else'))
 compClient (ExprTerm op [term]) = 
     let xvar = "x" ++ fresh()
-	x = Var xvar
-	if op == 4 or op == 13 then
-	    let term1' = compClient term1
-	    in (Let xvar term1' (ExprTerm op [x]))
-	else
-	    let yvar = "y" ++ fresh()
-		y = Var y
-		term1' = compClient term1
-		term2' = compClient term2
-	    in (Let xvar term1' (Let yvar term2' (ExprTerm op [x, y])))
+		x = Var xvar
+		if op == 4 or op == 13 then
+		    let term1' = compClient term1
+		    in (Let xvar term1' (ExprTerm op [x]))
+		else
+		    let yvar = "y" ++ fresh()
+			y = Var y
+			term1' = compClient term1
+			term2' = compClient term2
+		    in (Let xvar term1' (Let yvar term2' (ExprTerm op [x, y])))
+	    
 
 compServer:: Term -> StaTerm
 compServer Unit = Unit
@@ -102,20 +113,23 @@ compServer (Lam Client id idTy term) =
 compServer (Lam Server id idTy term) = 
     let term' = compServer term
     in (Lam Server id idTy term')
+compServer (Tylam tyvar term) =
+    let term' = compServer term
+    in (Tylam tyvar term')
 compServer (App fun arg (TypedLocation Client)) =
     let fvar = "f" ++ fresh()
         xvar = "x" ++ fresh()
-	yvar = "y" ++ fresh()
-	zvar = "z" ++ fresh()
+		yvar = "y" ++ fresh()
+		zvar = "z" ++ fresh()
         rvar = "r" ++ fresh()
         f = Var fvar
         x = Var xvar
-	y = Var yvar
-	z = Var zvar
+		y = Var yvar
+		z = Var zvar
         r = Var rvar
         fun' = compServer fun
-	arg' = compServer arg
-	commuteFun = Lam Client [zvar] (Let yvar (App f [z]) (Ret y))
+		arg' = compServer arg
+		commuteFun = Lam Client [zvar] (Let yvar (App f [z]) (Ret y))
     in (Let fvar fun' (Let xvar arg' (Let rvar (Call commuteFun [x]) r)))
 compServer (App fun arg (TypedLocation Server)) =
     let fvar = "f" ++ fresh()
@@ -125,26 +139,54 @@ compServer (App fun arg (TypedLocation Server)) =
         x = Var xvar
         r = Var rvar
         fun' = compServer fun
-	arg' = compServer arg
+		arg' = compServer arg
     in (Let fvar fun' (Let xvar arg' (Let rvar (App f [x]) r)))
+compServer (TApp fun tyarg) =
+    let fvar = "f" ++ fresh()
+        rvar = "r" ++ fresh()
+        f = Var fvar
+        r = Var rvar
+        fun' = compServer fun
+    in (Let fvar fun' (Let rvar (TApp f [tyarg]) r)))
 compServer (Let id idTy term1 term2) =
     let term1' = compServer term1
-	term2' = compServer term2
+		term2' = compServer term2
     in (Let id idTy term1' term2')
 compServer (If cond then else) = 
     let cond' = compServer cond
-	then' = compServer then
-	else' = compServer else
+		then' = compServer then
+		else' = compServer else
     in (If cond' then' else')
 compServer (ExprTerm op [term]) = 
     let xvar = "x" ++ fresh()
-	x = Var xvar
-	if op == 4 or op == 13 then
-	    let term1' = compServer term1
-	    in (Let xvar term1' (ExprTerm op [x]))
-	else
-	    let yvar = "y" ++ fresh()
-		y = Var y
-		term1' = compServer term1
-		term2' = compServer term2
-	    in (Let xvar term1' (Let yvar term2' (ExprTerm op [x, y])))
+		x = Var xvar
+		if op == 4 or op == 13 thenW
+		    let term1' = compServer term1
+		    in (Let xvar term1' (ExprTerm op [x]))
+		else
+		    let yvar = "y" ++ fresh()
+			y = Var y
+			term1' = compServer term1
+			term2' = compServer term2
+		    in (Let xvar term1' (Let yvar term2' (ExprTerm op [x, y])))
+	    
+	    
+	    
+closure conversion
+
+cloConv (Tylam tyvar term) =
+  let F = "f" + fresh()
+      (term1, clienFs, serverFs) = cloConv (term)
+      a1 ... ak = ftv (term)
+      z1 ... zn = fv (term)
+      closedTylam = (a1 ... ak, z1 ... zn, Tylam tyvar term1)
+  	  clientFs' = clientFs ++ (F, closedTylam)
+  	  serverFs' = serverFs ++ (F, closedTylam)
+  in (Clo(F, a1 ... ak, z1 ... zn), clientFs', serverFs')
+  
+cloConv (TApp f [tyarg1 .. tyargk]) =
+  TApp (cloConv (f)) [tyarg1 ... tyargk]
+
+
+
+
