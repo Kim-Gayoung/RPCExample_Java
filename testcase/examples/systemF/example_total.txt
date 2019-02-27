@@ -69,7 +69,7 @@ sendFile: Int-c->String-c->Unit =
 	lam^c session: Int.
 		lam^c fd: String.
 			let maybeblock: String = readFile_client ^c^ fd in
-				if isNothing_client maybeblock then
+				if isNothing_client ^c^ maybeblock then
 					let close: Unit = closeFile_client ^c^ fd in
 						close
 					end
@@ -93,7 +93,7 @@ senderClient: Unit-c->Unit = lam^c x: Unit.
 	end;
 	
 main: Unit =
-	let cmd: String = readConsole () in
+	let cmd: String = readConsole ^c^ () in
 		if cmd == "sender" then
 			senderClient ^c^ ()
 		else
