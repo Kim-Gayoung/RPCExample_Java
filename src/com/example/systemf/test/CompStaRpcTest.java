@@ -36,7 +36,7 @@ public class CompStaRpcTest {
 				FileReader fileReader = new FileReader(f);
 				TopLevel ex1 = (TopLevel) parser.Parsing(fileReader);
 				Type ty1 = TypeChecker.checkTopLevel(ex1, new TyEnv());
-				TopLevel compEx1 = CompStaRpc.compStaRpc(ex1);
+				com.example.systemf.starpc.TopLevel compEx1 = CompStaRpc.compStaRpc(ex1);
 				
 				System.out.println(ex1);
 				System.out.println("after compile:" + compEx1);

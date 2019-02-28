@@ -1,33 +1,36 @@
 package com.example.systemf;
 
-import com.example.systemf.ast.App;
-import com.example.systemf.ast.Bool;
-import com.example.systemf.ast.Call;
-import com.example.systemf.ast.ExprTerm;
-import com.example.systemf.ast.If;
-import com.example.systemf.ast.Lam;
-import com.example.systemf.ast.Let;
+import java.util.ArrayList;
+
 import com.example.systemf.ast.LocType;
 import com.example.systemf.ast.Location;
-import com.example.systemf.ast.Num;
-import com.example.systemf.ast.Req;
-import com.example.systemf.ast.Ret;
-import com.example.systemf.ast.Str;
-import com.example.systemf.ast.TApp;
-import com.example.systemf.ast.Term;
-import com.example.systemf.ast.TopLevel;
-import com.example.systemf.ast.Tylam;
-import com.example.systemf.ast.Unit;
-import com.example.systemf.ast.Var;
+import com.example.systemf.starpc.App;
+import com.example.systemf.starpc.Bool;
+import com.example.systemf.starpc.Call;
+import com.example.systemf.starpc.ExprTerm;
+import com.example.systemf.starpc.If;
+import com.example.systemf.starpc.Lam;
+import com.example.systemf.starpc.Let;
+import com.example.systemf.starpc.Num;
+import com.example.systemf.starpc.Req;
+import com.example.systemf.starpc.Ret;
+import com.example.systemf.starpc.Str;
+import com.example.systemf.starpc.TApp;
+import com.example.systemf.starpc.Term;
+import com.example.systemf.starpc.TopLevel;
+import com.example.systemf.starpc.Tylam;
+import com.example.systemf.starpc.Unit;
+import com.example.systemf.starpc.Value;
+import com.example.systemf.starpc.Var;
 
 public class CompStaRpc {
 	private static int i = 1;
 	
-	public static TopLevel compStaRpc(TopLevel top) throws CompException {
+	public static TopLevel compStaRpc(com.example.systemf.ast.TopLevel top) throws CompException {
 		return compTopLevel(top);
 	}
 	
-	public static TopLevel compTopLevel(TopLevel top) throws CompException {
+	public static TopLevel compTopLevel(com.example.systemf.ast.TopLevel top) throws CompException {
 		Term term = compClient(top.getTop());
 		
 		if (top.getNext() != null) {
@@ -40,19 +43,32 @@ public class CompStaRpc {
 		}
 	}
 	
-	public static Term compClient(Term t) throws CompException {
-		if (t instanceof Unit)
-			return t;
-		else if (t instanceof Num)
-			return t;
-		else if (t instanceof Str)
-			return t;
-		else if (t instanceof Bool)
-			return t;
-		else if (t instanceof Var)
-			return t;
-		else if (t instanceof Lam) {
-			Lam tLam = (Lam) t;
+	public static Term compClient(com.example.systemf.ast.Term t) throws CompException {
+		if (t instanceof com.example.systemf.ast.Unit) {
+			return new Unit();
+		}
+		else if (t instanceof com.example.systemf.ast.Num) {
+			com.example.systemf.ast.Num tNum = (com.example.systemf.ast.Num) t;
+			
+			return new Num(tNum.getI());
+		}
+		else if (t instanceof com.example.systemf.ast.Str) {
+			com.example.systemf.ast.Str tStr = (com.example.systemf.ast.Str) t;
+			
+			return new Str(tStr.getStr());
+		}
+		else if (t instanceof com.example.systemf.ast.Bool) {
+			com.example.systemf.ast.Bool tBool = (com.example.systemf.ast.Bool) t;
+			
+			return new Bool(tBool.isBool());
+		}
+		else if (t instanceof com.example.systemf.ast.Var) {
+			com.example.systemf.ast.Var tVar = (com.example.systemf.ast.Var) t;
+			
+			return new Var(tVar.getVar());
+		}
+		else if (t instanceof com.example.systemf.ast.Lam) {
+			com.example.systemf.ast.Lam tLam = (com.example.systemf.ast.Lam) t;
 			Term term;
 			
 			if (tLam.getLoc() == Location.Client)
@@ -62,14 +78,14 @@ public class CompStaRpc {
 			
 			return new Lam(tLam.getLoc(), tLam.getX(), tLam.getIdTy(), term);
 		}
-		else if (t instanceof Tylam) {
-			Tylam tTylam = (Tylam) t;
+		else if (t instanceof com.example.systemf.ast.Tylam) {
+			com.example.systemf.ast.Tylam tTylam = (com.example.systemf.ast.Tylam) t;
 			Term term = compClient(tTylam.getTerm());
 			
 			return new Tylam(tTylam.getTy(), term);
 		}
-		else if (t instanceof App) {
-			App tApp = (App) t;
+		else if (t instanceof com.example.systemf.ast.App) {
+			com.example.systemf.ast.App tApp = (com.example.systemf.ast.App) t;
 			
 			String fvar = "f" + i++;
 			String xvar = "x" + i++;
@@ -82,19 +98,23 @@ public class CompStaRpc {
 			Term fun = compClient(tApp.getFun());
 			Term arg = compClient(tApp.getArg());
 			
+			ArrayList<Value> ws = new ArrayList<>();
+			ws.add(x);
+			
 			if (tApp.getLoc() instanceof LocType) {
 				Location loc = ((LocType) tApp.getLoc()).getLoc();
 				
 				if (loc == Location.Client)
-					return new Let(fvar, fun, new Let(xvar, arg, new Let(rvar, new App(f, x), r)));
-				else
-					return new Let(fvar, fun, new Let(xvar, arg, new Let(rvar, new Req(f, x), r)));
+					return new Let(fvar, fun, new Let(xvar, arg, new Let(rvar, new App(f, ws), r)));
+				else {
+					return new Let(fvar, fun, new Let(xvar, arg, new Let(rvar, new Req(f, ws), r)));
+				}
 			}
 			else
 				throw new CompException("CompStaRpc(compClient) TypedLocation is not LocType" + tApp.getLoc());
 		}
-		else if (t instanceof TApp) {
-			TApp tTApp = (TApp) t;
+		else if (t instanceof com.example.systemf.ast.TApp) {
+			com.example.systemf.ast.TApp tTApp = (com.example.systemf.ast.TApp) t;
 			
 			String fvar = "f" + i++;
 			String rvar = "r" + i++;
@@ -106,16 +126,16 @@ public class CompStaRpc {
 			
 			return new Let(fvar, fun, new Let(rvar, new TApp(f, tTApp.getTy()), r));
 		}
-		else if (t instanceof Let) {
-			Let tLet = (Let) t;
+		else if (t instanceof com.example.systemf.ast.Let) {
+			com.example.systemf.ast.Let tLet = (com.example.systemf.ast.Let) t;
 			
 			Term term1 = compClient(tLet.getT1());
 			Term term2 = compClient(tLet.getT2());
 			
 			return new Let(tLet.getId(), tLet.getIdTy(), term1, term2);
 		}
-		else if (t instanceof If) {
-			If tIf = (If) t;
+		else if (t instanceof com.example.systemf.ast.If) {
+			com.example.systemf.ast.If tIf = (com.example.systemf.ast.If) t;
 			
 			Term condTerm = compClient(tIf.getCond());
 			Term thenTerm = compClient(tIf.getThenT());
@@ -136,8 +156,8 @@ public class CompStaRpc {
 							new Let(elsevar, elseTerm,
 									new Let(rvar, new If(condv, thenv, elsev), r))));
 		}
-		else if (t instanceof ExprTerm) {
-			ExprTerm tExpr = (ExprTerm) t;
+		else if (t instanceof com.example.systemf.ast.ExprTerm) {
+			com.example.systemf.ast.ExprTerm tExpr = (com.example.systemf.ast.ExprTerm) t;
 			int op = tExpr.getOp();
 			
 			if (op == 4 || op == 13) {	// Unary Minus, Not Operation
@@ -172,19 +192,32 @@ public class CompStaRpc {
 			throw new CompException("CompStaRpc(compClient) not match " + t.getClass() + "(" + t + ")");
 	}
 	
-	public static Term compServer(Term t) throws CompException {
-		if (t instanceof Unit)
-			return t;
-		else if (t instanceof Num)
-			return t;
-		else if (t instanceof Str)
-			return t;
-		else if (t instanceof Bool)
-			return t;
-		else if (t instanceof Var)
-			return t;
-		else if (t instanceof Lam) {
-			Lam tLam = (Lam) t;
+	public static Term compServer(com.example.systemf.ast.Term t) throws CompException {
+		if (t instanceof com.example.systemf.ast.Unit) {
+			return new Unit();
+		}
+		else if (t instanceof com.example.systemf.ast.Num) {
+			com.example.systemf.ast.Num tNum = (com.example.systemf.ast.Num) t;
+			
+			return new Num(tNum.getI());
+		}
+		else if (t instanceof com.example.systemf.ast.Str) {
+			com.example.systemf.ast.Str tStr = (com.example.systemf.ast.Str) t;
+			
+			return new Str(tStr.getStr());
+		}
+		else if (t instanceof com.example.systemf.ast.Bool) {
+			com.example.systemf.ast.Bool tBool = (com.example.systemf.ast.Bool) t;
+			
+			return new Bool(tBool.isBool());
+		}
+		else if (t instanceof com.example.systemf.ast.Var) {
+			com.example.systemf.ast.Var tVar = (com.example.systemf.ast.Var) t;
+			
+			return new Var(tVar.getVar());
+		}
+		else if (t instanceof com.example.systemf.ast.Lam) {
+			com.example.systemf.ast.Lam tLam = (com.example.systemf.ast.Lam) t;
 			Term term;
 			
 			if (tLam.getLoc() == Location.Client)
@@ -194,14 +227,14 @@ public class CompStaRpc {
 			
 			return new Lam(tLam.getLoc(), tLam.getX(), tLam.getIdTy(), term);
 		}
-		else if (t instanceof Tylam) {
-			Tylam tTylam = (Tylam) t;
+		else if (t instanceof com.example.systemf.ast.Tylam) {
+			com.example.systemf.ast.Tylam tTylam = (com.example.systemf.ast.Tylam) t;
 			Term term = compServer(tTylam.getTerm());
 			
 			return new Tylam(tTylam.getTy(), term);
 		}
-		else if (t instanceof App) {
-			App tApp = (App) t;
+		else if (t instanceof com.example.systemf.ast.App) {
+			com.example.systemf.ast.App tApp = (com.example.systemf.ast.App) t;
 			
 			String fvar = "f" + i++;
 			String xvar = "x" + i++;
@@ -214,6 +247,9 @@ public class CompStaRpc {
 			Term fun = compServer(tApp.getFun());
 			Term arg = compServer(tApp.getArg());
 			
+			ArrayList<Value> ws = new ArrayList<>();
+			ws.add(x);
+			
 			if (tApp.getLoc() instanceof LocType) {
 				Location loc = ((LocType) tApp.getLoc()).getLoc();
 				
@@ -224,20 +260,23 @@ public class CompStaRpc {
 					Var y = new Var(yvar);
 					Var z = new Var(zvar);
 					
-					Term commuteFun = new Lam(Location.Client, zvar, new Let(yvar, new App(f, z), new Ret(y)));
+					ArrayList<Value> vs = new ArrayList<>();
+					vs.add(z);
+					
+					Term commuteFun = new Lam(Location.Client, zvar, new Let(yvar, new App(f, vs), new Ret(y)));
 					
 					return new Let(fvar, fun,
 							new Let(xvar, arg,
-									new Let(rvar, new Call(commuteFun, x), r)));
+									new Let(rvar, new Call(commuteFun, ws), r)));
 				}
 				else
-					return new Let(fvar, fun, new Let(xvar, arg, new Let(rvar, new App(f, x), r)));
+					return new Let(fvar, fun, new Let(xvar, arg, new Let(rvar, new App(f, ws), r)));
 			}
 			else
 				throw new CompException("CompStaRpc(compClient) TypedLocation is not LocType" + tApp.getLoc());
 		}
-		else if (t instanceof TApp) {
-			TApp tTApp = (TApp) t;
+		else if (t instanceof com.example.systemf.ast.TApp) {
+			com.example.systemf.ast.TApp tTApp = (com.example.systemf.ast.TApp) t;
 			
 			String fvar = "f" + i++;
 			String rvar = "r" + i++;
@@ -249,16 +288,16 @@ public class CompStaRpc {
 			
 			return new Let(fvar, fun, new Let(rvar, new TApp(f, tTApp.getTy()), r));
 		}
-		else if (t instanceof Let) {
-			Let tLet = (Let) t;
+		else if (t instanceof com.example.systemf.ast.Let) {
+			com.example.systemf.ast.Let tLet = (com.example.systemf.ast.Let) t;
 			
 			Term term1 = compClient(tLet.getT1());
 			Term term2 = compClient(tLet.getT2());
 			
 			return new Let(tLet.getId(), tLet.getIdTy(), term1, term2);
 		}
-		else if (t instanceof If) {
-			If tIf = (If) t;
+		else if (t instanceof com.example.systemf.ast.If) {
+			com.example.systemf.ast.If tIf = (com.example.systemf.ast.If) t;
 			
 			Term condTerm = compServer(tIf.getCond());
 			Term thenTerm = compServer(tIf.getThenT());
@@ -279,8 +318,8 @@ public class CompStaRpc {
 							new Let(elsevar, elseTerm,
 									new Let(rvar, new If(condv, thenv, elsev), r))));
 		}
-		else if (t instanceof ExprTerm) {
-			ExprTerm tExpr = (ExprTerm) t;
+		else if (t instanceof com.example.systemf.ast.ExprTerm) {
+			com.example.systemf.ast.ExprTerm tExpr = (com.example.systemf.ast.ExprTerm) t;
 			int op = tExpr.getOp();
 			
 			if (op == 4 || op == 13) {	// Unary Minus, Not Operation

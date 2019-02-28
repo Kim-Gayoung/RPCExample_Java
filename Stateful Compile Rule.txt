@@ -81,25 +81,30 @@ compClient (Let id idTy term1 term2) =
 		term2' = compClient term2
     in (Let id idTy term1' term2')
 compClient (If cond then else) = 
-    let fvar = "f" ++ fresh()
+    let var = "f" ++ fresh()
 		f = Var fvar
 		cond' = compClient cond
 		then' = compClient then
 		else' = compClient else
     in (Let fvar cond' (If f then' else'))
 compClient (ExprTerm op [term]) = 
-    let xvar = "x" ++ fresh()
-		x = Var xvar
 		if op == 4 or op == 13 then
-		    let term1' = compClient term1
-		    in (Let xvar term1' (ExprTerm op [x]))
+		    let xvar = "x" ++ fresh()
+				x = Var xvar
+				rvar = "r" ++ fresh()
+		    	r = Var rvar
+		    	term1' = compClient term1
+		    in (Let xvar term1' (Let rvar (ExprTerm op [x]) r))
 		else
-		    let yvar = "y" ++ fresh()
-			y = Var y
-			term1' = compClient term1
-			term2' = compClient term2
-		    in (Let xvar term1' (Let yvar term2' (ExprTerm op [x, y])))
-	    
+		    let xvar = "x" ++ fresh()
+		    	yvar = "y" ++ fresh()
+		    	rvar = "r" ++ fresh()
+		    	x = Var xvar
+				y = Var yvar
+				r = Var rvar
+				term1' = compClient term1
+				term2' = compClient term2
+		    in (Let xvar term1' (Let yvar term2' (Let rvar (ExprTerm op [x, y]) r)))
 
 compServer:: Term -> StaTerm
 compServer Unit = Unit

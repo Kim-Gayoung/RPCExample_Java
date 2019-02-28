@@ -45,7 +45,7 @@ public class Main {
 		Type checkTy = TypeChecker.checkTopLevel((TopLevel) ex1, new TyEnv());
 		System.out.println("Type: " + checkTy);
 		
-		Term compStaRpcTerm = CompStaRpc.compStaRpc((TopLevel) ex1);
+		com.example.systemf.starpc.Term compStaRpcTerm = CompStaRpc.compStaRpc((TopLevel) ex1);
 		System.out.println(compStaRpcTerm);
 	}
 }
