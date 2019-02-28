@@ -1,4 +1,4 @@
-package com.example.systemf.ast;
+package com.example.systemf.starpc;
 
 public class Ret extends Term {
 	private Value w;
