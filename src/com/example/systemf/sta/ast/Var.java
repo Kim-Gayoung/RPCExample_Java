@@ -1,4 +1,4 @@
-package com.example.systemf.starpc;
+package com.example.systemf.sta.ast;
 
 public class Var extends Value {
 	private String var;

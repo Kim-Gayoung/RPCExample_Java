@@ -1,27 +1,28 @@
-package com.example.systemf;
+package com.example.systemf.starpc;
 
 import java.util.ArrayList;
 
+import com.example.systemf.CompException;
 import com.example.systemf.ast.LocType;
 import com.example.systemf.ast.Location;
-import com.example.systemf.starpc.App;
-import com.example.systemf.starpc.Bool;
-import com.example.systemf.starpc.Call;
-import com.example.systemf.starpc.ExprTerm;
-import com.example.systemf.starpc.If;
-import com.example.systemf.starpc.Lam;
-import com.example.systemf.starpc.Let;
-import com.example.systemf.starpc.Num;
-import com.example.systemf.starpc.Req;
-import com.example.systemf.starpc.Ret;
-import com.example.systemf.starpc.Str;
-import com.example.systemf.starpc.TApp;
-import com.example.systemf.starpc.Term;
-import com.example.systemf.starpc.TopLevel;
-import com.example.systemf.starpc.Tylam;
-import com.example.systemf.starpc.Unit;
-import com.example.systemf.starpc.Value;
-import com.example.systemf.starpc.Var;
+import com.example.systemf.sta.ast.App;
+import com.example.systemf.sta.ast.Bool;
+import com.example.systemf.sta.ast.Call;
+import com.example.systemf.sta.ast.ExprTerm;
+import com.example.systemf.sta.ast.If;
+import com.example.systemf.sta.ast.Lam;
+import com.example.systemf.sta.ast.Let;
+import com.example.systemf.sta.ast.Num;
+import com.example.systemf.sta.ast.Req;
+import com.example.systemf.sta.ast.Ret;
+import com.example.systemf.sta.ast.Str;
+import com.example.systemf.sta.ast.TApp;
+import com.example.systemf.sta.ast.Term;
+import com.example.systemf.sta.ast.TopLevel;
+import com.example.systemf.sta.ast.Tylam;
+import com.example.systemf.sta.ast.Unit;
+import com.example.systemf.sta.ast.Value;
+import com.example.systemf.sta.ast.Var;
 
 public class CompStaRpc {
 	private static int i = 1;

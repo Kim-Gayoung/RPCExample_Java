@@ -1,4 +1,4 @@
-package com.example.systemf.starpc;
+package com.example.systemf.sta.ast;
 
 import com.example.systemf.ast.Type;
 

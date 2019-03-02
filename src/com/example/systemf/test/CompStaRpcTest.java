@@ -9,13 +9,13 @@ import org.junit.Test;
 import com.example.lib.LexerException;
 import com.example.lib.ParserException;
 import com.example.systemf.CompException;
-import com.example.systemf.CompStaRpc;
 import com.example.systemf.TyEnv;
 import com.example.systemf.TypeCheckException;
 import com.example.systemf.TypeChecker;
 import com.example.systemf.ast.TopLevel;
 import com.example.systemf.ast.Type;
 import com.example.systemf.parser.Parser;
+import com.example.systemf.starpc.CompStaRpc;
 
 public class CompStaRpcTest {
 	Parser parser;
@@ -36,7 +36,7 @@ public class CompStaRpcTest {
 				FileReader fileReader = new FileReader(f);
 				TopLevel ex1 = (TopLevel) parser.Parsing(fileReader);
 				Type ty1 = TypeChecker.checkTopLevel(ex1, new TyEnv());
-				com.example.systemf.starpc.TopLevel compEx1 = CompStaRpc.compStaRpc(ex1);
+				com.example.systemf.sta.ast.TopLevel compEx1 = CompStaRpc.compStaRpc(ex1);
 				
 				System.out.println(ex1);
 				System.out.println("after compile:" + compEx1);

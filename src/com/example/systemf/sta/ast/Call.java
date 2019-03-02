@@ -1,12 +1,12 @@
-package com.example.systemf.starpc;
+package com.example.systemf.sta.ast;
 
 import java.util.ArrayList;
 
-public class Req extends Term {
+public class Call extends Term {
 	private Term fun;
 	private ArrayList<Value> ws;
 
-	public Req(Term fun, ArrayList<Value> ws) {
+	public Call(Term fun, ArrayList<Value> ws) {
 		this.fun = fun;
 		this.ws = ws;
 	}
@@ -30,9 +30,9 @@ public class Req extends Term {
 	@Override
 	public String toString() {
 		int cnt = 0;
-		String ret = "Req(" + fun.toString() + ") (";
+		String ret = "Call(" + fun.toString() + ") (";
 		
-		for (Value sv: ws) {
+		for(Value sv: ws) {
 			ret += sv.toString();
 			
 			if (ws.size() - 1 != cnt) {
@@ -45,5 +45,4 @@ public class Req extends Term {
 		return ret;
 	}
 	
-		
 }

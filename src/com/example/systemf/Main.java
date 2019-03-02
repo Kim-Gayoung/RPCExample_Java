@@ -11,6 +11,10 @@ import com.example.systemf.ast.Term;
 import com.example.systemf.ast.TopLevel;
 import com.example.systemf.ast.Type;
 import com.example.systemf.parser.Parser;
+import com.example.systemf.stacs.CompStaCs;
+import com.example.systemf.stacs.FunStore;
+import com.example.systemf.starpc.CompStaRpc;
+import com.example.utils.TripleTup;
 
 public class Main {
 	public static void main(String[] args) throws ParserException, IOException, LexerException, TypeCheckException, CompException {
@@ -45,7 +49,15 @@ public class Main {
 		Type checkTy = TypeChecker.checkTopLevel((TopLevel) ex1, new TyEnv());
 		System.out.println("Type: " + checkTy);
 		
-		com.example.systemf.starpc.Term compStaRpcTerm = CompStaRpc.compStaRpc((TopLevel) ex1);
+		com.example.systemf.sta.ast.Term compStaRpcTerm = CompStaRpc.compStaRpc((TopLevel) ex1);
 		System.out.println(compStaRpcTerm);
+		
+		TripleTup<com.example.systemf.sta.ast.TopLevel, FunStore, FunStore> compStaCsTerm = CompStaCs.cloConvTerm((com.example.systemf.sta.ast.TopLevel) compStaRpcTerm);
+		
+		System.out.println(compStaCsTerm.getFirst());
+		System.out.println("client funstore: ");
+		System.out.println(compStaCsTerm.getSecond());
+		System.out.println("server funstore: ");
+		System.out.println(compStaCsTerm.getThird());
 	}
 }

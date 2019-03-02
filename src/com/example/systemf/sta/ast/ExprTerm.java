@@ -1,4 +1,4 @@
-package com.example.systemf.starpc;
+package com.example.systemf.sta.ast;
 
 public class ExprTerm extends Term {
 	private Term oprnd1;
