@@ -121,17 +121,14 @@ public class Parser {
 		
 			return new App((Term) pu.get(1), (Term) pu.get(5), new LocType(loc));
 		});
-		pu.rule("Expr -> AppExpr", () -> {
-			return pu.get(1);
-		});
-		pu.rule("AppExpr -> AppExpr [ Type ]", () -> {
+		pu.rule("Expr -> Expr [ Type ]", () -> {
 			// TAPP
 			Term term = (Term) pu.get(1);
 			Type ty = (Type) pu.get(3);
 			
 			return new TApp(term, ty);
 		});
-		pu.rule("AppExpr -> Cond", () -> { return pu.get(1); });
+		pu.rule("Expr -> Cond", () -> { return pu.get(1); });
 
 		pu.rule("Cond -> LogicNot", () -> { return pu.get(1); });
 		pu.rule("LogicNot -> ! LogicOr", () -> {
