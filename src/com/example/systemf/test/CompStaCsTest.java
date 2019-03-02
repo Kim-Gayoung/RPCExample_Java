@@ -15,9 +15,12 @@ import com.example.systemf.TypeChecker;
 import com.example.systemf.ast.TopLevel;
 import com.example.systemf.ast.Type;
 import com.example.systemf.parser.Parser;
+import com.example.systemf.stacs.CompStaCs;
+import com.example.systemf.stacs.FunStore;
 import com.example.systemf.starpc.CompStaRpc;
+import com.example.utils.TripleTup;
 
-public class CompStaRpcTest {
+public class CompStaCsTest {
 	Parser parser;
 
 	@Test
@@ -41,6 +44,18 @@ public class CompStaRpcTest {
 
 				System.out.println(ex1);
 				System.out.println("after compile:" + compEx1);
+
+				TripleTup<com.example.systemf.sta.ast.TopLevel, FunStore, FunStore> csEx1 = CompStaCs
+						.cloConvTerm((com.example.systemf.sta.ast.TopLevel) compEx1);
+				
+				System.out.println("-------------");
+				System.out.println("Program: ");
+				System.out.println(csEx1.getFirst());
+				System.out.println("Client Function List: ");
+				System.out.println(csEx1.getSecond());
+				System.out.println("Server Function List: ");
+				System.out.println(csEx1.getThird());
+				System.out.println("-------------");
 			}
 		}
 	}
