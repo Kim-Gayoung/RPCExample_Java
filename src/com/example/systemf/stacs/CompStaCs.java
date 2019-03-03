@@ -21,7 +21,6 @@ import com.example.systemf.sta.ast.Ret;
 import com.example.systemf.sta.ast.Str;
 import com.example.systemf.sta.ast.TApp;
 import com.example.systemf.sta.ast.Term;
-import com.example.systemf.sta.ast.TopLevel;
 import com.example.systemf.sta.ast.Tylam;
 import com.example.systemf.sta.ast.Unit;
 import com.example.systemf.sta.ast.Value;
@@ -31,42 +30,8 @@ import com.example.utils.TripleTup;
 public class CompStaCs {
 	private static int i = 1;
 
-	public static TripleTup<TopLevel, FunStore, FunStore> cloConvTerm(TopLevel top) throws CompException {
-		Term term = top.getTerm();
-		TripleTup<Term, FunStore, FunStore> termRes = cloConv(term, new ArrayList<>());
-
-		if (top.getNext() != null) {
-			TopLevel next = top.getNext();
-			TripleTup<TopLevel, FunStore, FunStore> nextRes = cloConvTerm(next);
-
-			TopLevel retTop;
-			
-			if (top.getId() != null && top.getIdTy() != null)
-				retTop = new TopLevel(top.getId(), top.getIdTy(), termRes.getFirst(), nextRes.getFirst());
-			else if (top.getId() != null && top.getIdTy() == null)
-				retTop = new TopLevel(top.getId(), termRes.getFirst(), nextRes.getFirst());
-			else
-				retTop = new TopLevel(termRes.getFirst(), nextRes.getFirst());
-
-			FunStore client = termRes.getSecond();
-			client.getFs().putAll(nextRes.getSecond().getFs());
-			FunStore server = termRes.getSecond();
-			server.getFs().putAll(nextRes.getSecond().getFs());
-
-			return new TripleTup<>(retTop, client, server);
-		}
-		else {
-			TopLevel retTop;
-			
-			if (top.getId() != null && top.getIdTy() != null)
-				retTop = new TopLevel(top.getId(), top.getIdTy(), termRes.getFirst());
-			else if (top.getId() != null && top.getIdTy() == null)
-				retTop = new TopLevel(top.getId(), termRes.getFirst());
-			else
-				retTop = new TopLevel(termRes.getFirst());
-						
-			return new TripleTup<>(retTop, termRes.getSecond(), termRes.getThird());
-		}
+	public static TripleTup<Term, FunStore, FunStore> cloConvTerm(Term term) throws CompException {
+		return cloConv(term, new ArrayList<>());
 	}
 
 	public static TripleTup<Term, FunStore, FunStore> cloConv(Term t, ArrayList<String> zs) throws CompException {

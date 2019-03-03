@@ -8,7 +8,6 @@ import java.util.Scanner;
 import com.example.lib.LexerException;
 import com.example.lib.ParserException;
 import com.example.systemf.ast.Term;
-import com.example.systemf.ast.TopLevel;
 import com.example.systemf.ast.Type;
 import com.example.systemf.parser.Parser;
 import com.example.systemf.stacs.CompStaCs;
@@ -46,13 +45,13 @@ public class Main {
 		}
 		System.out.println(ex1.toString());
 		
-		Type checkTy = TypeChecker.checkTopLevel((TopLevel) ex1, new TyEnv());
+		Type checkTy = TypeChecker.check(ex1, new TyEnv());
 		System.out.println("Type: " + checkTy);
 		
-		com.example.systemf.sta.ast.Term compStaRpcTerm = CompStaRpc.compStaRpc((TopLevel) ex1);
+		com.example.systemf.sta.ast.Term compStaRpcTerm = CompStaRpc.compStaRpc((Term) ex1);
 		System.out.println(compStaRpcTerm);
 		
-		TripleTup<com.example.systemf.sta.ast.TopLevel, FunStore, FunStore> compStaCsTerm = CompStaCs.cloConvTerm((com.example.systemf.sta.ast.TopLevel) compStaRpcTerm);
+		TripleTup<com.example.systemf.sta.ast.Term, FunStore, FunStore> compStaCsTerm = CompStaCs.cloConvTerm((com.example.systemf.sta.ast.Term) compStaRpcTerm);
 		
 		System.out.println(compStaCsTerm.getFirst());
 		System.out.println("client funstore: ");

@@ -18,7 +18,6 @@ import com.example.systemf.sta.ast.Ret;
 import com.example.systemf.sta.ast.Str;
 import com.example.systemf.sta.ast.TApp;
 import com.example.systemf.sta.ast.Term;
-import com.example.systemf.sta.ast.TopLevel;
 import com.example.systemf.sta.ast.Tylam;
 import com.example.systemf.sta.ast.Unit;
 import com.example.systemf.sta.ast.Value;
@@ -27,31 +26,8 @@ import com.example.systemf.sta.ast.Var;
 public class CompStaRpc {
 	private static int i = 1;
 	
-	public static TopLevel compStaRpc(com.example.systemf.ast.TopLevel top) throws CompException {
-		return compTopLevel(top);
-	}
-	
-	public static TopLevel compTopLevel(com.example.systemf.ast.TopLevel top) throws CompException {
-		Term term = compClient(top.getTerm());
-		
-		if (top.getNext() != null) {
-			TopLevel next = compTopLevel(top.getNext());
-			
-			if (top.getId() != null && top.getIdTy() != null)
-				return new TopLevel(top.getId(), top.getIdTy(), term, next);
-			else if (top.getId() != null && top.getIdTy() == null)
-				return new TopLevel(top.getId(), term, next);
-			else
-				return new TopLevel(term, next);
-		}
-		else {
-			if (top.getId() != null && top.getIdTy() != null)
-				return new TopLevel(top.getId(), top.getIdTy(), term);
-			else if (top.getId() != null && top.getIdTy() == null)
-				return new TopLevel(top.getId(), term);
-			else
-				return new TopLevel(term);
-		}
+	public static Term compStaRpc(com.example.systemf.ast.Term term) throws CompException {
+		return compClient(term);
 	}
 	
 	public static Term compClient(com.example.systemf.ast.Term t) throws CompException {

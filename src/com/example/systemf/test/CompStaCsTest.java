@@ -12,7 +12,7 @@ import com.example.systemf.CompException;
 import com.example.systemf.TyEnv;
 import com.example.systemf.TypeCheckException;
 import com.example.systemf.TypeChecker;
-import com.example.systemf.ast.TopLevel;
+import com.example.systemf.ast.Term;
 import com.example.systemf.ast.Type;
 import com.example.systemf.parser.Parser;
 import com.example.systemf.stacs.CompStaCs;
@@ -38,15 +38,15 @@ public class CompStaCsTest {
 			if (f.isFile()) {
 				System.out.println("\n" + f);
 				FileReader fileReader = new FileReader(f);
-				TopLevel ex1 = (TopLevel) parser.Parsing(fileReader);
-				Type ty1 = TypeChecker.checkTopLevel(ex1, new TyEnv());
-				com.example.systemf.sta.ast.TopLevel compEx1 = CompStaRpc.compStaRpc(ex1);
+				Term ex1 = (Term) parser.Parsing(fileReader);
+				Type ty1 = TypeChecker.check(ex1, new TyEnv());
+				com.example.systemf.sta.ast.Term compEx1 = CompStaRpc.compStaRpc(ex1);
 
 				System.out.println(ex1);
 				System.out.println("after compile:" + compEx1);
 
-				TripleTup<com.example.systemf.sta.ast.TopLevel, FunStore, FunStore> csEx1 = CompStaCs
-						.cloConvTerm((com.example.systemf.sta.ast.TopLevel) compEx1);
+				TripleTup<com.example.systemf.sta.ast.Term, FunStore, FunStore> csEx1 = CompStaCs
+						.cloConvTerm((com.example.systemf.sta.ast.Term) compEx1);
 				
 				System.out.println("-------------");
 				System.out.println("Program: ");

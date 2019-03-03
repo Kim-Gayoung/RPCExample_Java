@@ -24,7 +24,6 @@ import com.example.systemf.ast.Str;
 import com.example.systemf.ast.StrType;
 import com.example.systemf.ast.TApp;
 import com.example.systemf.ast.Term;
-import com.example.systemf.ast.TopLevel;
 import com.example.systemf.ast.Tylam;
 import com.example.systemf.ast.Type;
 import com.example.systemf.ast.Unit;
@@ -44,30 +43,25 @@ public class Parser {
 		pu.ruleStartSymbol("TopLevel'");
 		pu.rule("TopLevel' -> TopLevel", () -> { return pu.get(1); });
 		pu.rule("TopLevel -> LExpr", () -> {
-			Term top = (Term) pu.get(1);
-			
-			return new TopLevel(top);
+			return (Term) pu.get(1);
 		});
 		pu.rule("TopLevel -> id OptType = LExpr", () -> {
 			String id = pu.getText(1);
 			Type ty = pu.get(2) != null? (Type) pu.get(2) : null;
 			Term t1 = (Term) pu.get(4);
 			
-			if (ty != null)
-				return new TopLevel(id, ty, t1);
-			else
-				return new TopLevel(id, t1);
+			return new Let(id, ty, t1, new Var(id));
 		});
 		pu.rule("TopLevel -> id OptType = LExpr ; TopLevel", () -> {
 			String id = pu.getText(1);
 			Type ty = pu.get(2) != null? (Type) pu.get(2) : null;
 			Term t1 = (Term) pu.get(4);
-			TopLevel next = (TopLevel) pu.get(6);
+			Term next = (Term) pu.get(6);
 			
 			if (ty != null)
-				return new TopLevel(id, ty, t1, next);
+				return new Let(id, ty, t1, next);
 			else
-				return new TopLevel(id, t1, next);
+				return new Let(id, t1, next);
 		}); 
 		pu.rule("LExpr -> lam OptLoc id OptType . LExpr", () -> {
 			Location loc = pu.get(2) != null? (Location) pu.get(2) : null;

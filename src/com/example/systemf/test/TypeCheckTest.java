@@ -11,7 +11,7 @@ import com.example.lib.ParserException;
 import com.example.systemf.TyEnv;
 import com.example.systemf.TypeCheckException;
 import com.example.systemf.TypeChecker;
-import com.example.systemf.ast.TopLevel;
+import com.example.systemf.ast.Term;
 import com.example.systemf.ast.Type;
 import com.example.systemf.parser.Parser;
 
@@ -33,8 +33,8 @@ public class TypeCheckTest {
 			if (f.isFile()) {
 				System.out.println("\n" + f);
 				FileReader fileReader = new FileReader(f);
-				TopLevel ex1 = (TopLevel) parser.Parsing(fileReader);
-				Type ty1 = TypeChecker.checkTopLevel(ex1, new TyEnv());
+				Term ex1 = (Term) parser.Parsing(fileReader);
+				Type ty1 = TypeChecker.check(ex1, new TyEnv());
 				System.out.println(ex1);
 				System.out.println("Type: " + ty1.toString());
 			}
@@ -49,8 +49,8 @@ public class TypeCheckTest {
 			
 			System.out.println("\n" + f);
 			FileReader fileReader = new FileReader(f);
-			TopLevel ex1 = (TopLevel) parser.Parsing(fileReader);
-			Type ty1 = TypeChecker.checkTopLevel(ex1, new TyEnv());
+			Term ex1 = (Term) parser.Parsing(fileReader);
+			Type ty1 = TypeChecker.check(ex1, new TyEnv());
 			System.out.println(ex1);
 			System.out.println("Type: " + ty1.toString());
 		} catch(TypeCheckException e) {

@@ -19,7 +19,6 @@ import com.example.systemf.ast.Str;
 import com.example.systemf.ast.StrType;
 import com.example.systemf.ast.TApp;
 import com.example.systemf.ast.Term;
-import com.example.systemf.ast.TopLevel;
 import com.example.systemf.ast.Tylam;
 import com.example.systemf.ast.Type;
 import com.example.systemf.ast.TypedLocation;
@@ -31,26 +30,12 @@ import com.example.systemf.ast.VarType;
 import javafx.util.Pair;
 
 public class TypeChecker {	
-	public static Type checkTopLevel(TopLevel top, TyEnv tyenv) throws TypeCheckException {
+	public static Type check(Term term, TyEnv tyenv) throws TypeCheckException {
 		initLibrary(tyenv);
 
-		tyenv.getPairList().add(new Pair<>(top.getId(), top.getIdTy()));
-		
-		Term term = top.getTerm();
 		Type termTy = checkTerm(term, tyenv, Location.Client);
-		
-		if (!top.getIdTy().toString().equals(termTy.toString()))
-			throw new TypeCheckException("TopLevel: ID type(" + top.getIdTy() +") is not equal Term type(" + termTy + ")");
-		
-		if (top.getNext() != null) {
-			TopLevel next = top.getNext();
-			Type nextTy = checkTopLevel(next, tyenv);
-			
-			return nextTy;
-		}
-		else {
-			return termTy;
-		}
+
+		return termTy;
 	}
 	
 	private static void initLibrary(TyEnv env) {
