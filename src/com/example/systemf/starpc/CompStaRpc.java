@@ -32,15 +32,25 @@ public class CompStaRpc {
 	}
 	
 	public static TopLevel compTopLevel(com.example.systemf.ast.TopLevel top) throws CompException {
-		Term term = compClient(top.getTop());
+		Term term = compClient(top.getTerm());
 		
 		if (top.getNext() != null) {
 			TopLevel next = compTopLevel(top.getNext());
 			
-			return new TopLevel(term, next);
+			if (top.getId() != null && top.getIdTy() != null)
+				return new TopLevel(top.getId(), top.getIdTy(), term, next);
+			else if (top.getId() != null && top.getIdTy() == null)
+				return new TopLevel(top.getId(), term, next);
+			else
+				return new TopLevel(term, next);
 		}
 		else {
-			return new TopLevel(term);
+			if (top.getId() != null && top.getIdTy() != null)
+				return new TopLevel(top.getId(), top.getIdTy(), term);
+			else if (top.getId() != null && top.getIdTy() == null)
+				return new TopLevel(top.getId(), term);
+			else
+				return new TopLevel(term);
 		}
 	}
 	

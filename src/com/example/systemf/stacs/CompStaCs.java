@@ -32,14 +32,21 @@ public class CompStaCs {
 	private static int i = 1;
 
 	public static TripleTup<TopLevel, FunStore, FunStore> cloConvTerm(TopLevel top) throws CompException {
-		Term term = top.getTop();
+		Term term = top.getTerm();
 		TripleTup<Term, FunStore, FunStore> termRes = cloConv(term, new ArrayList<>());
 
 		if (top.getNext() != null) {
 			TopLevel next = top.getNext();
 			TripleTup<TopLevel, FunStore, FunStore> nextRes = cloConvTerm(next);
 
-			TopLevel retTop = new TopLevel(termRes.getFirst(), nextRes.getFirst());
+			TopLevel retTop;
+			
+			if (top.getId() != null && top.getIdTy() != null)
+				retTop = new TopLevel(top.getId(), top.getIdTy(), termRes.getFirst(), nextRes.getFirst());
+			else if (top.getId() != null && top.getIdTy() == null)
+				retTop = new TopLevel(top.getId(), termRes.getFirst(), nextRes.getFirst());
+			else
+				retTop = new TopLevel(termRes.getFirst(), nextRes.getFirst());
 
 			FunStore client = termRes.getSecond();
 			client.getFs().putAll(nextRes.getSecond().getFs());
@@ -49,8 +56,15 @@ public class CompStaCs {
 			return new TripleTup<>(retTop, client, server);
 		}
 		else {
-			TopLevel retTop = new TopLevel(termRes.getFirst());
-
+			TopLevel retTop;
+			
+			if (top.getId() != null && top.getIdTy() != null)
+				retTop = new TopLevel(top.getId(), top.getIdTy(), termRes.getFirst());
+			else if (top.getId() != null && top.getIdTy() == null)
+				retTop = new TopLevel(top.getId(), termRes.getFirst());
+			else
+				retTop = new TopLevel(termRes.getFirst());
+						
 			return new TripleTup<>(retTop, termRes.getSecond(), termRes.getThird());
 		}
 	}

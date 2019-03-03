@@ -33,8 +33,14 @@ import javafx.util.Pair;
 public class TypeChecker {	
 	public static Type checkTopLevel(TopLevel top, TyEnv tyenv) throws TypeCheckException {
 		initLibrary(tyenv);
-		Term term = top.getTop();
+
+		tyenv.getPairList().add(new Pair<>(top.getId(), top.getIdTy()));
+		
+		Term term = top.getTerm();
 		Type termTy = checkTerm(term, tyenv, Location.Client);
+		
+		if (!top.getIdTy().toString().equals(termTy.toString()))
+			throw new TypeCheckException("TopLevel: ID type(" + top.getIdTy() +") is not equal Term type(" + termTy + ")");
 		
 		if (top.getNext() != null) {
 			TopLevel next = top.getNext();

@@ -54,9 +54,9 @@ public class Parser {
 			Term t1 = (Term) pu.get(4);
 			
 			if (ty != null)
-				return new TopLevel(new Let(id, ty, t1, new Var(id)));
+				return new TopLevel(id, ty, t1);
 			else
-				return new TopLevel(new Let(id, t1, new Var(id)));
+				return new TopLevel(id, t1);
 		});
 		pu.rule("TopLevel -> id OptType = LExpr ; TopLevel", () -> {
 			String id = pu.getText(1);
@@ -65,9 +65,9 @@ public class Parser {
 			TopLevel next = (TopLevel) pu.get(6);
 			
 			if (ty != null)
-				return new TopLevel(new Let(id, ty, t1, new Var(id)), next);
+				return new TopLevel(id, ty, t1, next);
 			else
-				return new TopLevel(new Let(id, t1, new Var(id)), next);
+				return new TopLevel(id, t1, next);
 		}); 
 		pu.rule("LExpr -> lam OptLoc id OptType . LExpr", () -> {
 			Location loc = pu.get(2) != null? (Location) pu.get(2) : null;
@@ -80,17 +80,6 @@ public class Parser {
 			else
 				return new Lam(loc, id, body);
 		});
-//		pu.rule("LExpr -> lam id OptType . LExpr", () -> {
-//			Location loc = Location.Polymorphic;
-//			String id = pu.getText(2);
-//			Type ty = pu.get(3) != null ? (Type) pu.get(3) : null;
-//			Term body = (Term) pu.get(5);
-//			
-//			if (ty != null)
-//				return new Lam(loc, id, ty, body);
-//			else
-//				return new Lam(loc, id, body);
-//		});
 		pu.rule("LExpr -> tylam id . LExpr", () -> {
 			String strTy = pu.getText(2);
 			Term body = (Term) pu.get(4);
