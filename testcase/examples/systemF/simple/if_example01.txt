@@ -1,0 +1,12 @@
+age: Int = 21;
+
+admission_fee: Int =
+	if age < 7 then
+		0
+	else
+		if age < 18 then
+			7
+		else
+			10;
+
+main: String = append_client ^c^ "Your admission cost is " ^c^ (toString_client [Int] ^c^ admission_fee)

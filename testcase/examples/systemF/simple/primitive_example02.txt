@@ -1,0 +1,4 @@
+a: Int = 987;
+b: Int = 123 * 45;
+
+main: Int = b / a

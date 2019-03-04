@@ -1,0 +1,9 @@
+height: Int = let a: Unit = writeConsole ^c^ "Enter the height: " in
+						toInt_client ^c^ (readConsole ^c^ ())
+					end;
+
+width: Int = let a: Unit = writeConsole ^c^ "Enter the width: " in
+						toInt_client ^c^ (readConsole ^c^ ())
+					end;
+					
+main: Int = width * height

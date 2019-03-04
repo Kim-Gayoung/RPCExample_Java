@@ -1,0 +1,11 @@
+a: String = "c++ programing";
+b: String = "python programming";
+c: String = "web programming";
+d: String = "Java programming";
+
+a_length: Int = length_client ^c^ a;
+b_length: Int = length_client ^c^ b;
+c_length: Int = length_client ^c^ c;
+d_length: Int = length_client ^c^ d;
+
+main: Int = a_length + b_length + c_length + d_length

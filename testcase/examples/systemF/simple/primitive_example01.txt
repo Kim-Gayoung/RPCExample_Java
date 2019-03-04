@@ -1,0 +1,4 @@
+a: Bool = True;
+b: Bool = False;
+
+main: Bool = True and False

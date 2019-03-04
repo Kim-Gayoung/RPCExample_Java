@@ -1,0 +1,7 @@
+age: Int = 18;
+
+main: String =
+	if age < 20 then
+		"You are too young to vote"
+	else
+		"You are enough to vote"
