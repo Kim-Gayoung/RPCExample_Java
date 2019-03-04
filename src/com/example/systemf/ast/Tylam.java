@@ -1,6 +1,6 @@
 package com.example.systemf.ast;
 
-public class Tylam extends Term {
+public class Tylam extends Value {
 	private Type ty;
 	private Term term;
 	

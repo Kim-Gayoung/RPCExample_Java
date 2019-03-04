@@ -23,7 +23,7 @@ import com.example.systemf.ast.Location;
 import com.example.systemf.ast.Num;
 import com.example.systemf.ast.Str;
 import com.example.systemf.ast.StrType;
-import com.example.systemf.ast.TApp;
+import com.example.systemf.ast.Tapp;
 import com.example.systemf.ast.Term;
 import com.example.systemf.ast.Tylam;
 import com.example.systemf.ast.Type;
@@ -156,7 +156,7 @@ public class Parser {
 			Term term = (Term) pu.get(1);
 			Type ty = (Type) pu.get(3);
 
-			return new TApp(term, ty);
+			return new Tapp(term, ty);
 		});
 		pu.rule("Expr -> Cond", () -> {
 			return pu.get(1);
@@ -166,69 +166,123 @@ public class Parser {
 			return pu.get(1);
 		});
 		pu.rule("LogicNot -> ! LogicOr", () -> {
-			return new ExprTerm((Term) pu.get(2), ExprTerm.NOT);
+			ArrayList<Term> oprnds = new ArrayList<>();
+			oprnds.add((Term) pu.get(2));
+			
+			return new ExprTerm(oprnds, ExprTerm.NOT);
 		});
 		pu.rule("LogicNot -> LogicOr", () -> {
 			return pu.get(1);
 		});
 		pu.rule("LogicOr -> LogicOr or LogicAnd", () -> {
-			return new ExprTerm((Term) pu.get(1), ExprTerm.OR, (Term) pu.get(3));
+			ArrayList<Term> oprnds = new ArrayList<>();
+			oprnds.add((Term) pu.get(1));
+			oprnds.add((Term) pu.get(3));
+			
+			return new ExprTerm(oprnds, ExprTerm.OR);
 		});
 		pu.rule("LogicOr -> LogicAnd", () -> {
 			return pu.get(1);
 		});
 		pu.rule("LogicAnd -> LogicAnd and CompEqNeq", () -> {
-			return new ExprTerm((Term) pu.get(1), ExprTerm.AND, (Term) pu.get(3));
+			ArrayList<Term> oprnds = new ArrayList<>();
+			oprnds.add((Term) pu.get(1));
+			oprnds.add((Term) pu.get(3));
+			
+			return new ExprTerm(oprnds, ExprTerm.AND);
 		});
 		pu.rule("LogicAnd -> CompEqNeq", () -> {
 			return pu.get(1);
 		});
 
 		pu.rule("CompEqNeq -> CompEqNeq == Comp", () -> {
-			return new ExprTerm((Term) pu.get(1), ExprTerm.EQUAL, (Term) pu.get(3));
+			ArrayList<Term> oprnds = new ArrayList<>();
+			oprnds.add((Term) pu.get(1));
+			oprnds.add((Term) pu.get(3));
+			
+			return new ExprTerm(oprnds, ExprTerm.EQUAL);
 		});
 		pu.rule("CompEqNeq -> CompEqNeq != Comp", () -> {
-			return new ExprTerm((Term) pu.get(1), ExprTerm.NOTEQUAL, (Term) pu.get(3));
+			ArrayList<Term> oprnds = new ArrayList<>();
+			oprnds.add((Term) pu.get(1));
+			oprnds.add((Term) pu.get(3));
+			
+			return new ExprTerm(oprnds, ExprTerm.NOTEQUAL);
 		});
 		pu.rule("CompEqNeq -> Comp", () -> {
 			return pu.get(1);
 		});
 		pu.rule("Comp -> Comp < ArithAddSub", () -> {
-			return new ExprTerm((Term) pu.get(1), ExprTerm.LTHAN, (Term) pu.get(3));
+			ArrayList<Term> oprnds = new ArrayList<>();
+			oprnds.add((Term) pu.get(1));
+			oprnds.add((Term) pu.get(3));
+			
+			return new ExprTerm(oprnds, ExprTerm.LTHAN);
 		});
 		pu.rule("Comp -> Comp <= ArithAddSub", () -> {
-			return new ExprTerm((Term) pu.get(1), ExprTerm.LEQUAL, (Term) pu.get(3));
+			ArrayList<Term> oprnds = new ArrayList<>();
+			oprnds.add((Term) pu.get(1));
+			oprnds.add((Term) pu.get(3));
+			
+			return new ExprTerm(oprnds, ExprTerm.LEQUAL);
 		});
 		pu.rule("Comp -> Comp > ArithAddSub", () -> {
-			return new ExprTerm((Term) pu.get(1), ExprTerm.GTHAN, (Term) pu.get(3));
+			ArrayList<Term> oprnds = new ArrayList<>();
+			oprnds.add((Term) pu.get(1));
+			oprnds.add((Term) pu.get(3));
+			
+			return new ExprTerm(oprnds, ExprTerm.GTHAN);
 		});
 		pu.rule("Comp -> Comp >= ArithAddSub", () -> {
-			return new ExprTerm((Term) pu.get(1), ExprTerm.GEQUAL, (Term) pu.get(3));
+			ArrayList<Term> oprnds = new ArrayList<>();
+			oprnds.add((Term) pu.get(1));
+			oprnds.add((Term) pu.get(3));
+			
+			return new ExprTerm(oprnds, ExprTerm.GEQUAL);
 		});
 		pu.rule("Comp -> ArithAddSub", () -> {
 			return pu.get(1);
 		});
 
 		pu.rule("ArithAddSub -> ArithAddSub + ArithMulDiv", () -> {
-			return new ExprTerm((Term) pu.get(1), ExprTerm.ADD, (Term) pu.get(3));
+			ArrayList<Term> oprnds = new ArrayList<>();
+			oprnds.add((Term) pu.get(1));
+			oprnds.add((Term) pu.get(3));
+			
+			return new ExprTerm(oprnds, ExprTerm.ADD);
 		});
 		pu.rule("ArithAddSub -> ArithAddSub - ArithMulDiv", () -> {
-			return new ExprTerm((Term) pu.get(1), ExprTerm.SUB, (Term) pu.get(3));
+			ArrayList<Term> oprnds = new ArrayList<>();
+			oprnds.add((Term) pu.get(1));
+			oprnds.add((Term) pu.get(3));
+			
+			return new ExprTerm(oprnds, ExprTerm.SUB);
 		});
 		pu.rule("ArithAddSub -> ArithMulDiv", () -> {
 			return pu.get(1);
 		});
 		pu.rule("ArithMulDiv -> ArithMulDiv * ArithUnary", () -> {
-			return new ExprTerm((Term) pu.get(1), ExprTerm.MUL, (Term) pu.get(3));
+			ArrayList<Term> oprnds = new ArrayList<>();
+			oprnds.add((Term) pu.get(1));
+			oprnds.add((Term) pu.get(3));
+			
+			return new ExprTerm(oprnds, ExprTerm.MUL);
 		});
 		pu.rule("ArithMulDiv -> ArithMulDiv / ArithUnary", () -> {
-			return new ExprTerm((Term) pu.get(1), ExprTerm.DIV, (Term) pu.get(3));
+			ArrayList<Term> oprnds = new ArrayList<>();
+			oprnds.add((Term) pu.get(1));
+			oprnds.add((Term) pu.get(3));
+			
+			return new ExprTerm(oprnds, ExprTerm.DIV);
 		});
 		pu.rule("ArithMulDiv -> ArithUnary", () -> {
 			return pu.get(1);
 		});
 		pu.rule("ArithUnary -> - Term", () -> {
-			return new ExprTerm((Term) pu.get(2), ExprTerm.UNARY);
+			ArrayList<Term> oprnds = new ArrayList<>();
+			oprnds.add((Term) pu.get(2));
+			
+			return new ExprTerm(oprnds, ExprTerm.UNARY);
 		});
 		pu.rule("ArithUnary -> Term", () -> {
 			return pu.get(1);

@@ -1,6 +1,6 @@
 package com.example.systemf.ast;
 
-public class Lam extends Term {
+public class Lam extends Value {
 	private Location loc;
 	private String x;
 	private Type idTy;

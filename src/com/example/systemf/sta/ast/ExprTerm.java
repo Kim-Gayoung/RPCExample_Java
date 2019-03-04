@@ -1,27 +1,22 @@
 package com.example.systemf.sta.ast;
 
+import java.util.ArrayList;
+
 public class ExprTerm extends Term {
-	private Term oprnd1;
+	private ArrayList<Term> oprnds;
 	private int op;
-	private Term oprnd2;
 
-	public ExprTerm(Term oprnd1, int op, Term oprnd2) {
-		this.oprnd1 = oprnd1;
-		this.op = op;
-		this.oprnd2 = oprnd2;
-	}
-
-	public ExprTerm(Term oprnd1, int op) {
-		this.oprnd1 = oprnd1;
+	public ExprTerm(ArrayList<Term> oprnds, int op) {
+		this.oprnds = oprnds;
 		this.op = op;
 	}
 
-	public Term getOprnd1() {
-		return oprnd1;
+	public ArrayList<Term> getOprnds() {
+		return oprnds;
 	}
 
-	public void setOprnd1(Term oprnd1) {
-		this.oprnd1 = oprnd1;
+	public void setOprnds(ArrayList<Term> oprnds) {
+		this.oprnds = oprnds;
 	}
 
 	public int getOp() {
@@ -31,26 +26,19 @@ public class ExprTerm extends Term {
 	public void setOp(int op) {
 		this.op = op;
 	}
-
-	public Term getOprnd2() {
-		return oprnd2;
-	}
-
-	public void setOprnd2(Term oprnd2) {
-		this.oprnd2 = oprnd2;
+	
+	public String get(int i) {
+		return opArr[i];
 	}
 
 	@Override
 	public String toString() {
 		String ret = "";
 
-		if (oprnd2 == null) {
-			ret += opArr[op] + oprnd1;
-		} else {
-			ret += oprnd1 + " " + opArr[op] + " " + oprnd2;
-		}
-
-		return ret;
+		if (oprnds.size() < 2)
+			return opArr[op] + oprnds.get(0);
+		else
+			return oprnds.get(0) + " " + opArr[op] + " " + oprnds.get(1);
 	}
 
 	private static String[] opArr = { "+", "-", "*", "/", "-",

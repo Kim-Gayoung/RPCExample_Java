@@ -1,6 +1,6 @@
 package com.example.systemf.ast;
 
-public class Unit extends Term {
+public class Unit extends Value {
 	
 	public Unit() {
 		

@@ -1,10 +1,10 @@
 package com.example.systemf.ast;
 
-public class TApp extends Term {
+public class Tapp extends Term {
 	private Term fun;
 	private Type ty;
 	
-	public TApp(Term fun, Type ty) {
+	public Tapp(Term fun, Type ty) {
 		this.fun = fun;
 		this.ty = ty;
 	}

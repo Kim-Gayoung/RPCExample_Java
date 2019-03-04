@@ -2,11 +2,11 @@ package com.example.systemf.sta.ast;
 
 import com.example.systemf.ast.Type;
 
-public class TApp extends Term {
+public class Tapp extends Term {
 	private Term fun;
 	private Type ty;
 	
-	public TApp(Term fun, Type ty) {
+	public Tapp(Term fun, Type ty) {
 		this.fun = fun;
 		this.ty = ty;
 	}

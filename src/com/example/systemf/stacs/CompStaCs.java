@@ -19,7 +19,7 @@ import com.example.systemf.sta.ast.Num;
 import com.example.systemf.sta.ast.Req;
 import com.example.systemf.sta.ast.Ret;
 import com.example.systemf.sta.ast.Str;
-import com.example.systemf.sta.ast.TApp;
+import com.example.systemf.sta.ast.Tapp;
 import com.example.systemf.sta.ast.Term;
 import com.example.systemf.sta.ast.Tylam;
 import com.example.systemf.sta.ast.Unit;
@@ -144,12 +144,12 @@ public class CompStaCs {
 
 			return ret;
 		}
-		else if (t instanceof TApp) {
-			TApp tTApp = (TApp) t;
+		else if (t instanceof Tapp) {
+			Tapp tTApp = (Tapp) t;
 
 			TripleTup<Term, FunStore, FunStore> p1 = cloConv(tTApp.getFun(), zs);
 
-			ret = new TripleTup<>(new TApp(p1.getFirst(), tTApp.getTy()), p1.getSecond(), p1.getThird());
+			ret = new TripleTup<>(new Tapp(p1.getFirst(), tTApp.getTy()), p1.getSecond(), p1.getThird());
 			
 			return ret;
 		}
@@ -235,30 +235,19 @@ public class CompStaCs {
 		}
 		else if (t instanceof ExprTerm) {
 			ExprTerm tExpr = (ExprTerm) t;
-			int op = tExpr.getOp();
-			FunStore client;
-			FunStore server;
+			ArrayList<Term> oprnds = new ArrayList<>();
+			FunStore client = new FunStore();
+			FunStore server = new FunStore();
 
-			if (op == 4 || op == 13) {
-				TripleTup<Term, FunStore, FunStore> p1 = cloConv(tExpr.getOprnd1(), zs);
+			for (Term oprnd: tExpr.getOprnds()) {
+				TripleTup<Term, FunStore, FunStore> p = cloConv(oprnd, zs);
+				oprnds.add(p.getFirst());
 				
-				client = p1.getSecond();
-				server = p1.getThird();
-				
-				ret = new TripleTup<>(new ExprTerm(p1.getFirst(), op), client, server);
+				client.getFs().putAll(p.getSecond().getFs());
+				server.getFs().putAll(p.getThird().getFs());
 			}
-			else {
-				TripleTup<Term, FunStore, FunStore> p1 = cloConv(tExpr.getOprnd1(), zs);
-				TripleTup<Term, FunStore, FunStore> p2 = cloConv(tExpr.getOprnd2(), zs);
-				
-				client = p1.getSecond();
-				client.getFs().putAll(p2.getSecond().getFs());
-				
-				server = p1.getThird();
-				server.getFs().putAll(p2.getThird().getFs());
-				
-				ret = new TripleTup<>(new ExprTerm(p1.getFirst(), op, p2.getFirst()), client, server);
-			}
+			
+			ret = new TripleTup<>(new ExprTerm(oprnds, tExpr.getOp()), client, server);
 			
 			return ret;
 		}
@@ -373,8 +362,8 @@ public class CompStaCs {
 
 			return retList;
 		}
-		else if (m instanceof TApp) {
-			TApp mTApp = (TApp) m;
+		else if (m instanceof Tapp) {
+			Tapp mTApp = (Tapp) m;
 			// fun type
 
 			return fv(mTApp.getFun());
@@ -402,14 +391,9 @@ public class CompStaCs {
 		}
 		else if (m instanceof ExprTerm) {
 			ExprTerm mExpr = (ExprTerm) m;
-			int op = mExpr.getOp();
 
-			if (op == 4 || op == 13) {
-				strSet.addAll(fv(mExpr.getOprnd1()));
-			}
-			else {
-				strSet.addAll(fv(mExpr.getOprnd1()));
-				strSet.addAll(fv(mExpr.getOprnd2()));
+			for (Term oprnd: mExpr.getOprnds()) {
+				strSet.addAll(fv(oprnd));
 			}
 
 			retList.addAll(strSet);
@@ -495,8 +479,8 @@ public class CompStaCs {
 
 			return retList;
 		}
-		else if (m instanceof TApp) {
-			TApp mTApp = (TApp) m;
+		else if (m instanceof Tapp) {
+			Tapp mTApp = (Tapp) m;
 
 			tySet.addAll(ftv(mTApp.getFun()));
 			tySet.remove(mTApp.getTy());
@@ -527,14 +511,9 @@ public class CompStaCs {
 		}
 		else if (m instanceof ExprTerm) {
 			ExprTerm mExpr = (ExprTerm) m;
-			int op = mExpr.getOp();
 
-			if (op == 4 || op == 13) {
-				tySet.addAll(ftv(mExpr.getOprnd1()));
-			}
-			else {
-				tySet.addAll(ftv(mExpr.getOprnd1()));
-				tySet.addAll(ftv(mExpr.getOprnd2()));
+			for (Term oprnd: mExpr.getOprnds()) {
+				tySet.addAll(ftv(oprnd));
 			}
 
 			retList.addAll(tySet);

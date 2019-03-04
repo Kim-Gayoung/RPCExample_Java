@@ -17,7 +17,7 @@ import com.example.systemf.ast.Location;
 import com.example.systemf.ast.Num;
 import com.example.systemf.ast.Str;
 import com.example.systemf.ast.StrType;
-import com.example.systemf.ast.TApp;
+import com.example.systemf.ast.Tapp;
 import com.example.systemf.ast.Term;
 import com.example.systemf.ast.Tylam;
 import com.example.systemf.ast.Type;
@@ -225,8 +225,8 @@ public class TypeChecker {
 			else
 				throw new TypeCheckException("Function(" + tApp.getFun() + ": " + funTy +") is not FunType.");
 		}
-		else if (t instanceof TApp) {
-			TApp tTApp = (TApp) t;
+		else if (t instanceof Tapp) {
+			Tapp tTApp = (Tapp) t;
 			
 			Type tfunTy = tTApp.getTy();
 			
@@ -285,8 +285,8 @@ public class TypeChecker {
 			int op = tExpr.getOp();
 			
 			if (op >= 0 && op <= 3) {
-				Term oprnd1 = tExpr.getOprnd1();
-				Term oprnd2 = tExpr.getOprnd2();
+				Term oprnd1 = tExpr.getOprnds().get(0);
+				Term oprnd2 = tExpr.getOprnds().get(1);
 				
 				Type oprnd1Ty = checkTerm(oprnd1, tyenv, loc);
 				Type oprnd2Ty = checkTerm(oprnd2, tyenv, loc);
@@ -298,7 +298,7 @@ public class TypeChecker {
 					throw new TypeCheckException("Oprnd1(" + oprnd1 + ") type is " + oprnd1Ty + ", Oprnd2(" + oprnd2 + ") type is " + oprnd2Ty);
 			}
 			else if (op == 4) {
-				Term oprnd1 = tExpr.getOprnd1();
+				Term oprnd1 = tExpr.getOprnds().get(0);
 				Type oprnd1Ty = checkTerm(oprnd1, tyenv, loc);
 				
 				if (oprnd1Ty instanceof IntType) {
@@ -308,8 +308,8 @@ public class TypeChecker {
 					throw new TypeCheckException("Oprnd1(" + oprnd1 + ") type is " + oprnd1Ty);
 			}
 			else if (op >= 5 && op <= 8) {
-				Term oprnd1 = tExpr.getOprnd1();
-				Term oprnd2 = tExpr.getOprnd2();
+				Term oprnd1 = tExpr.getOprnds().get(0);
+				Term oprnd2 = tExpr.getOprnds().get(1);
 				
 				Type oprnd1Ty = checkTerm(oprnd1, tyenv, loc);
 				Type oprnd2Ty = checkTerm(oprnd2, tyenv, loc);
@@ -321,8 +321,8 @@ public class TypeChecker {
 					throw new TypeCheckException("Oprnd1(" + oprnd1 + ") type is " + oprnd1Ty + ", Oprnd2(" + oprnd2 + ") type is " + oprnd2Ty);
 			}
 			else if (op >= 9 && op <= 10) {
-				Term oprnd1 = tExpr.getOprnd1();
-				Term oprnd2 = tExpr.getOprnd2();
+				Term oprnd1 = tExpr.getOprnds().get(0);
+				Term oprnd2 = tExpr.getOprnds().get(1);
 				
 				Type oprnd1Ty = checkTerm(oprnd1, tyenv, loc);
 				Type oprnd2Ty = checkTerm(oprnd2, tyenv, loc);
@@ -333,8 +333,8 @@ public class TypeChecker {
 					throw new TypeCheckException("Oprnd1(" + oprnd1 + ") type is " + oprnd1Ty + ", Oprnd2(" + oprnd2 + ") type is " + oprnd2Ty);
 			}
 			else if (op >= 11 && op <= 12) {
-				Term oprnd1 = tExpr.getOprnd1();
-				Term oprnd2 = tExpr.getOprnd2();
+				Term oprnd1 = tExpr.getOprnds().get(0);
+				Term oprnd2 = tExpr.getOprnds().get(1);
 				
 				Type oprnd1Ty = checkTerm(oprnd1, tyenv, loc);
 				Type oprnd2Ty = checkTerm(oprnd2, tyenv, loc);
@@ -346,7 +346,7 @@ public class TypeChecker {
 					throw new TypeCheckException("Oprnd1(" + oprnd1 + ") type is " + oprnd1Ty + ", Oprnd2(" + oprnd2 + ") type is " + oprnd2Ty);
 			}
 			else {
-				Term oprnd1 = tExpr.getOprnd1();
+				Term oprnd1 = tExpr.getOprnds().get(0);
 				Type oprnd1Ty = checkTerm(oprnd1, tyenv, loc);
 				
 				if (oprnd1Ty instanceof BoolType) {
