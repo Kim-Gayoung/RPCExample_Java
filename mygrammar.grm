@@ -1,6 +1,5 @@
 CFG "TopLevel'" [
 	ProductionRule "TopLevel'" [Nonterminal "TopLevel"],
-	ProductionRule "TopLevel" [Nonterminal "LExpr"],
 	ProductionRule "TopLevel" [Terminal "id", Nonterminal "OptType", Terminal "=", Nonterminal "LExpr"],
 	ProductionRule "TopLevel" [Terminal "id", Nonterminal "OptType", Terminal "=", Nonterminal "LExpr", Terminal ";", Nonterminal "TopLevel"],
 	ProductionRule "LExpr" [Terminal "lam", Nonterminal "OptLoc", Terminal "id", Nonterminal "OptType", Terminal ".", Nonterminal "LExpr"],

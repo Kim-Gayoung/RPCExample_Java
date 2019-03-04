@@ -7,5 +7,6 @@ logicalTest: String-c->Bool-c->Bool-c->Bool =
 				else
 					oprnd1 or oprnd2;
 					
-test1: Bool = logicalTest ^c^ "and" ^c^ True ^c^ False;
-test2: Bool = logicalTest ^c^ "or" ^c^ True ^c^ False
+main: Bool = let test1: Bool = logicalTest ^c^ "and" ^c^ True ^c^ False in
+				logicalTest ^c^ "or" ^c^ True ^c^ False
+			end

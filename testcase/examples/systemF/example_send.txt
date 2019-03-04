@@ -12,4 +12,6 @@ send: Int-s->String-s->Bool =
 					end
 		  		else
 		  			send ^s^ session ^s^ block
-			end
+			end;
+			
+main: Bool = send ^s^ 123 ^s^ "test block"

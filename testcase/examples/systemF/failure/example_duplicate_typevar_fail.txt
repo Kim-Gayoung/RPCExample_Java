@@ -1,2 +1,4 @@
 test1: forall a. a-c->a = tylam a. lam^c x: a. x;
-test2: forall a. forall a. (a-c->a) = tylam a. tylam a. lam^c x: a. x
+test2: forall a. forall a. (a-c->a) = tylam a. tylam a. lam^c x: a. x;
+
+main: String = test1 [String] ^c^ "this is wrong example. it must be fail"

@@ -4,4 +4,8 @@ identity_server: forall t2. (t2-s->t2) = tylam t2. lam^s x: t2. x;
 clientTest1: String = identity_client [String] ^c^ "abc";
 serverTest1: Int = identity_server [Int] ^s^ 123;
 clientTest2: Unit-c->Int = lam^c x: Unit. identity_server [Int] ^s^ 123;
-serverTest2: Unit-s->String = lam^s x: Unit. identity_client [String] ^c^ "abC"
+serverTest2: Unit-s->String = lam^s x: Unit. identity_client [String] ^c^ "abC";
+
+main: String = let client: Int = clientTest2 ^c^ () in
+					serverTest2 ^s^ ()
+				end

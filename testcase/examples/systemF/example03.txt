@@ -8,8 +8,10 @@ simpleCond: Int-c->(Int-c->String) =
 		  
 test1: String = simpleCond ^c^ 123 ^c^ 456;
 test2: String = simpleCond ^c^ 987 ^c^ 543;
-test3: Int-s->(Int-s->String) =
-	lam^s x: Int.
-	  lam^s y: Int. simpleCond ^c^ x ^c^ y;
-test4: Unit-s->String = lam^s x: Unit. test3 ^s^ 111 ^s^ 222;
-test5: String = test3 ^s^ 12345 ^s^ 5678 
+test3: Int-s->(Int-s->String) =	lam^s x: Int. lam^s y: Int. simpleCond ^c^ x ^c^ y;
+test4: Unit-s->String = lam^s x: Unit. test3 ^s^ (987 - 456) ^s^ (543 - 123);
+test5: String = test3 ^s^ 12345 ^s^ 5678;
+
+main: String = let callFunc: String = test4 ^s^ () in
+					test5
+				end

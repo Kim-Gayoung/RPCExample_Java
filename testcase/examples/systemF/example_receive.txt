@@ -12,4 +12,6 @@ receive: Int-s->String = lam^s session: Int.
 					end
 				end
 			end
-	end
+	end;
+	
+main: String = receive ^s^ 123

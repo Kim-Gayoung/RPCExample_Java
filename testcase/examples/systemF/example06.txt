@@ -12,4 +12,4 @@ test1: Int-c->Int-c->Int-c->Int =
 				max ^c^ (a / b) ^c^ (max ^c^ (a / c) ^c^ (max ^c^ (b / a) ^c^ (max ^c^ (b / c) ^c^ (max ^c^ (c / a) ^c^ (c / b)))))
 			else
 				-1;
-test2: Int = test1 ^c^ 345 ^c^ 467 ^c^ 234
+main: Int = test1 ^c^ 345 ^c^ 467 ^c^ 234
