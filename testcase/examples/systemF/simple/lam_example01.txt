@@ -1,0 +1,7 @@
+star: Int-c->String = lam^c x: Int.
+	if x <= 1 then
+		"*"
+	else
+		append_client ^c^ "*" ^c^ (star ^c^ (x - 1));
+		
+main: String = star ^c^ 10
