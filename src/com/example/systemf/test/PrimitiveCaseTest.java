@@ -37,7 +37,10 @@ import com.example.systemf.ast.UnitType;
 import com.example.systemf.ast.Var;
 import com.example.systemf.ast.VarType;
 import com.example.systemf.parser.Parser;
+import com.example.systemf.stacs.CompStaCs;
+import com.example.systemf.stacs.FunStore;
 import com.example.systemf.starpc.CompStaRpc;
+import com.example.utils.TripleTup;
 
 public class PrimitiveCaseTest {
 	Parser parser;
@@ -64,20 +67,26 @@ public class PrimitiveCaseTest {
 			}
 		}
 		else {
-			File file = new File(directory + "/testcase/examples/systemf/simple/primitive_example01.txt");
+			File file = new File(directory + "/testcase/examples/systemf/simple/lam_example01.txt");
 			
 			FileReader fileReader = new FileReader(file);
 			Term ex1 = (Term) parser.Parsing(fileReader);
 			Type ty1 = TypeChecker.check(ex1, new TyEnv());
-			System.out.println("----------Program----------");
+			System.out.println("----------Program-----------");
 			prettyPrint(ex1);
 			System.out.println("Type: " + ty1.toString());
-			System.out.println("---------------------------");
+			System.out.println("----------------------------");
 			
 			com.example.systemf.sta.ast.Term starpcEx1 = CompStaRpc.compStaRpc(ex1);
-			System.out.println("-----Stateful Rpc----------");
+			System.out.println("--------Stateful Rpc--------");
 			System.out.println(starpcEx1);
-			System.out.println("---------------------------");
+			System.out.println("----------------------------");
+			TripleTup<com.example.systemf.sta.ast.Term, FunStore, FunStore> stacsEx1 = CompStaCs.cloConvTerm(starpcEx1);
+			System.out.println("---Stateful Client-Server---");
+			System.out.println("Program: " + stacsEx1.getFirst());
+			System.out.println("Client FunStore:\n" + stacsEx1.getSecond());
+			System.out.println("Server FunStore:\n" + stacsEx1.getThird());
+			System.out.println("----------------------------");
 			
 		}
 	}
