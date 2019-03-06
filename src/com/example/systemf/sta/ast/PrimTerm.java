@@ -2,11 +2,11 @@ package com.example.systemf.sta.ast;
 
 import java.util.ArrayList;
 
-public class ExprTerm extends Term {
+public class PrimTerm extends Term {
 	private ArrayList<Term> oprnds;
 	private int op;
 
-	public ExprTerm(ArrayList<Term> oprnds, int op) {
+	public PrimTerm(ArrayList<Term> oprnds, int op) {
 		this.oprnds = oprnds;
 		this.op = op;
 	}

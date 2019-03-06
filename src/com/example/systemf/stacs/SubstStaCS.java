@@ -6,7 +6,8 @@ import com.example.systemf.sta.ast.App;
 import com.example.systemf.sta.ast.Bool;
 import com.example.systemf.sta.ast.Call;
 import com.example.systemf.sta.ast.Clo;
-import com.example.systemf.sta.ast.ExprTerm;
+import com.example.systemf.sta.ast.PrimTerm;
+import com.example.systemf.sta.ast.If;
 import com.example.systemf.sta.ast.Let;
 import com.example.systemf.sta.ast.Num;
 import com.example.systemf.sta.ast.Req;
@@ -107,15 +108,24 @@ public class SubstStaCS {
 			
 			return new Let(mLet.getId(), mLet.getIdTy(), t1, t2);
 		}
-		else if (m instanceof ExprTerm) {
-			ExprTerm mExpr = (ExprTerm) m;
+		else if (m instanceof If) {
+			If mIf = (If) m;
+			
+			Term condTerm = subst(mIf.getCond(), x, v);
+			Term thenTerm = subst(mIf.getThenT(), x, v);
+			Term elseTerm = subst(mIf.getElseT(), x, v);
+			
+			return new If(condTerm, thenTerm, elseTerm);
+		}
+		else if (m instanceof PrimTerm) {
+			PrimTerm mExpr = (PrimTerm) m;
 			
 			ArrayList<Term> oprnds = new ArrayList<>();
 			
 			for (Term t: mExpr.getOprnds())
 				oprnds.add(subst(t, x, v));
 			
-			return new ExprTerm(oprnds, mExpr.getOp());
+			return new PrimTerm(oprnds, mExpr.getOp());
 		}
 		else {
 			System.out.println("Term(" + m.getClass() + ") is not expected.");

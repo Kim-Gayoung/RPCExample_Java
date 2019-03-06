@@ -10,7 +10,7 @@ import com.example.lib.ParserException;
 import com.example.systemf.ast.App;
 import com.example.systemf.ast.Bool;
 import com.example.systemf.ast.BoolType;
-import com.example.systemf.ast.ExprTerm;
+import com.example.systemf.ast.PrimTerm;
 import com.example.systemf.ast.ForAll;
 import com.example.systemf.ast.FunType;
 import com.example.systemf.ast.If;
@@ -169,7 +169,7 @@ public class Parser {
 			ArrayList<Term> oprnds = new ArrayList<>();
 			oprnds.add((Term) pu.get(2));
 			
-			return new ExprTerm(oprnds, ExprTerm.NOT);
+			return new PrimTerm(oprnds, PrimTerm.NOT);
 		});
 		pu.rule("LogicNot -> LogicOr", () -> {
 			return pu.get(1);
@@ -179,7 +179,7 @@ public class Parser {
 			oprnds.add((Term) pu.get(1));
 			oprnds.add((Term) pu.get(3));
 			
-			return new ExprTerm(oprnds, ExprTerm.OR);
+			return new PrimTerm(oprnds, PrimTerm.OR);
 		});
 		pu.rule("LogicOr -> LogicAnd", () -> {
 			return pu.get(1);
@@ -189,7 +189,7 @@ public class Parser {
 			oprnds.add((Term) pu.get(1));
 			oprnds.add((Term) pu.get(3));
 			
-			return new ExprTerm(oprnds, ExprTerm.AND);
+			return new PrimTerm(oprnds, PrimTerm.AND);
 		});
 		pu.rule("LogicAnd -> CompEqNeq", () -> {
 			return pu.get(1);
@@ -200,14 +200,14 @@ public class Parser {
 			oprnds.add((Term) pu.get(1));
 			oprnds.add((Term) pu.get(3));
 			
-			return new ExprTerm(oprnds, ExprTerm.EQUAL);
+			return new PrimTerm(oprnds, PrimTerm.EQUAL);
 		});
 		pu.rule("CompEqNeq -> CompEqNeq != Comp", () -> {
 			ArrayList<Term> oprnds = new ArrayList<>();
 			oprnds.add((Term) pu.get(1));
 			oprnds.add((Term) pu.get(3));
 			
-			return new ExprTerm(oprnds, ExprTerm.NOTEQUAL);
+			return new PrimTerm(oprnds, PrimTerm.NOTEQUAL);
 		});
 		pu.rule("CompEqNeq -> Comp", () -> {
 			return pu.get(1);
@@ -217,28 +217,28 @@ public class Parser {
 			oprnds.add((Term) pu.get(1));
 			oprnds.add((Term) pu.get(3));
 			
-			return new ExprTerm(oprnds, ExprTerm.LTHAN);
+			return new PrimTerm(oprnds, PrimTerm.LTHAN);
 		});
 		pu.rule("Comp -> Comp <= ArithAddSub", () -> {
 			ArrayList<Term> oprnds = new ArrayList<>();
 			oprnds.add((Term) pu.get(1));
 			oprnds.add((Term) pu.get(3));
 			
-			return new ExprTerm(oprnds, ExprTerm.LEQUAL);
+			return new PrimTerm(oprnds, PrimTerm.LEQUAL);
 		});
 		pu.rule("Comp -> Comp > ArithAddSub", () -> {
 			ArrayList<Term> oprnds = new ArrayList<>();
 			oprnds.add((Term) pu.get(1));
 			oprnds.add((Term) pu.get(3));
 			
-			return new ExprTerm(oprnds, ExprTerm.GTHAN);
+			return new PrimTerm(oprnds, PrimTerm.GTHAN);
 		});
 		pu.rule("Comp -> Comp >= ArithAddSub", () -> {
 			ArrayList<Term> oprnds = new ArrayList<>();
 			oprnds.add((Term) pu.get(1));
 			oprnds.add((Term) pu.get(3));
 			
-			return new ExprTerm(oprnds, ExprTerm.GEQUAL);
+			return new PrimTerm(oprnds, PrimTerm.GEQUAL);
 		});
 		pu.rule("Comp -> ArithAddSub", () -> {
 			return pu.get(1);
@@ -249,14 +249,14 @@ public class Parser {
 			oprnds.add((Term) pu.get(1));
 			oprnds.add((Term) pu.get(3));
 			
-			return new ExprTerm(oprnds, ExprTerm.ADD);
+			return new PrimTerm(oprnds, PrimTerm.ADD);
 		});
 		pu.rule("ArithAddSub -> ArithAddSub - ArithMulDiv", () -> {
 			ArrayList<Term> oprnds = new ArrayList<>();
 			oprnds.add((Term) pu.get(1));
 			oprnds.add((Term) pu.get(3));
 			
-			return new ExprTerm(oprnds, ExprTerm.SUB);
+			return new PrimTerm(oprnds, PrimTerm.SUB);
 		});
 		pu.rule("ArithAddSub -> ArithMulDiv", () -> {
 			return pu.get(1);
@@ -266,14 +266,14 @@ public class Parser {
 			oprnds.add((Term) pu.get(1));
 			oprnds.add((Term) pu.get(3));
 			
-			return new ExprTerm(oprnds, ExprTerm.MUL);
+			return new PrimTerm(oprnds, PrimTerm.MUL);
 		});
 		pu.rule("ArithMulDiv -> ArithMulDiv / ArithUnary", () -> {
 			ArrayList<Term> oprnds = new ArrayList<>();
 			oprnds.add((Term) pu.get(1));
 			oprnds.add((Term) pu.get(3));
 			
-			return new ExprTerm(oprnds, ExprTerm.DIV);
+			return new PrimTerm(oprnds, PrimTerm.DIV);
 		});
 		pu.rule("ArithMulDiv -> ArithUnary", () -> {
 			return pu.get(1);
@@ -282,7 +282,7 @@ public class Parser {
 			ArrayList<Term> oprnds = new ArrayList<>();
 			oprnds.add((Term) pu.get(2));
 			
-			return new ExprTerm(oprnds, ExprTerm.UNARY);
+			return new PrimTerm(oprnds, PrimTerm.UNARY);
 		});
 		pu.rule("ArithUnary -> Term", () -> {
 			return pu.get(1);

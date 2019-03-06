@@ -11,7 +11,7 @@ import com.example.systemf.sta.ast.App;
 import com.example.systemf.sta.ast.Bool;
 import com.example.systemf.sta.ast.Call;
 import com.example.systemf.sta.ast.Clo;
-import com.example.systemf.sta.ast.ExprTerm;
+import com.example.systemf.sta.ast.PrimTerm;
 import com.example.systemf.sta.ast.If;
 import com.example.systemf.sta.ast.Lam;
 import com.example.systemf.sta.ast.Let;
@@ -233,8 +233,8 @@ public class CompStaCs {
 
 			return ret;
 		}
-		else if (t instanceof ExprTerm) {
-			ExprTerm tExpr = (ExprTerm) t;
+		else if (t instanceof PrimTerm) {
+			PrimTerm tExpr = (PrimTerm) t;
 			ArrayList<Term> oprnds = new ArrayList<>();
 			FunStore client = new FunStore();
 			FunStore server = new FunStore();
@@ -247,7 +247,7 @@ public class CompStaCs {
 				server.getFs().putAll(p.getThird().getFs());
 			}
 			
-			ret = new TripleTup<>(new ExprTerm(oprnds, tExpr.getOp()), client, server);
+			ret = new TripleTup<>(new PrimTerm(oprnds, tExpr.getOp()), client, server);
 			
 			return ret;
 		}
@@ -389,8 +389,8 @@ public class CompStaCs {
 
 			return retList;
 		}
-		else if (m instanceof ExprTerm) {
-			ExprTerm mExpr = (ExprTerm) m;
+		else if (m instanceof PrimTerm) {
+			PrimTerm mExpr = (PrimTerm) m;
 
 			for (Term oprnd: mExpr.getOprnds()) {
 				strSet.addAll(fv(oprnd));
@@ -509,8 +509,8 @@ public class CompStaCs {
 
 			return retList;
 		}
-		else if (m instanceof ExprTerm) {
-			ExprTerm mExpr = (ExprTerm) m;
+		else if (m instanceof PrimTerm) {
+			PrimTerm mExpr = (PrimTerm) m;
 
 			for (Term oprnd: mExpr.getOprnds()) {
 				tySet.addAll(ftv(oprnd));

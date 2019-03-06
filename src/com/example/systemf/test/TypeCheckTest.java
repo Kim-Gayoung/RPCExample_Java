@@ -14,7 +14,7 @@ import com.example.systemf.TypeChecker;
 import com.example.systemf.ast.App;
 import com.example.systemf.ast.Bool;
 import com.example.systemf.ast.BoolType;
-import com.example.systemf.ast.ExprTerm;
+import com.example.systemf.ast.PrimTerm;
 import com.example.systemf.ast.FunType;
 import com.example.systemf.ast.If;
 import com.example.systemf.ast.IntType;
@@ -100,8 +100,8 @@ public class TypeCheckTest {
 			prettyPrint((Tapp) t);
 		else if (t instanceof Bool)
 			prettyPrint((Bool) t);
-		else if (t instanceof ExprTerm)
-			prettyPrint((ExprTerm) t);
+		else if (t instanceof PrimTerm)
+			prettyPrint((PrimTerm) t);
 		else if (t instanceof If)
 			prettyPrint((If) t);
 		else if (t instanceof Lam)
@@ -150,7 +150,7 @@ public class TypeCheckTest {
 		System.out.print(bool.isBool());
 	}
 
-	public void prettyPrint(ExprTerm exprTerm) {
+	public void prettyPrint(PrimTerm exprTerm) {
 		if (exprTerm.getOprnds().size() == 1) {
 			System.out.print(exprTerm.get(exprTerm.getOp()));
 			prettyPrint(exprTerm.getOprnds().get(0));

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import com.example.systemf.ast.App;
 import com.example.systemf.ast.Bool;
 import com.example.systemf.ast.BoolType;
-import com.example.systemf.ast.ExprTerm;
+import com.example.systemf.ast.PrimTerm;
 import com.example.systemf.ast.ForAll;
 import com.example.systemf.ast.FunType;
 import com.example.systemf.ast.If;
@@ -280,8 +280,8 @@ public class TypeChecker {
 			else
 				throw new TypeCheckException(condTy + " is not BoolType.");
 		}
-		else if (t instanceof ExprTerm) {
-			ExprTerm tExpr = (ExprTerm) t;
+		else if (t instanceof PrimTerm) {
+			PrimTerm tExpr = (PrimTerm) t;
 			int op = tExpr.getOp();
 			
 			if (op >= 0 && op <= 3) {

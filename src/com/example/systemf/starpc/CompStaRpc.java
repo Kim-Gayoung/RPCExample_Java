@@ -8,7 +8,7 @@ import com.example.systemf.ast.Location;
 import com.example.systemf.sta.ast.App;
 import com.example.systemf.sta.ast.Bool;
 import com.example.systemf.sta.ast.Call;
-import com.example.systemf.sta.ast.ExprTerm;
+import com.example.systemf.sta.ast.PrimTerm;
 import com.example.systemf.sta.ast.If;
 import com.example.systemf.sta.ast.Lam;
 import com.example.systemf.sta.ast.Let;
@@ -143,8 +143,8 @@ public class CompStaRpc {
 			return new Let(condvar, condTerm, new Let(thenvar, thenTerm,
 					new Let(elsevar, elseTerm, new Let(rvar, new If(condv, thenv, elsev), r))));
 		}
-		else if (t instanceof com.example.systemf.ast.ExprTerm) {
-			com.example.systemf.ast.ExprTerm tExpr = (com.example.systemf.ast.ExprTerm) t;
+		else if (t instanceof com.example.systemf.ast.PrimTerm) {
+			com.example.systemf.ast.PrimTerm tExpr = (com.example.systemf.ast.PrimTerm) t;
 
 			ArrayList<Term> oprnds = new ArrayList<>();
 			ArrayList<Pair<String, Term>> pairOprnds = new ArrayList<>();
@@ -166,7 +166,7 @@ public class CompStaRpc {
 			String rvar = "r" + i++;
 			Var r = new Var(rvar);
 
-			Term expr = new Let(rvar, new ExprTerm(oprnds, tExpr.getOp()), r);
+			Term expr = new Let(rvar, new PrimTerm(oprnds, tExpr.getOp()), r);
 
 			for (int i = 0; i < pairOprnds.size(); i++) {
 				Pair<String, Term> p = pairOprnds.get(i);
@@ -301,8 +301,8 @@ public class CompStaRpc {
 			return new Let(condvar, condTerm, new Let(thenvar, thenTerm,
 					new Let(elsevar, elseTerm, new Let(rvar, new If(condv, thenv, elsev), r))));
 		}
-		else if (t instanceof com.example.systemf.ast.ExprTerm) {
-			com.example.systemf.ast.ExprTerm tExpr = (com.example.systemf.ast.ExprTerm) t;
+		else if (t instanceof com.example.systemf.ast.PrimTerm) {
+			com.example.systemf.ast.PrimTerm tExpr = (com.example.systemf.ast.PrimTerm) t;
 
 			ArrayList<Term> oprnds = new ArrayList<>();
 			ArrayList<Pair<String, Term>> pairOprnds = new ArrayList<>();
@@ -324,7 +324,7 @@ public class CompStaRpc {
 			String rvar = "r" + i++;
 			Var r = new Var(rvar);
 
-			Term expr = new Let(rvar, new ExprTerm(oprnds, tExpr.getOp()), r);
+			Term expr = new Let(rvar, new PrimTerm(oprnds, tExpr.getOp()), r);
 
 			for (int i = 0; i < pairOprnds.size(); i++) {
 				Pair<String, Term> p = pairOprnds.get(i);

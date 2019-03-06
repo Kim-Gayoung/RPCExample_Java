@@ -35,6 +35,7 @@ import com.example.systemf.sta.ast.Call;
 import com.example.systemf.sta.ast.Clo;
 import com.example.systemf.sta.ast.Let;
 import com.example.systemf.sta.ast.Num;
+import com.example.systemf.sta.ast.PrimTerm;
 import com.example.systemf.sta.ast.Req;
 import com.example.systemf.sta.ast.Ret;
 import com.example.systemf.sta.ast.Str;
@@ -707,10 +708,30 @@ public class StaCSInHttp {
 
 						m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), mClo1);
 					}
+					else if (m1 instanceof Unit) {
+						Unit mUnit1 = (Unit) m1;
+						
+						m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), mUnit1);
+					}
 					else if (m1 instanceof Num) {
 						Num mNum1 = (Num) m1;
 
 						m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), mNum1);
+					}
+					else if (m1 instanceof Bool) {
+						Bool mBool1 = (Bool) m1;
+						
+						m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), mBool1);
+					}
+					else if (m1 instanceof Str) {
+						Str mStr1 = (Str) m1;
+						
+						m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), mStr1);
+					}
+					else if (m1 instanceof Var) {
+						Var mVar1 = (Var) m1;
+						
+						// append와 같은 Library 함수?
 					}
 					else if (m1 instanceof Let) {
 						Let mLet1 = (Let) m1;
@@ -738,13 +759,47 @@ public class StaCSInHttp {
 
 						m = receiver.apply(mLet);
 					}
+					else if (m1 instanceof PrimTerm) {
+						PrimTerm mExpr1 = (PrimTerm) m1;
+						Term oprnd1;
+						Term oprnd2;
+						Value v = null;
+						
+						switch(mExpr1.get(mExpr1.getOp())) {
+						case "+":
+							oprnd1 = mExpr1.getOprnds().get(0);
+							oprnd2 = mExpr1.getOprnds().get(1);
+							
+							if (oprnd1 instanceof Num && oprnd2 instanceof Num) {
+								Num numOprnd1 = (Num) oprnd1;
+								Num numOprnd2 = (Num) oprnd2;
+								
+								v = new Num(numOprnd1.getI() + numOprnd2.getI());
+							}
+							else
+								throw new RuntimeException("")
+							break;
+						case "<=":
+							oprnd1 = mExpr1.getOprnds().get(0);
+							oprnd2 = mExpr1.getOprnds().get(1);
+							
+							if (oprnd1 instanceof Num && oprnd2 instanceof Num) {
+								Num numOprnd1 = (Num) oprnd1;
+								Num numOprnd2 = (Num) oprnd2;
+								
+								v = new Bool(Boolean.toString(numOprnd1.getI() <= numOprnd2.getI()));
+							}
+							break;
+						}
+						
+						m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), v);
+					}
 				}
 				else if (m instanceof Clo || m instanceof Unit || m instanceof Num || m instanceof Str || m instanceof Bool) {
-
 					return (Value) m;
 				}
 				else {
-					throw new RuntimeException("TypedCSHttp.evalClient: Must not reach here");
+					throw new RuntimeException("StaCsInHttp.evalClient: Must not reach here");
 				}
 			}
 		}

@@ -1,5 +1,7 @@
 package com.example.systemf.ast;
 
+import org.json.simple.JSONObject;
+
 public class VarType extends Type {
 	private String var;
 
@@ -36,4 +38,14 @@ public class VarType extends Type {
 		return new VarType(var);
 	}
 	
+	public static final String VarType = "VarType";
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public JSONObject toJson() {
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put(VarType, new String(var));
+		
+		return jsonObject;
+	}
 }
