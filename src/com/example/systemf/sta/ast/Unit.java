@@ -19,7 +19,7 @@ public class Unit extends Value {
 	@SuppressWarnings("unchecked")
 	public JSONObject toJson() {
 		JSONObject jsonObject = new JSONObject();
-		jsonObject.put(Unit, new String("()"));
+		jsonObject.put(Unit, new String(""));
 		return jsonObject;
 	}
 }

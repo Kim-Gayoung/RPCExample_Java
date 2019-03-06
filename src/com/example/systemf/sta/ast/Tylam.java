@@ -2,7 +2,7 @@ package com.example.systemf.sta.ast;
 
 import com.example.systemf.ast.Type;
 
-public class Tylam extends Term {
+public class Tylam extends Value {
 	private Type ty;
 	private Term term;
 	

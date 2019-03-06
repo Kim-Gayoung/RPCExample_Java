@@ -77,6 +77,7 @@ public class Clo extends Value {
 	}
 	
 	public static final String Clo = "Clo";
+	public static final String Tvs = "Tvs";
 	public static final String Fvs = "Fvs";
 	
 	@Override
@@ -86,6 +87,13 @@ public class Clo extends Value {
 		
 		// Function name
 		jsonObject.put(Clo, f);
+		
+//		JSONArray typeJsonArray = new JSONArray();
+//		for (Type t: ts) {
+//			typeJsonArray.add(t.toJson());
+//		}
+//		
+//		jsonObject.put(Tvs, typeJsonArray);
 		
 		// Free variables
 		JSONArray jsonArray = new JSONArray();

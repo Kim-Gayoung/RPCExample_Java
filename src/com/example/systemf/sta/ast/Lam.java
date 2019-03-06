@@ -3,7 +3,7 @@ package com.example.systemf.sta.ast;
 import com.example.systemf.ast.Location;
 import com.example.systemf.ast.Type;
 
-public class Lam extends Term {
+public class Lam extends Value {
 	private Location loc;
 	private String x;
 	private Type idTy;

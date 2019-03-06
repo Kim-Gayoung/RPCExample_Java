@@ -19,5 +19,4 @@ public class Var extends Value {
 	public String toString() {
 		return var;
 	}
-	
 }

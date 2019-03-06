@@ -6,7 +6,6 @@ public class Str extends Value {
 	private String str;
 
 	public Str(String str) {
-		super();
 		this.str = str;
 	}
 
