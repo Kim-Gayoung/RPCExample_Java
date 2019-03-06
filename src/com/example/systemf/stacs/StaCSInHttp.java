@@ -33,6 +33,7 @@ import com.example.systemf.sta.ast.App;
 import com.example.systemf.sta.ast.Bool;
 import com.example.systemf.sta.ast.Call;
 import com.example.systemf.sta.ast.Clo;
+import com.example.systemf.sta.ast.If;
 import com.example.systemf.sta.ast.Let;
 import com.example.systemf.sta.ast.Num;
 import com.example.systemf.sta.ast.PrimTerm;
@@ -759,14 +760,31 @@ public class StaCSInHttp {
 
 						m = receiver.apply(mLet);
 					}
+					else if (m1 instanceof If) {
+						If mIf1 = (If) m1;
+						
+						Term cond = mIf1.getCond();
+						
+						if (cond instanceof Bool) {
+							Bool boolCond = (Bool) cond;
+							
+							if (boolCond.getBool())
+								m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), (Value) mIf1.getThenT());
+							else
+								m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), (Value) mIf1.getElseT());
+						}
+					}
 					else if (m1 instanceof PrimTerm) {
 						PrimTerm mExpr1 = (PrimTerm) m1;
 						Term oprnd1;
 						Term oprnd2;
 						Value v = null;
 						
-						switch(mExpr1.get(mExpr1.getOp())) {
-						case "+":
+						switch(mExpr1.getOp()) {
+						case 0:			// ADD
+						case 1:			// SUB
+						case 2:			// MUL
+						case 3:			// DIV
 							oprnd1 = mExpr1.getOprnds().get(0);
 							oprnd2 = mExpr1.getOprnds().get(1);
 							
@@ -774,12 +792,26 @@ public class StaCSInHttp {
 								Num numOprnd1 = (Num) oprnd1;
 								Num numOprnd2 = (Num) oprnd2;
 								
-								v = new Num(numOprnd1.getI() + numOprnd2.getI());
+								v = compPrimTerm(numOprnd1, mExpr1.getOp(), numOprnd2);
 							}
 							else
-								throw new RuntimeException("")
+								throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1 + ") and oprnd2(" + oprnd2 + ") are not Num.");
 							break;
-						case "<=":
+						case 4:		// UNARY MINUS
+							oprnd1 = mExpr1.getOprnds().get(0);
+							
+							if (oprnd1 instanceof Num) {
+								Num numOprnd1 = (Num) oprnd1;
+								
+								v = new Num(-numOprnd1.getI());
+							}
+							else
+								throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1 + ") is not Num.");
+							break;
+						case 5:			// GTHAN
+						case 6:			// GEQUAL
+						case 7:			// LTHAN
+						case 8:			// LEQUAL
 							oprnd1 = mExpr1.getOprnds().get(0);
 							oprnd2 = mExpr1.getOprnds().get(1);
 							
@@ -787,8 +819,55 @@ public class StaCSInHttp {
 								Num numOprnd1 = (Num) oprnd1;
 								Num numOprnd2 = (Num) oprnd2;
 								
-								v = new Bool(Boolean.toString(numOprnd1.getI() <= numOprnd2.getI()));
+								v = compPrimTerm(numOprnd1, mExpr1.getOp(), numOprnd2);
 							}
+							else
+								throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1 + ") and oprnd2(" + oprnd2 + ") are not Num.");
+							break;
+						case 9:			// EQUAL
+							oprnd1 = mExpr1.getOprnds().get(0);
+							oprnd2 = mExpr1.getOprnds().get(1);
+							
+							if (oprnd1.getClass() == oprnd2.getClass()) {
+								v = new Bool(Boolean.toString(oprnd1.equals(oprnd2)));
+							}
+							else
+								throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1 + ") and oprnd2(" + oprnd2 + ") are not Equal.");
+							break;
+						case 10:		// NOTEQUAL
+							oprnd1 = mExpr1.getOprnds().get(0);
+							oprnd2 = mExpr1.getOprnds().get(1);
+							
+							if (oprnd1.getClass() == oprnd2.getClass()) {
+								v = new Bool(Boolean.toString(!oprnd1.equals(oprnd2)));
+							}
+							else
+								throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1 + ") and oprnd2(" + oprnd2 + ") are not Equal.");
+							break;
+						case 11:
+						case 12:
+							oprnd1 = mExpr1.getOprnds().get(0);
+							oprnd2 = mExpr1.getOprnds().get(1);
+							
+							if (oprnd1 instanceof Bool && oprnd2 instanceof Bool) {
+								Bool boolOprnd1 = (Bool) oprnd1;
+								Bool boolOprnd2 = (Bool) oprnd2;
+								
+								v = compPrimTerm(boolOprnd1, mExpr1.getOp(), boolOprnd2);
+							}
+							else
+								throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1 + ") and oprnd2(" + oprnd2 + ") are not Bool.");
+							break;
+						case 13:
+							oprnd1 = mExpr1.getOprnds().get(0);
+							
+							if (oprnd1 instanceof Bool) {
+								Bool boolOprnd1 = (Bool) oprnd1;
+								
+								v = new Bool(Boolean.toString(!boolOprnd1.getBool()));
+							}
+							else
+								throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1 + ") is not Bool.");
 							break;
 						}
 						
@@ -802,6 +881,36 @@ public class StaCSInHttp {
 					throw new RuntimeException("StaCsInHttp.evalClient: Must not reach here");
 				}
 			}
+		}
+		
+		public static Value compPrimTerm(Num oprnd1, int op, Num oprnd2) {
+			if (op == 0)
+				return new Num(oprnd1.getI() + oprnd2.getI());
+			else if (op == 1)
+				return new Num(oprnd1.getI() - oprnd2.getI());
+			else if (op == 2)
+				return new Num(oprnd1.getI() * oprnd2.getI());
+			else if (op == 3)
+				return new Num(oprnd1.getI() / oprnd2.getI());
+			else if (op == 5)
+				return new Bool(Boolean.toString(oprnd1.getI() > oprnd2.getI()));
+			else if (op == 6)
+				return new Bool(Boolean.toString(oprnd1.getI() >= oprnd2.getI()));
+			else if (op == 7)
+				return new Bool(Boolean.toString(oprnd1.getI() < oprnd2.getI()));
+			else if (op == 8)
+				return new Bool(Boolean.toString(oprnd1.getI() <= oprnd2.getI()));
+			else
+				throw new RuntimeException("Not expected Operator " + PrimTerm.get(op));
+		}
+		
+		public static Value compPrimTerm(Bool oprnd1, int op, Bool oprnd2) {
+			if (op == 11)
+				return new Bool(Boolean.toString(oprnd1.getBool() && oprnd2.getBool()));
+			else if (op == 12)
+				return new Bool(Boolean.toString(oprnd1.getBool() || oprnd2.getBool()));
+			else
+				throw new RuntimeException("Not expected Operator " + PrimTerm.get(op));
 		}
 	}
 

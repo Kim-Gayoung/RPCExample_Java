@@ -22,7 +22,7 @@ public class Bool extends Value {
 		return bool;
 	}
 	
-	private boolean getBool() {
+	public boolean getBool() {
 		if (bool.equalsIgnoreCase("true"))
 			return true;
 		else

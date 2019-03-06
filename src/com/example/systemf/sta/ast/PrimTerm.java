@@ -27,7 +27,7 @@ public class PrimTerm extends Term {
 		this.op = op;
 	}
 	
-	public String get(int i) {
+	public static String get(int i) {
 		return opArr[i];
 	}
 
