@@ -1,0 +1,3 @@
+identity: forall t1. (t1-c->t1) = tylam t1. lam^c x: t1. x;
+
+main: String = identity [String] ^c^ "hello"
