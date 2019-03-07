@@ -11,11 +11,11 @@ import com.example.systemf.sta.ast.App;
 import com.example.systemf.sta.ast.Bool;
 import com.example.systemf.sta.ast.Call;
 import com.example.systemf.sta.ast.Clo;
-import com.example.systemf.sta.ast.PrimTerm;
 import com.example.systemf.sta.ast.If;
 import com.example.systemf.sta.ast.Lam;
 import com.example.systemf.sta.ast.Let;
 import com.example.systemf.sta.ast.Num;
+import com.example.systemf.sta.ast.PrimTerm;
 import com.example.systemf.sta.ast.Req;
 import com.example.systemf.sta.ast.Ret;
 import com.example.systemf.sta.ast.Str;
@@ -102,7 +102,7 @@ public class CompStaCs {
 		else if (t instanceof Tylam) {
 			Tylam tTylam = (Tylam) t;
 
-			String f = "_f" + i++;
+			String f = "_gf" + i++;
 
 			TripleTup<Term, FunStore, FunStore> p1 = cloConv(tTylam.getTerm(), zs);
 
@@ -118,7 +118,7 @@ public class CompStaCs {
 			client.getFs().put(f, closedFunClient);
 			FunStore server = p1.getThird();
 			server.getFs().put(f, closedFunServer);
-
+ 
 			ArrayList<Value> cloVs = new ArrayList<>();
 
 			for (String z : fvs) {
@@ -185,7 +185,7 @@ public class CompStaCs {
 			FunStore server = p1.getThird();
 			server.getFs().putAll(p2.getThird().getFs());
 
-			ret = new TripleTup<>(new App(p1.getFirst(), p2.getFirst()), client, server);
+			ret = new TripleTup<>(new Call(p1.getFirst(), p2.getFirst()), client, server);
 
 			return ret;
 		}
@@ -201,7 +201,7 @@ public class CompStaCs {
 			FunStore server = p1.getThird();
 			server.getFs().putAll(p2.getThird().getFs());
 
-			ret = new TripleTup<>(new App(p1.getFirst(), p2.getFirst()), client, server);
+			ret = new TripleTup<>(new Req(p1.getFirst(), p2.getFirst()), client, server);
 
 			return ret;
 		}

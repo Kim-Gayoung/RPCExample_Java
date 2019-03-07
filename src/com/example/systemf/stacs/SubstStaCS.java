@@ -6,13 +6,14 @@ import com.example.systemf.sta.ast.App;
 import com.example.systemf.sta.ast.Bool;
 import com.example.systemf.sta.ast.Call;
 import com.example.systemf.sta.ast.Clo;
-import com.example.systemf.sta.ast.PrimTerm;
 import com.example.systemf.sta.ast.If;
 import com.example.systemf.sta.ast.Let;
 import com.example.systemf.sta.ast.Num;
+import com.example.systemf.sta.ast.PrimTerm;
 import com.example.systemf.sta.ast.Req;
 import com.example.systemf.sta.ast.Ret;
 import com.example.systemf.sta.ast.Str;
+import com.example.systemf.sta.ast.Tapp;
 import com.example.systemf.sta.ast.Term;
 import com.example.systemf.sta.ast.Unit;
 import com.example.systemf.sta.ast.Value;
@@ -61,6 +62,13 @@ public class SubstStaCS {
 			}
 
 			return new App(f, ws);
+		}
+		else if (m instanceof Tapp) {
+			Tapp mTapp = (Tapp) m;
+			
+			Value f = (Value) subst(mTapp.getFun(), x, v);
+			
+			return new Tapp(f, mTapp.getTy());
 		}
 		else if (m instanceof Call) {
 			Call mCall = (Call) m;
