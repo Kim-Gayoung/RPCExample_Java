@@ -1,0 +1,6 @@
+readConsole: Unit-c->String = lam^c x: Unit. #primReadConsole (x);
+writeConsole: String-c->Unit = lam^c x: String. #primWriteConsole (x);
+
+main: Unit = let input: String = readConsole ^c^ () in
+					writeConsole ^c^ input
+			end
