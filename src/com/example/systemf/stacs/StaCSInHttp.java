@@ -40,6 +40,7 @@ import com.example.systemf.sta.ast.PrimTerm;
 import com.example.systemf.sta.ast.Req;
 import com.example.systemf.sta.ast.Ret;
 import com.example.systemf.sta.ast.Str;
+import com.example.systemf.sta.ast.Tapp;
 import com.example.systemf.sta.ast.Term;
 import com.example.systemf.sta.ast.Unit;
 import com.example.systemf.sta.ast.Value;
@@ -50,14 +51,14 @@ import com.example.utils.TripleTup;
 public class StaCSInHttp {
 	private static final String OPEN_SESSION = "OPEN_SESSION";
 	private static final String CLOSE_SESSION = "CLOSE_SESSION";
-	
+
 	private static final String REQ = "REQ";
 	private static final String RET = "RET";
 	private static final String REPLY = "REPLY";
 	private static final String CALL = "CALL";
-	
+
 	private static final int PORT = 8080;
-	
+
 	public static void main(String[] args) throws TypeCheckException, CompException {
 		Parser parser;
 		String serverAddr = "127.0.0.1";
@@ -89,15 +90,16 @@ public class StaCSInHttp {
 				Type rpcProgramTy = TypeChecker.check(rpcProgram, new TyEnv());
 				Term staRpcProgram = CompStaRpc.compStaRpc(rpcProgram);
 
+				System.out.println("Stateful RPC Program:\n" + staRpcProgram);
 				TripleTup<Term, FunStore, FunStore> staCsTerm = CompStaCs.cloConv(staRpcProgram, new ArrayList<>());
 
 				Term mainExpr = staCsTerm.getFirst();
 				FunStore clientFS = staCsTerm.getSecond();
 				FunStore serverFS = staCsTerm.getThird();
 
-				System.out.println("Client FunStore: " + clientFS);
-				System.out.println("Server FunStore: " + serverFS);
-
+				System.out.println("Client FunStore:\n" + clientFS);
+				System.out.println("Server FunStore:\n" + serverFS);
+				System.out.println("Program:\n" + mainExpr);
 				String programName = fileName.substring(0, fileName.indexOf("."));
 
 				was.setServerFS(programName, serverFS);
@@ -111,17 +113,13 @@ public class StaCSInHttp {
 
 				clientThread.start();
 				clientThread.join();
-			}
-			catch (IOException e) {
+			} catch (IOException e) {
 				e.printStackTrace();
-			}
-			catch (LexerException e) {
+			} catch (LexerException e) {
 				e.printStackTrace();
-			}
-			catch (ParserException e) {
+			} catch (ParserException e) {
 				e.printStackTrace();
-			}
-			catch (InterruptedException e) {
+			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
@@ -194,8 +192,7 @@ public class StaCSInHttp {
 								server.run();
 							});
 							th.start();
-						}
-						else {
+						} else {
 							session = Integer.parseInt(sessionState);
 
 							server = sessionMap.get(session);
@@ -206,17 +203,14 @@ public class StaCSInHttp {
 								server.getLock().notify();
 							}
 						}
-					}
-					else {
+					} else {
 						// program에 대한 funstore가 등록되지 않은 경우
 						System.err.println("program funstore not found");
 					}
 				}
-			}
-			catch (IOException e) {
+			} catch (IOException e) {
 				e.printStackTrace();
-			}
-			catch (NumberFormatException e) {
+			} catch (NumberFormatException e) {
 				e.printStackTrace();
 			}
 		}
@@ -299,17 +293,14 @@ public class StaCSInHttp {
 
 						sessionMap.remove(sessionNum);
 
-					}
-					else {
+					} else {
 						System.err.println("Unexpected protocol(" + protocol + ")");
 						writeHeader(400, "Bad Request");
 						writer.flush();
 					}
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 					e.printStackTrace();
-				}
-				catch (ParseException e) {
+				} catch (ParseException e) {
 					e.printStackTrace();
 				}
 			}
@@ -319,8 +310,7 @@ public class StaCSInHttp {
 					writer.write("HTTP/1.1 " + code + " " + message + "\r\n");
 					writer.write("Date: " + new Date() + "\r\n");
 					writer.write("Server: " + "Apache 2.0\r\n\r\n");
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
@@ -348,8 +338,7 @@ public class StaCSInHttp {
 
 								m = let;
 							}
-						}
-						else if (m1 instanceof Call) {
+						} else if (m1 instanceof Call) {
 							Call mCall1 = (Call) m1;
 
 							if (mCall1.getFun() instanceof Clo) {
@@ -384,8 +373,7 @@ public class StaCSInHttp {
 											m = new Let(mLet.getId(), retVal, mLet.getT2());
 
 											break;
-										}
-										else if (protocol.equals(REQ)) {
+										} else if (protocol.equals(REQ)) {
 											String cloFnInStr = reader.readLine();
 											JSONObject cloFnInJson = (JSONObject) jsonParser.parse(cloFnInStr);
 											Value cloFn = JSonUtil.fromJson(cloFnInJson);
@@ -408,45 +396,175 @@ public class StaCSInHttp {
 											Term reqTerm = new Let(rStr, new App(cloFn, args), rVar);
 
 											evalServer(reqTerm, stackDepth + 1);
-										}
-										else {
+										} else {
 											throw new RuntimeException(
 													"evalServer(Call) Must not reach here. " + protocol);
 										}
 									}
-								}
-								catch (IOException e) {
+								} catch (IOException e) {
 									e.printStackTrace();
 									writeHeader(500, "Internal Server Error");
-								}
-								catch (InterruptedException e) {
+								} catch (InterruptedException e) {
 									e.printStackTrace();
 									writeHeader(500, "Internal Server Error");
 								}
 							}
-						}
-						else if (m1 instanceof Clo) {
+						} else if (m1 instanceof Tapp) {
+							Tapp mTapp1 = (Tapp) m1;
+
+							if (mTapp1.getFun() instanceof Clo) {
+								Clo fClo = (Clo) mTapp1.getFun();
+
+								ClosedFun closedFun = lookup(phi, fClo.getF());
+
+								m = new Let(mLet.getId(),
+										SubstStaCS.substs(closedFun.getM(), closedFun.getZs(), fClo.getVs()),
+										mLet.getT2());
+							}
+						} else if (m1 instanceof Clo) {
 							Clo mClo1 = (Clo) m1;
 
 							Term st = SubstStaCS.subst(mLet.getT2(), mLet.getId(), mClo1);
 							m = st;
-						}
-						else if (m1 instanceof Num) {
-							Num mConst1 = (Num) m1;
+						} else if (m1 instanceof Unit) {
+							Unit mUnit1 = (Unit) m1;
 
-							Term st = SubstStaCS.subst(mLet.getT2(), mLet.getId(), mConst1);
+							Term st = SubstStaCS.subst(mLet.getT2(), mLet.getId(), mUnit1);
 							m = st;
-						}
-						else if (m1 instanceof Let) {
+						} else if (m1 instanceof Num) {
+							Num mNum1 = (Num) m1;
+
+							Term st = SubstStaCS.subst(mLet.getT2(), mLet.getId(), mNum1);
+							m = st;
+						} else if (m1 instanceof Str) {
+							Str mStr1 = (Str) m1;
+
+							Term st = SubstStaCS.subst(mLet.getT2(), mLet.getId(), mStr1);
+							m = st;
+						} else if (m1 instanceof Bool) {
+							Bool mBool1 = (Bool) m1;
+
+							Term st = SubstStaCS.subst(mLet.getT2(), mLet.getId(), mBool1);
+							m = st;
+						} else if (m1 instanceof Let) {
 							Let mLet1 = (Let) m1;
 
 							Let let = new Let(mLet1.getId(), mLet1.getT1(),
 									new Let(mLet.getId(), mLet1.getT2(), mLet.getT2()));
 							m = let;
-						}
+						} else if (m1 instanceof If) {
+							If mIf1 = (If) m1;
 
-					}
-					else if (m instanceof Clo) {
+							Term cond = mIf1.getCond();
+
+							if (cond instanceof Bool) {
+								Bool boolCond = (Bool) cond;
+
+								if (boolCond.getBool())
+									m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), (Value) mIf1.getThenT());
+								else
+									m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), (Value) mIf1.getElseT());
+							}
+						} else if (m1 instanceof PrimTerm) {
+							PrimTerm mExpr1 = (PrimTerm) m1;
+							Term oprnd1;
+							Term oprnd2;
+							Value v = null;
+
+							switch (mExpr1.getOp()) {
+							case 0: // ADD
+							case 1: // SUB
+							case 2: // MUL
+							case 3: // DIV
+								oprnd1 = mExpr1.getOprnds().get(0);
+								oprnd2 = mExpr1.getOprnds().get(1);
+
+								if (oprnd1 instanceof Num && oprnd2 instanceof Num) {
+									Num numOprnd1 = (Num) oprnd1;
+									Num numOprnd2 = (Num) oprnd2;
+
+									v = compPrimTerm(numOprnd1, mExpr1.getOp(), numOprnd2);
+								} else
+									throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1
+											+ ") and oprnd2(" + oprnd2 + ") are not Num.");
+								break;
+							case 4: // UNARY MINUS
+								oprnd1 = mExpr1.getOprnds().get(0);
+
+								if (oprnd1 instanceof Num) {
+									Num numOprnd1 = (Num) oprnd1;
+
+									v = new Num(-numOprnd1.getI());
+								} else
+									throw new RuntimeException(
+											"StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1 + ") is not Num.");
+								break;
+							case 5: // GTHAN
+							case 6: // GEQUAL
+							case 7: // LTHAN
+							case 8: // LEQUAL
+								oprnd1 = mExpr1.getOprnds().get(0);
+								oprnd2 = mExpr1.getOprnds().get(1);
+
+								if (oprnd1 instanceof Num && oprnd2 instanceof Num) {
+									Num numOprnd1 = (Num) oprnd1;
+									Num numOprnd2 = (Num) oprnd2;
+
+									v = compPrimTerm(numOprnd1, mExpr1.getOp(), numOprnd2);
+								} else
+									throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1
+											+ ") and oprnd2(" + oprnd2 + ") are not Num.");
+								break;
+							case 9: // EQUAL
+								oprnd1 = mExpr1.getOprnds().get(0);
+								oprnd2 = mExpr1.getOprnds().get(1);
+
+								if (oprnd1.getClass() == oprnd2.getClass()) {
+									v = new Bool(Boolean.toString(oprnd1.equals(oprnd2)));
+								} else
+									throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1
+											+ ") and oprnd2(" + oprnd2 + ") are not Equal.");
+								break;
+							case 10: // NOTEQUAL
+								oprnd1 = mExpr1.getOprnds().get(0);
+								oprnd2 = mExpr1.getOprnds().get(1);
+
+								if (oprnd1.getClass() == oprnd2.getClass()) {
+									v = new Bool(Boolean.toString(!oprnd1.equals(oprnd2)));
+								} else
+									throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1
+											+ ") and oprnd2(" + oprnd2 + ") are not Equal.");
+								break;
+							case 11:
+							case 12:
+								oprnd1 = mExpr1.getOprnds().get(0);
+								oprnd2 = mExpr1.getOprnds().get(1);
+
+								if (oprnd1 instanceof Bool && oprnd2 instanceof Bool) {
+									Bool boolOprnd1 = (Bool) oprnd1;
+									Bool boolOprnd2 = (Bool) oprnd2;
+
+									v = compPrimTerm(boolOprnd1, mExpr1.getOp(), boolOprnd2);
+								} else
+									throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1
+											+ ") and oprnd2(" + oprnd2 + ") are not Bool.");
+								break;
+							case 13:
+								oprnd1 = mExpr1.getOprnds().get(0);
+
+								if (oprnd1 instanceof Bool) {
+									Bool boolOprnd1 = (Bool) oprnd1;
+
+									v = new Bool(Boolean.toString(!boolOprnd1.getBool()));
+								} else
+									throw new RuntimeException(
+											"StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1 + ") is not Bool.");
+								break;
+							}
+
+							m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), v);
+						}
+					} else if (m instanceof Clo) {
 						Clo mClo = (Clo) m;
 
 						try {
@@ -467,18 +585,15 @@ public class StaCSInHttp {
 									lock.wait();
 							}
 
-						}
-						catch (IOException e) {
+						} catch (IOException e) {
 							e.printStackTrace();
-						}
-						catch (InterruptedException e) {
+						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
 
 						return;
-					}
-					else if (m instanceof Num) {
-						Num mConst = (Num) m;
+					} else if (m instanceof Unit) {
+						Unit mUnit = (Unit) m;
 
 						try {
 							// REPLY
@@ -491,17 +606,96 @@ public class StaCSInHttp {
 									writer.write(sessionNum + "\n");
 
 								writer.write(REPLY + "\n");
-								writer.write(mConst.toJson() + "\n");
+								writer.write(mUnit.toJson() + "\n");
 								writer.flush();
 
 								if (stackDepth > 0)
 									lock.wait();
 							}
-						}
-						catch (IOException e) {
+						} catch (IOException e) {
+							e.printStackTrace();
+						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
-						catch (InterruptedException e) {
+
+						return;
+					} else if (m instanceof Num) {
+						Num mNum = (Num) m;
+
+						try {
+							// REPLY
+							synchronized (lock) {
+								writeHeader(200, "OK");
+
+								if (stackDepth == 0)
+									writer.write(CLOSE_SESSION + "\n");
+								else
+									writer.write(sessionNum + "\n");
+
+								writer.write(REPLY + "\n");
+								writer.write(mNum.toJson() + "\n");
+								writer.flush();
+
+								if (stackDepth > 0)
+									lock.wait();
+							}
+						} catch (IOException e) {
+							e.printStackTrace();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+
+						return;
+					} else if (m instanceof Str) {
+						Str mStr = (Str) m;
+
+						try {
+							// REPLY
+							synchronized (lock) {
+								writeHeader(200, "OK");
+
+								if (stackDepth == 0)
+									writer.write(CLOSE_SESSION + "\n");
+								else
+									writer.write(sessionNum + "\n");
+
+								writer.write(REPLY + "\n");
+								writer.write(mStr.toJson() + "\n");
+								writer.flush();
+
+								if (stackDepth > 0)
+									lock.wait();
+							}
+						} catch (IOException e) {
+							e.printStackTrace();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+
+						return;
+					} else if (m instanceof Bool) {
+						Bool mBool = (Bool) m;
+
+						try {
+							// REPLY
+							synchronized (lock) {
+								writeHeader(200, "OK");
+
+								if (stackDepth == 0)
+									writer.write(CLOSE_SESSION + "\n");
+								else
+									writer.write(sessionNum + "\n");
+
+								writer.write(REPLY + "\n");
+								writer.write(mBool.toJson() + "\n");
+								writer.flush();
+
+								if (stackDepth > 0)
+									lock.wait();
+							}
+						} catch (IOException e) {
+							e.printStackTrace();
+						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
 
@@ -509,6 +703,36 @@ public class StaCSInHttp {
 					}
 				}
 			}
+		}
+
+		public static Value compPrimTerm(Num oprnd1, int op, Num oprnd2) {
+			if (op == 0)
+				return new Num(oprnd1.getI() + oprnd2.getI());
+			else if (op == 1)
+				return new Num(oprnd1.getI() - oprnd2.getI());
+			else if (op == 2)
+				return new Num(oprnd1.getI() * oprnd2.getI());
+			else if (op == 3)
+				return new Num(oprnd1.getI() / oprnd2.getI());
+			else if (op == 5)
+				return new Bool(Boolean.toString(oprnd1.getI() > oprnd2.getI()));
+			else if (op == 6)
+				return new Bool(Boolean.toString(oprnd1.getI() >= oprnd2.getI()));
+			else if (op == 7)
+				return new Bool(Boolean.toString(oprnd1.getI() < oprnd2.getI()));
+			else if (op == 8)
+				return new Bool(Boolean.toString(oprnd1.getI() <= oprnd2.getI()));
+			else
+				throw new RuntimeException("Not expected Operator " + PrimTerm.get(op));
+		}
+
+		public static Value compPrimTerm(Bool oprnd1, int op, Bool oprnd2) {
+			if (op == 11)
+				return new Bool(Boolean.toString(oprnd1.getBool() && oprnd2.getBool()));
+			else if (op == 12)
+				return new Bool(Boolean.toString(oprnd1.getBool() || oprnd2.getBool()));
+			else
+				throw new RuntimeException("Not expected Operator " + PrimTerm.get(op));
 		}
 	}
 
@@ -542,11 +766,9 @@ public class StaCSInHttp {
 
 					reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 					writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-				}
-				catch (UnknownHostException e) {
+				} catch (UnknownHostException e) {
 					e.printStackTrace();
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
@@ -558,8 +780,7 @@ public class StaCSInHttp {
 				writer.write("GET " + "/rpc/" + programName + " HTTP/1.1.\r\n");
 				writer.write("Host: " + socket.getInetAddress().getHostAddress() + "\r\n");
 				writer.write("\r\n");
-			}
-			catch (IOException e) {
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
@@ -590,8 +811,7 @@ public class StaCSInHttp {
 						try {
 							if (sessionState.equals(CLOSE_SESSION)) {
 								sessionNum = null;
-							}
-							else {
+							} else {
 								sessionNum = Integer.parseInt(sessionState);
 							}
 
@@ -601,8 +821,7 @@ public class StaCSInHttp {
 								Value replyVal = JSonUtil.fromJson(replyJson);
 
 								retM = new Let(mLet.getId(), replyVal, mLet.getT2());
-							}
-							else if (protocol.equals(CALL)) {
+							} else if (protocol.equals(CALL)) {
 								String strClo = reader.readLine();
 								JSONObject cloJson = (JSONObject) jsonParser.parse(strClo);
 								Value clo = JSonUtil.fromJson(cloJson);
@@ -619,36 +838,30 @@ public class StaCSInHttp {
 								}
 
 								retM = new Let(mLet.getId(), new App(clo, args), mLet.getT2());
-							}
-							else {
+							} else {
 								System.err.println("receiver: Unexpected protocol(" + protocol + ")");
 								retM = null;
 							}
-						}
-						catch (NumberFormatException e) {
+						} catch (NumberFormatException e) {
+							e.printStackTrace();
+							retM = null;
+						} catch (ParseException e) {
 							e.printStackTrace();
 							retM = null;
 						}
-						catch (ParseException e) {
-							e.printStackTrace();
-							retM = null;
-						}
-					}
-					else {
+					} else {
 						System.err.println(statusCode);
 						retM = null;
 					}
 
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 					e.printStackTrace();
 					retM = null;
 				}
 
 				try {
 					socket.close();
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 
@@ -676,8 +889,7 @@ public class StaCSInHttp {
 											closedFun.getXs(), mApp1.getWs()),
 									mLet.getT2());
 						}
-					}
-					else if (m1 instanceof Req) {
+					} else if (m1 instanceof Req) {
 						Req mReq1 = (Req) m1;
 
 						if (mReq1.getFun() instanceof Clo) {
@@ -696,53 +908,55 @@ public class StaCSInHttp {
 									writer.write(w.toJson() + "\n");
 								}
 								writer.flush();
-							}
-							catch (IOException e) {
+							} catch (IOException e) {
 								e.printStackTrace();
 							}
 
 							m = receiver.apply(mLet);
 						}
-					}
-					else if (m1 instanceof Clo) {
+					} else if (m1 instanceof Tapp) {
+						Tapp mTapp1 = (Tapp) m1;
+
+						if (mTapp1.getFun() instanceof Clo) {
+							Clo fClo = (Clo) mTapp1.getFun();
+
+							ClosedFun closedFun = lookup(clientFS, fClo.getF());
+
+							m = new Let(mLet.getId(),
+									SubstStaCS.substs(closedFun.getM(), closedFun.getZs(), fClo.getVs()), mLet.getT2());
+						}
+					} else if (m1 instanceof Clo) {
 						Clo mClo1 = (Clo) m1;
 
 						m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), mClo1);
-					}
-					else if (m1 instanceof Unit) {
+					} else if (m1 instanceof Unit) {
 						Unit mUnit1 = (Unit) m1;
-						
+
 						m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), mUnit1);
-					}
-					else if (m1 instanceof Num) {
+					} else if (m1 instanceof Num) {
 						Num mNum1 = (Num) m1;
 
 						m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), mNum1);
-					}
-					else if (m1 instanceof Bool) {
+					} else if (m1 instanceof Bool) {
 						Bool mBool1 = (Bool) m1;
-						
+
 						m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), mBool1);
-					}
-					else if (m1 instanceof Str) {
+					} else if (m1 instanceof Str) {
 						Str mStr1 = (Str) m1;
-						
+
 						m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), mStr1);
-					}
-					else if (m1 instanceof Var) {
+					} else if (m1 instanceof Var) {
 						Var mVar1 = (Var) m1;
-						
+
 						// append와 같은 Library 함수?
-					}
-					else if (m1 instanceof Let) {
+					} else if (m1 instanceof Let) {
 						Let mLet1 = (Let) m1;
 
 						Let let = new Let(mLet1.getId(), mLet1.getT1(),
 								new Let(mLet.getId(), mLet1.getT2(), mLet.getT2()));
 
 						m = let;
-					}
-					else if (m1 instanceof Ret) {
+					} else if (m1 instanceof Ret) {
 						Ret mRet1 = (Ret) m1;
 						Value retVal = mRet1.getW();
 
@@ -751,138 +965,134 @@ public class StaCSInHttp {
 							writer.write(sessionNum + "\n"); // RET의 경우 sessionNu이 null인 상태는 있을 수가 없음
 							writer.write(RET + "\n");
 							writer.write(retVal.toJson() + "\n");
-							
+
 							writer.flush();
-						}
-						catch (IOException e) {
+						} catch (IOException e) {
 							e.printStackTrace();
 						}
 
 						m = receiver.apply(mLet);
-					}
-					else if (m1 instanceof If) {
+					} else if (m1 instanceof If) {
 						If mIf1 = (If) m1;
-						
+
 						Term cond = mIf1.getCond();
-						
+
 						if (cond instanceof Bool) {
 							Bool boolCond = (Bool) cond;
-							
+
 							if (boolCond.getBool())
 								m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), (Value) mIf1.getThenT());
 							else
 								m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), (Value) mIf1.getElseT());
 						}
-					}
-					else if (m1 instanceof PrimTerm) {
+					} else if (m1 instanceof PrimTerm) {
 						PrimTerm mExpr1 = (PrimTerm) m1;
 						Term oprnd1;
 						Term oprnd2;
 						Value v = null;
-						
-						switch(mExpr1.getOp()) {
-						case 0:			// ADD
-						case 1:			// SUB
-						case 2:			// MUL
-						case 3:			// DIV
+
+						switch (mExpr1.getOp()) {
+						case 0: // ADD
+						case 1: // SUB
+						case 2: // MUL
+						case 3: // DIV
 							oprnd1 = mExpr1.getOprnds().get(0);
 							oprnd2 = mExpr1.getOprnds().get(1);
-							
+
 							if (oprnd1 instanceof Num && oprnd2 instanceof Num) {
 								Num numOprnd1 = (Num) oprnd1;
 								Num numOprnd2 = (Num) oprnd2;
-								
+
 								v = compPrimTerm(numOprnd1, mExpr1.getOp(), numOprnd2);
-							}
-							else
-								throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1 + ") and oprnd2(" + oprnd2 + ") are not Num.");
+							} else
+								throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1
+										+ ") and oprnd2(" + oprnd2 + ") are not Num.");
 							break;
-						case 4:		// UNARY MINUS
+						case 4: // UNARY MINUS
 							oprnd1 = mExpr1.getOprnds().get(0);
-							
+
 							if (oprnd1 instanceof Num) {
 								Num numOprnd1 = (Num) oprnd1;
-								
+
 								v = new Num(-numOprnd1.getI());
-							}
-							else
-								throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1 + ") is not Num.");
+							} else
+								throw new RuntimeException(
+										"StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1 + ") is not Num.");
 							break;
-						case 5:			// GTHAN
-						case 6:			// GEQUAL
-						case 7:			// LTHAN
-						case 8:			// LEQUAL
+						case 5: // GTHAN
+						case 6: // GEQUAL
+						case 7: // LTHAN
+						case 8: // LEQUAL
 							oprnd1 = mExpr1.getOprnds().get(0);
 							oprnd2 = mExpr1.getOprnds().get(1);
-							
+
 							if (oprnd1 instanceof Num && oprnd2 instanceof Num) {
 								Num numOprnd1 = (Num) oprnd1;
 								Num numOprnd2 = (Num) oprnd2;
-								
+
 								v = compPrimTerm(numOprnd1, mExpr1.getOp(), numOprnd2);
-							}
-							else
-								throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1 + ") and oprnd2(" + oprnd2 + ") are not Num.");
+							} else
+								throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1
+										+ ") and oprnd2(" + oprnd2 + ") are not Num.");
 							break;
-						case 9:			// EQUAL
+						case 9: // EQUAL
 							oprnd1 = mExpr1.getOprnds().get(0);
 							oprnd2 = mExpr1.getOprnds().get(1);
-							
+
 							if (oprnd1.getClass() == oprnd2.getClass()) {
 								v = new Bool(Boolean.toString(oprnd1.equals(oprnd2)));
-							}
-							else
-								throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1 + ") and oprnd2(" + oprnd2 + ") are not Equal.");
+							} else
+								throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1
+										+ ") and oprnd2(" + oprnd2 + ") are not Equal.");
 							break;
-						case 10:		// NOTEQUAL
+						case 10: // NOTEQUAL
 							oprnd1 = mExpr1.getOprnds().get(0);
 							oprnd2 = mExpr1.getOprnds().get(1);
-							
+
 							if (oprnd1.getClass() == oprnd2.getClass()) {
 								v = new Bool(Boolean.toString(!oprnd1.equals(oprnd2)));
-							}
-							else
-								throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1 + ") and oprnd2(" + oprnd2 + ") are not Equal.");
+							} else
+								throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1
+										+ ") and oprnd2(" + oprnd2 + ") are not Equal.");
 							break;
 						case 11:
 						case 12:
 							oprnd1 = mExpr1.getOprnds().get(0);
 							oprnd2 = mExpr1.getOprnds().get(1);
-							
+
 							if (oprnd1 instanceof Bool && oprnd2 instanceof Bool) {
 								Bool boolOprnd1 = (Bool) oprnd1;
 								Bool boolOprnd2 = (Bool) oprnd2;
-								
+
 								v = compPrimTerm(boolOprnd1, mExpr1.getOp(), boolOprnd2);
-							}
-							else
-								throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1 + ") and oprnd2(" + oprnd2 + ") are not Bool.");
+							} else
+								throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1
+										+ ") and oprnd2(" + oprnd2 + ") are not Bool.");
 							break;
 						case 13:
 							oprnd1 = mExpr1.getOprnds().get(0);
-							
+
 							if (oprnd1 instanceof Bool) {
 								Bool boolOprnd1 = (Bool) oprnd1;
-								
+
 								v = new Bool(Boolean.toString(!boolOprnd1.getBool()));
-							}
-							else
-								throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1 + ") is not Bool.");
+							} else
+								throw new RuntimeException(
+										"StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1 + ") is not Bool.");
 							break;
 						}
-						
+
 						m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), v);
 					}
-				}
-				else if (m instanceof Clo || m instanceof Unit || m instanceof Num || m instanceof Str || m instanceof Bool) {
+				} else if (m instanceof Clo || m instanceof Unit || m instanceof Num || m instanceof Str
+						|| m instanceof Bool) {
 					return (Value) m;
-				}
-				else {
+				} else {
 					throw new RuntimeException("StaCsInHttp.evalClient: Must not reach here");
 				}
 			}
 		}
-		
+
 		public static Value compPrimTerm(Num oprnd1, int op, Num oprnd2) {
 			if (op == 0)
 				return new Num(oprnd1.getI() + oprnd2.getI());
@@ -903,7 +1113,7 @@ public class StaCSInHttp {
 			else
 				throw new RuntimeException("Not expected Operator " + PrimTerm.get(op));
 		}
-		
+
 		public static Value compPrimTerm(Bool oprnd1, int op, Bool oprnd2) {
 			if (op == 11)
 				return new Bool(Boolean.toString(oprnd1.getBool() && oprnd2.getBool()));
