@@ -10,17 +10,18 @@ import com.example.lib.ParserException;
 import com.example.systemf.ast.App;
 import com.example.systemf.ast.Bool;
 import com.example.systemf.ast.BoolType;
-import com.example.systemf.ast.PrimTerm;
 import com.example.systemf.ast.ForAll;
 import com.example.systemf.ast.FunType;
 import com.example.systemf.ast.If;
 import com.example.systemf.ast.IntType;
 import com.example.systemf.ast.Lam;
 import com.example.systemf.ast.Let;
+import com.example.systemf.ast.LibTerm;
 import com.example.systemf.ast.LocType;
 import com.example.systemf.ast.LocVarType;
 import com.example.systemf.ast.Location;
 import com.example.systemf.ast.Num;
+import com.example.systemf.ast.PrimTerm;
 import com.example.systemf.ast.Str;
 import com.example.systemf.ast.StrType;
 import com.example.systemf.ast.Tapp;
@@ -157,6 +158,9 @@ public class Parser {
 			Type ty = (Type) pu.get(3);
 
 			return new Tapp(term, ty);
+		});
+		pu.rule("Expr -> # id ( IdList )", () -> {
+			return new LibTerm(pu.getText(2), (ArrayList<String>) pu.get(4));
 		});
 		pu.rule("Expr -> Cond", () -> {
 			return pu.get(1);
@@ -305,6 +309,23 @@ public class Parser {
 		});
 		pu.rule("Term -> ( LExpr )", () -> {
 			return pu.get(2);
+		});
+		
+		pu.rule("IdList -> ", () -> {
+			return new ArrayList<>();
+		});
+		pu.rule("IdList -> id", () -> {
+			ArrayList<String> idList = new ArrayList<>();
+			idList.add(pu.getText(1));
+			
+			return idList;
+		});
+		pu.rule("IdList -> id , IdList", () -> {
+			ArrayList<String> idList = new ArrayList<>();
+			idList.add(pu.getText(1));
+			idList.addAll((ArrayList<String>) pu.get(3));
+			
+			return idList;
 		});
 
 		pu.rule("Type -> ForAllType LocArrow Type", () -> {

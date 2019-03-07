@@ -8,11 +8,11 @@ import com.example.systemf.ast.Location;
 import com.example.systemf.sta.ast.App;
 import com.example.systemf.sta.ast.Bool;
 import com.example.systemf.sta.ast.Call;
-import com.example.systemf.sta.ast.PrimTerm;
 import com.example.systemf.sta.ast.If;
 import com.example.systemf.sta.ast.Lam;
 import com.example.systemf.sta.ast.Let;
 import com.example.systemf.sta.ast.Num;
+import com.example.systemf.sta.ast.PrimTerm;
 import com.example.systemf.sta.ast.Req;
 import com.example.systemf.sta.ast.Ret;
 import com.example.systemf.sta.ast.Str;
@@ -100,7 +100,7 @@ public class CompStaRpc {
 				}
 			}
 			else
-				throw new CompException("CompStaRpc(compClient) TypedLocation is not LocType" + tApp.getLoc());
+				throw new CompException("CompStaRpc(compClient) TypedLocation is not LocType " + tApp.getLoc());
 		}
 		else if (t instanceof com.example.systemf.ast.Tapp) {
 			com.example.systemf.ast.Tapp tTApp = (com.example.systemf.ast.Tapp) t;
@@ -174,6 +174,19 @@ public class CompStaRpc {
 			}
 
 			return expr;
+		}
+		else if (t instanceof com.example.systemf.ast.LibTerm) {
+			com.example.systemf.ast.LibTerm tLibTerm = (com.example.systemf.ast.LibTerm) t;
+			
+			ArrayList<Value> ws = new ArrayList<>();
+			
+			for (String s: tLibTerm.getArgs()) {
+				ws.add(new Var(s));
+			}
+			
+			Value f = new Var(tLibTerm.getFunName());
+			
+			return new App(f, ws);
 		}
 		else
 			throw new CompException("CompStaRpc(compClient) not match " + t.getClass() + "(" + t + ")");

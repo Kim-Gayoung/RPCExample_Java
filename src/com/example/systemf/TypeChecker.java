@@ -5,16 +5,17 @@ import java.util.ArrayList;
 import com.example.systemf.ast.App;
 import com.example.systemf.ast.Bool;
 import com.example.systemf.ast.BoolType;
-import com.example.systemf.ast.PrimTerm;
 import com.example.systemf.ast.ForAll;
 import com.example.systemf.ast.FunType;
 import com.example.systemf.ast.If;
 import com.example.systemf.ast.IntType;
 import com.example.systemf.ast.Lam;
 import com.example.systemf.ast.Let;
+import com.example.systemf.ast.LibTerm;
 import com.example.systemf.ast.LocType;
 import com.example.systemf.ast.Location;
 import com.example.systemf.ast.Num;
+import com.example.systemf.ast.PrimTerm;
 import com.example.systemf.ast.Str;
 import com.example.systemf.ast.StrType;
 import com.example.systemf.ast.Tapp;
@@ -65,6 +66,9 @@ public class TypeChecker {
 		
 		envList.add(new Pair<>("readConsole", new FunType(new UnitType(), client, new StrType())));
 		envList.add(new Pair<>("writeConsole", new FunType(new StrType(), client, new UnitType())));
+		
+		envList.add(new Pair<>("primReadConsole", new FunType(new UnitType(), client, new StrType())));
+		envList.add(new Pair<>("primWriteConsole", new FunType(new StrType(), client, new UnitType())));
 		
 		envList.add(new Pair<>("toString_client", new ForAll(new VarType("toStringTy_client"), new FunType(new VarType("toStringTy_client"), client, new StrType()))));
 		envList.add(new Pair<>("toString_server", new ForAll(new VarType("toStringTy_server"), new FunType(new VarType("toStringTy_server"), server, new StrType()))));
@@ -198,7 +202,6 @@ public class TypeChecker {
 						argTy = checkTerm(tApp.getArg(), tyenv, loc);
 					}
 					else if (location == Location.Server && loc == Location.Client) {
-
 						argTy = checkTerm(tApp.getArg(), tyenv, Location.Client);
 					}
 					else {
@@ -355,6 +358,32 @@ public class TypeChecker {
 				else
 					throw new TypeCheckException("Oprnd1(" + oprnd1 + ") type is " + oprnd1Ty);
 			}
+		}
+		else if (t instanceof LibTerm) {
+			LibTerm tLibTerm = (LibTerm) t;
+			
+			String funName = tLibTerm.getFunName();
+			ArrayList<String> args = tLibTerm.getArgs();
+			
+			int idx = 0;
+			
+			Type tyFunName = tylookup(funName, tyenv);
+			
+			while (tyFunName instanceof FunType) {
+				FunType funTy = (FunType) tyFunName;
+				Type funTyArg = funTy.getArgTy();
+				Type funTyRet = funTy.getRetTy();
+				
+				Type tyArg = tylookup(args.get(idx), tyenv); 
+				
+				if (!funTyArg.equals(tyArg)) {
+					throw new TypeCheckException("LibTerm(" + tLibTerm +")");
+				}
+				
+				tyFunName = funTyRet;
+			}
+			
+			return tyFunName;
 		}
 		else
 			throw new TypeCheckException("Not Expected Term: " + t);
