@@ -88,12 +88,12 @@ public class Clo extends Value {
 		// Function name
 		jsonObject.put(Clo, f);
 		
-//		JSONArray typeJsonArray = new JSONArray();
-//		for (Type t: ts) {
-//			typeJsonArray.add(t.toJson());
-//		}
-//		
-//		jsonObject.put(Tvs, typeJsonArray);
+		JSONArray typeJsonArray = new JSONArray();
+		for (Type t: ts) {
+			typeJsonArray.add(t.toJson());
+		}
+		
+		jsonObject.put(Tvs, typeJsonArray);
 		
 		// Free variables
 		JSONArray jsonArray = new JSONArray();
