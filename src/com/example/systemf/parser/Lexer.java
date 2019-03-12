@@ -34,6 +34,7 @@ public class Lexer {
 		pu.lex("\\]", text -> { return Token.CLOSEBRACKET; });
 		
 		pu.lex("\\#", text -> { return Token.PRIMCALL; });
+		pu.lex("\\,", text -> { return Token.COMMA; });
 		
 		pu.lex("\\+", text -> { return Token.ADD; });
 		pu.lex("\\-", text -> { return Token.SUB; });
