@@ -18,7 +18,7 @@ public class Str extends Value {
 
 	@Override
 	public String toString() {
-		return str;
+		return "\"" + str + "\"";
 	}
 
 }

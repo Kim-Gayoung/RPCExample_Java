@@ -299,7 +299,9 @@ public class Parser {
 			return new Num(Integer.parseInt(pu.getText(1)));
 		});
 		pu.rule("Term -> str", () -> {
-			return new Str(pu.getText(1));
+			String content = pu.getText(1);
+			
+			return new Str(content.substring(1, content.length() - 1));
 		});
 		pu.rule("Term -> bool", () -> {
 			return new Bool(pu.getText(1));
