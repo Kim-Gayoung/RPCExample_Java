@@ -1,3 +1,7 @@
+writeConsole: String-c->Unit = lam^c x: String. #primWriteConsole (x);
+readConsole: Unit-c->String = lam^c x: Unit. #primReadConsole (x);
+toInt_client: String-c->Int = lam^c x: String. #primToInt_client (x);
+
 height: Int = let a: Unit = writeConsole ^c^ "Enter the height: " in
 						toInt_client ^c^ (readConsole ^c^ ())
 					end;

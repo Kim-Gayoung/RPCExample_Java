@@ -27,4 +27,23 @@ public class LibTerm extends Term {
 		this.args = args;
 	}
 
+	@Override
+	public String toString() {
+		String ret = "#" + funName + "(";
+		int cnt = 0;
+		
+		for (String arg: args) {
+			ret += arg;
+			
+			if (cnt < args.size()-1) {
+				cnt++;
+				ret += ", ";
+			}
+		}
+		
+		ret += ")";
+		
+		return ret;
+	}
+
 }

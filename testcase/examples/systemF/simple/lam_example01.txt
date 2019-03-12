@@ -1,3 +1,5 @@
+append_client: String-c->String-c->String = lam^c x: String. lam^c y: String. #primAppend_client (x, y);
+
 star: Int-c->String = lam^c x: Int.
 	if x <= 1 then
 		"*"
