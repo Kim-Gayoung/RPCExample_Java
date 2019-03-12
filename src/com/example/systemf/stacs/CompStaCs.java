@@ -270,8 +270,9 @@ public class CompStaCs {
 			TripleTup<ArrayList<Value>, FunStore, FunStore> p1 = cloConvList(idx + 1, ms, zs);
 			TripleTup<Term, FunStore, FunStore> p2 = cloConv(m, zs);
 
-			ArrayList<Value> valList = p1.getFirst();
+			ArrayList<Value> valList = new ArrayList<>();
 			valList.add((Value) p2.getFirst());
+			valList.addAll(p1.getFirst());
 
 			FunStore client = p2.getSecond();
 			client.getFs().putAll(p1.getSecond().getFs());
