@@ -1,0 +1,2 @@
+readConsole: Unit-c->String = lam^c x: Unit. #primReadConsole (x);
+writeConsole: String-c->Unit = lam^c x: String. #primWriteConsole (x);

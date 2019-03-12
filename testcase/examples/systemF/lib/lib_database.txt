@@ -1,0 +1,6 @@
+createTable: String-s->String-s->Int = lam^s tblname: String. lam^s recordfield: String. #primCreateTable (tblname, recordfield);
+insertRecord: String-s->String-s->Bool = lam^s tblname: String. lam^s content: String. #primInsertRecord (tblname, content);
+updateRecord: String-s->String-s->Bool = lam^s tblname: String. lam^s content: String. #primUpdateRecord (tblname, content);
+deleteRecord: String-s->String-s->Bool = lam^s tblname: String. lam^s recordId: Int. #primDeleteRecord (tblname, recordId);
+query: String-s->Int-s->String-s->String = lam^s tblname: String. lam^s recordId: Int. lam^s field: String. #primQuery (tblname, recordId, field);
+fromRecord: String-s->Int-s->String = lam^s tblname: String. lam^s recordId: Int. #primFromRecord (tblname, recordId);

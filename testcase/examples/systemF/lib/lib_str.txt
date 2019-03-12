@@ -1,0 +1,18 @@
+isNothing_client: String-c->Bool = lam^c x: String. #primIsNothing_client (x);
+isNothing_server: String-s->Bool = lam^s x: String. #primIsNothing_server (x);
+fromJust_client: String-c->String = lam^c x: String. #primFromJust_client (x);
+fromJust_server: String-s->String = lam^s x: String. #primFromJust_server (x);
+
+toString_client: forall t1. (t1-c->String) = tylam t1. lam^c x: t1. #primToString_client (x);
+toString_server: forall t2. (t2-s->String) = tylam t2. lam^s x: t2. #primToString_server (x);
+toInt_client: String-c->Int = lam^c x: String. #primToInt_client (x);
+toInt_server: String-s->Int = lam^s x: String. #primToInt_server (x);
+toBool_client: String-c->Bool = lam^c x: String. #primToBool_client (x);
+toBool_server: String-s->Bool = lam^s x: String. #primToBool_server (x);
+
+reverse_client: String-c->String = lam^c x: String. #primReverse_client (x);
+reverse_server: String-s->String = lam^s x: String. #primReverse_server (x);
+append_client: String-c->String-c->String = lam^c x: String. lam^c y: String. #primAppend_client (x, y);
+append_server: String-s->String-s->String = lam^s x: String. lam^s y: String. #primAppend_server (x, y);
+length_client: String-c->Int = lam^c x: String. #primLength_client (x);
+length_server: String-s->Int = lam^s x: String. #primLength_server (x);

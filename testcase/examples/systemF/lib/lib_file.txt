@@ -1,0 +1,9 @@
+openFile_client: String-c->String-c->String = lam^c x: String. lam^c y: String. #primOpenFile_client (x, y);
+openFile_server: String-s->String-s->String = lam^s x: String. lam^s y: String. #primOpenFile_server (x, y);
+closeFile_client: String-c->Unit = lam^c x: String. #primCloseFile_client (x);
+closeFile_server: String-s->Unit = lam^s x: String. #primCloseFile_server (x);
+
+writeFile_client: String-c->String-c->String = lam^c x: String. lam^c y: String. #primWriteFile_client (x, y);
+writeFIle_server: String-s->String-s->String = lam^s x: String. lam^s y: String. #primWriteFile_server (x, y);
+readFile_client: String-c->String = lam^c x: String. #primReadFile_client (x);
+readFile_server: String-s->String = lam^s x: String. #primReadFile_server (x);

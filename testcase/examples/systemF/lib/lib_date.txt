@@ -1,0 +1,13 @@
+getYear_client: Unit-c->Int = lam^c x: Unit. #primGetYear_client (x);
+getYear_server: Unit-s->Int = lam^s x: Unit. #primGetYear_server (x);
+getMonth_client: Unit-c->Int = lam^c x: Unit. #primGetMonth_client (x);
+getMonth_server: Unit-s->Int = lam^s x: Unit. #primGetMonth_server (x);
+getDate_client: Unit-c->Int = lam^c x: Unit. #primGetDate_client (x);
+getDate_server: Unit-s->Int = lam^s x: Unit. #primGetDate_server (x);
+getDay_client: Unit-c->Int = lam^c x: Unit. #primGetDay_client (x);
+getDay_server: Unit-s->Int = lam^s x: Unit. #primGetDay_server (x);
+
+getHour_client: Unit-c->Int = lam^c x: Unit. #primGetHour_client (x);
+getHour_server: Unit-s->Int = lam^s x: Unit. #primGetHour_server (x);
+getMinute_client: Unit-c->Int = lam^c x: Unit. #primGetMinute_client (x);
+getMinite_server: Unit-s->Int = lam^s x: Unit. #primGetMinite_server (x);
