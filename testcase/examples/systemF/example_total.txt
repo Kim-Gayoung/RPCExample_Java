@@ -40,9 +40,9 @@ setupReceiving: Int-s->String =
 			fileName
 		end;
 
-receiveFile: Int-c->String-c->Unit =
+receiveFile: Int-c->Int-c->Unit =
 	lam^c session: Int.
-		lam^c fd: String.
+		lam^c fd: Int.
 			let maybeblock: String = receive ^s^ session in
 				if isNothing_client ^c^ maybeblock then
 					let close: Unit = closeFile_client ^c^ fd in
@@ -59,15 +59,15 @@ receiveFile: Int-c->String-c->Unit =
 receiverClient: Unit-c->Unit = lam^c x: Unit.
 	let session: Int = toInt_client ^c^ (readConsole ^c^ ()) in
 		let fileName: String = setupReceiving ^s^ session in
-			let fd: String = openFile_client ^c^ fileName ^c^ "w" in
+			let fd: Int = openFile_client ^c^ fileName ^c^ "w" in
 				receiveFile ^c^ session ^c^ fd
 			end
 		end
 	end;
 	
-sendFile: Int-c->String-c->Unit =
+sendFile: Int-c->Int-c->Unit =
 	lam^c session: Int.
-		lam^c fd: String.
+		lam^c fd: Int.
 			let maybeblock: String = readFile_client ^c^ fd in
 				if isNothing_client ^c^ maybeblock then
 					let close: Unit = closeFile_client ^c^ fd in
@@ -83,7 +83,7 @@ sendFile: Int-c->String-c->Unit =
 			
 senderClient: Unit-c->Unit = lam^c x: Unit.
 	let fileName: String = readConsole ^c^ () in
-		let fd: String = openFile_client ^c^ fileName ^c^ "r" in
+		let fd: Int = openFile_client ^c^ fileName ^c^ "r" in
 			let session: Int = setupSending ^s^ fileName in
 				let a: Unit = writeConsole ^c^ (toString_client [Int] ^c^ session) in
 					sendFile ^c^ session ^c^ fd

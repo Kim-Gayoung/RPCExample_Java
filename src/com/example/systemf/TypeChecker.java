@@ -50,46 +50,60 @@ public class TypeChecker {
 		TypedLocation server = new LocType(Location.Server);
 		
 		// isNothing, fromJust -> client, server
-		envList.add(new Pair<>("isNothing_client", new FunType(new StrType(), client, new BoolType())));
-		envList.add(new Pair<>("isNothing_server", new FunType(new StrType(), server, new BoolType())));
-		envList.add(new Pair<>("fromJust_client", new FunType(new StrType(), client, new StrType())));
-		envList.add(new Pair<>("fromJust_server", new FunType(new StrType(), server, new StrType())));
+//		envList.add(new Pair<>("isNothing_client", new FunType(new StrType(), client, new BoolType())));
+//		envList.add(new Pair<>("isNothing_server", new FunType(new StrType(), server, new BoolType())));
+//		envList.add(new Pair<>("fromJust_client", new FunType(new StrType(), client, new StrType())));
+//		envList.add(new Pair<>("fromJust_server", new FunType(new StrType(), server, new StrType())));
+//		
+//		envList.add(new Pair<>("openFile_client", new FunType(new StrType(), client, new FunType(new StrType(), client, new IntType()))));
+//		envList.add(new Pair<>("openFile_server", new FunType(new StrType(), client, new FunType(new StrType(), client, new IntType()))));
+//		envList.add(new Pair<>("closeFile_client", new FunType(new IntType(), client, new UnitType())));
+//		envList.add(new Pair<>("closeFile_server", new FunType(new IntType(), server, new UnitType())));
+//		envList.add(new Pair<>("writeFile_client", new FunType(new IntType(), client, new FunType(new StrType(), client, new IntType()))));
+//		envList.add(new Pair<>("writeFile_server", new FunType(new IntType(), client, new FunType(new StrType(), client, new IntType()))));
+//		envList.add(new Pair<>("readFile_client", new FunType(new IntType(), client, new StrType())));
+//		envList.add(new Pair<>("readFile_server", new FunType(new IntType(), server, new StrType())));
+
+		envList.add(new Pair<>("primIsNothing_client", new FunType(new StrType(), client, new BoolType())));
+		envList.add(new Pair<>("primIsNothing_server", new FunType(new StrType(), server, new BoolType())));
+		envList.add(new Pair<>("primFromJust_client", new FunType(new StrType(), client, new StrType())));
+		envList.add(new Pair<>("primFromJust_server", new FunType(new StrType(), server, new StrType())));
 		
-		envList.add(new Pair<>("openFile_client", new FunType(new StrType(), client, new FunType(new StrType(), client, new StrType()))));
-		envList.add(new Pair<>("openFile_server", new FunType(new StrType(), client, new FunType(new StrType(), client, new StrType()))));
-		envList.add(new Pair<>("closeFile_client", new FunType(new StrType(), client, new UnitType())));
-		envList.add(new Pair<>("closeFile_server", new FunType(new StrType(), server, new UnitType())));
-		envList.add(new Pair<>("writeFile_client", new FunType(new StrType(), client, new FunType(new StrType(), client, new StrType()))));
-		envList.add(new Pair<>("writeFile_server", new FunType(new StrType(), client, new FunType(new StrType(), client, new StrType()))));
-		envList.add(new Pair<>("readFile_client", new FunType(new StrType(), client, new StrType())));
-		envList.add(new Pair<>("readFile_server", new FunType(new StrType(), server, new StrType())));
+		envList.add(new Pair<>("primOpenFile_client", new FunType(new StrType(), client, new FunType(new StrType(), client, new IntType()))));
+		envList.add(new Pair<>("primOpenFile_server", new FunType(new StrType(), client, new FunType(new StrType(), client, new IntType()))));
+		envList.add(new Pair<>("primCloseFile_client", new FunType(new IntType(), client, new UnitType())));
+		envList.add(new Pair<>("primCloseFile_server", new FunType(new IntType(), server, new UnitType())));
+		envList.add(new Pair<>("primWriteFile_client", new FunType(new IntType(), client, new FunType(new StrType(), client, new IntType()))));
+		envList.add(new Pair<>("primWriteFile_server", new FunType(new IntType(), client, new FunType(new StrType(), client, new IntType()))));
+		envList.add(new Pair<>("primReadFile_client", new FunType(new IntType(), client, new StrType())));
+		envList.add(new Pair<>("primReadFile_server", new FunType(new IntType(), server, new StrType())));
 		
-		envList.add(new Pair<>("readConsole", new FunType(new UnitType(), client, new StrType())));
-		envList.add(new Pair<>("writeConsole", new FunType(new StrType(), client, new UnitType())));
+//		envList.add(new Pair<>("readConsole", new FunType(new UnitType(), client, new StrType())));
+//		envList.add(new Pair<>("writeConsole", new FunType(new StrType(), client, new UnitType())));
 		
 		envList.add(new Pair<>("primReadConsole", new FunType(new UnitType(), client, new StrType())));
 		envList.add(new Pair<>("primWriteConsole", new FunType(new StrType(), client, new UnitType())));
 		
-		envList.add(new Pair<>("toString_client", new ForAll(new VarType("toStringTy_client"), new FunType(new VarType("toStringTy_client"), client, new StrType()))));
-		envList.add(new Pair<>("toString_server", new ForAll(new VarType("toStringTy_server"), new FunType(new VarType("toStringTy_server"), server, new StrType()))));
-		envList.add(new Pair<>("toInt_client", new FunType(new StrType(), client, new IntType())));
-		envList.add(new Pair<>("toInt_server", new FunType(new StrType(), server, new IntType())));
-		envList.add(new Pair<>("toBool_client", new FunType(new StrType(), client, new BoolType())));
-		envList.add(new Pair<>("toBool_server", new FunType(new StrType(), server, new BoolType())));
+//		envList.add(new Pair<>("toString_client", new ForAll(new VarType("toStringTy_client"), new FunType(new VarType("toStringTy_client"), client, new StrType()))));
+//		envList.add(new Pair<>("toString_server", new ForAll(new VarType("toStringTy_server"), new FunType(new VarType("toStringTy_server"), server, new StrType()))));
+//		envList.add(new Pair<>("toInt_client", new FunType(new StrType(), client, new IntType())));
+//		envList.add(new Pair<>("toInt_server", new FunType(new StrType(), server, new IntType())));
+//		envList.add(new Pair<>("toBool_client", new FunType(new StrType(), client, new BoolType())));
+//		envList.add(new Pair<>("toBool_server", new FunType(new StrType(), server, new BoolType())));
 		
-		envList.add(new Pair<>("primToString_client", new FunType(new VarType("t1"), client, new StrType())));
-		envList.add(new Pair<>("primToString_server", new ForAll(new VarType("primToStringTy_server"), new FunType(new VarType("primToStringTy_server"), server, new StrType()))));
+		envList.add(new Pair<>("primToString_client", new FunType(new VarType("toStringTy_client"), client, new StrType())));
+		envList.add(new Pair<>("primToString_server", new FunType(new VarType("toStringTy_server"), server, new StrType())));
 		envList.add(new Pair<>("primToInt_client", new FunType(new StrType(), client, new IntType())));
 		envList.add(new Pair<>("primToInt_server", new FunType(new StrType(), server, new IntType())));
 		envList.add(new Pair<>("primToBool_client", new FunType(new StrType(), client, new BoolType())));
 		envList.add(new Pair<>("primToBool_server", new FunType(new StrType(), server, new BoolType())));
 		
-		envList.add(new Pair<>("reverse_client", new FunType(new StrType(), client, new StrType())));
-		envList.add(new Pair<>("reverse_server", new FunType(new StrType(), server, new StrType())));
-		envList.add(new Pair<>("append_client", new FunType(new StrType(), client, new FunType(new StrType(), client, new StrType()))));
-		envList.add(new Pair<>("append_server", new FunType(new StrType(), server, new FunType(new StrType(), server, new StrType()))));
-		envList.add(new Pair<>("length_client", new FunType(new StrType(), client, new IntType())));
-		envList.add(new Pair<>("length_server", new FunType(new StrType(), server, new IntType())));
+//		envList.add(new Pair<>("reverse_client", new FunType(new StrType(), client, new StrType())));
+//		envList.add(new Pair<>("reverse_server", new FunType(new StrType(), server, new StrType())));
+//		envList.add(new Pair<>("append_client", new FunType(new StrType(), client, new FunType(new StrType(), client, new StrType()))));
+//		envList.add(new Pair<>("append_server", new FunType(new StrType(), server, new FunType(new StrType(), server, new StrType()))));
+//		envList.add(new Pair<>("length_client", new FunType(new StrType(), client, new IntType())));
+//		envList.add(new Pair<>("length_server", new FunType(new StrType(), server, new IntType())));
 		
 		envList.add(new Pair<>("primReverse_client", new FunType(new StrType(), client, new StrType())));
 		envList.add(new Pair<>("primReverse_server", new FunType(new StrType(), server, new StrType())));
@@ -101,16 +115,31 @@ public class TypeChecker {
 		envList.add(new Pair<>("primLength_client", new FunType(new StrType(), client, new IntType())));
 		envList.add(new Pair<>("primLength_server", new FunType(new StrType(), server, new IntType())));
 		
-		envList.add(new Pair<>("getHour_client", new FunType(new UnitType(), client, new IntType())));
-		envList.add(new Pair<>("getHour_server", new FunType(new UnitType(), server, new IntType())));
-		envList.add(new Pair<>("getYear_client", new FunType(new UnitType(), client, new IntType())));
-		envList.add(new Pair<>("getYear_server", new FunType(new UnitType(), server, new IntType())));
-		envList.add(new Pair<>("getMonth_client", new FunType(new UnitType(), client, new IntType())));
-		envList.add(new Pair<>("getMonth_server", new FunType(new UnitType(), server, new IntType())));
-		envList.add(new Pair<>("getDay_client", new FunType(new UnitType(), client, new IntType())));
-		envList.add(new Pair<>("getDay_server", new FunType(new UnitType(), server, new IntType())));
-		envList.add(new Pair<>("getDate_client", new FunType(new UnitType(), client, new IntType())));
-		envList.add(new Pair<>("getDate_server", new FunType(new UnitType(), server, new IntType())));
+//		envList.add(new Pair<>("getYear_client", new FunType(new UnitType(), client, new IntType())));
+//		envList.add(new Pair<>("getYear_server", new FunType(new UnitType(), server, new IntType())));
+//		envList.add(new Pair<>("getMonth_client", new FunType(new UnitType(), client, new IntType())));
+//		envList.add(new Pair<>("getMonth_server", new FunType(new UnitType(), server, new IntType())));
+//		envList.add(new Pair<>("getDay_client", new FunType(new UnitType(), client, new IntType())));
+//		envList.add(new Pair<>("getDay_server", new FunType(new UnitType(), server, new IntType())));
+//		envList.add(new Pair<>("getDate_client", new FunType(new UnitType(), client, new IntType())));
+//		envList.add(new Pair<>("getDate_server", new FunType(new UnitType(), server, new IntType())));
+//		envList.add(new Pair<>("getHour_client", new FunType(new UnitType(), client, new IntType())));
+//		envList.add(new Pair<>("getHour_server", new FunType(new UnitType(), server, new IntType())));
+//		envList.add(new Pair<>("getMinute_client", new FunType(new UnitType(), client, new IntType())));
+//		envList.add(new Pair<>("getMinute_server", new FunType(new UnitType(), server, new IntType())));
+		
+		envList.add(new Pair<>("primGetYear_client", new FunType(new UnitType(), client, new IntType())));
+		envList.add(new Pair<>("primGetYear_server", new FunType(new UnitType(), server, new IntType())));
+		envList.add(new Pair<>("primGetMonth_client", new FunType(new UnitType(), client, new IntType())));
+		envList.add(new Pair<>("primGetMonth_server", new FunType(new UnitType(), server, new IntType())));
+		envList.add(new Pair<>("primGetDay_client", new FunType(new UnitType(), client, new IntType())));
+		envList.add(new Pair<>("primGetDay_server", new FunType(new UnitType(), server, new IntType())));
+		envList.add(new Pair<>("primGetDate_client", new FunType(new UnitType(), client, new IntType())));
+		envList.add(new Pair<>("primGetDate_server", new FunType(new UnitType(), server, new IntType())));
+		envList.add(new Pair<>("primGetHour_client", new FunType(new UnitType(), client, new IntType())));
+		envList.add(new Pair<>("primGetHour_server", new FunType(new UnitType(), server, new IntType())));
+		envList.add(new Pair<>("primGetMinute_client", new FunType(new UnitType(), client, new IntType())));
+		envList.add(new Pair<>("primGetMinute_server", new FunType(new UnitType(), server, new IntType())));
 		
 		env.getPairList().addAll(envList);
 	}
@@ -119,12 +148,19 @@ public class TypeChecker {
 		ArrayList<Pair<String, Type>> envList = new ArrayList<>();
 		TypedLocation server = new LocType(Location.Server);
 		
-		envList.add(new Pair<>("createTable", new FunType(new StrType(), server, new FunType(new StrType(), server, new IntType()))));
-		envList.add(new Pair<>("insertRecord", new FunType(new StrType(), server, new FunType(new StrType(), server, new BoolType()))));
-		envList.add(new Pair<>("updateRecord", new FunType(new StrType(), server, new FunType(new StrType(), server, new BoolType()))));
-		envList.add(new Pair<>("deleteRecord", new FunType(new StrType(), server, new FunType(new StrType(), server, new BoolType()))));
-		envList.add(new Pair<>("query", new FunType(new StrType(), server, new FunType(new IntType(), server, new FunType(new StrType(), server, new StrType())))));
-		envList.add(new Pair<>("fromRecord", new FunType(new StrType(), server, new FunType(new IntType(), server, new StrType()))));
+//		envList.add(new Pair<>("createTable", new FunType(new StrType(), server, new FunType(new StrType(), server, new IntType()))));
+//		envList.add(new Pair<>("insertRecord", new FunType(new StrType(), server, new FunType(new StrType(), server, new BoolType()))));
+//		envList.add(new Pair<>("updateRecord", new FunType(new StrType(), server, new FunType(new StrType(), server, new BoolType()))));
+//		envList.add(new Pair<>("deleteRecord", new FunType(new StrType(), server, new FunType(new StrType(), server, new BoolType()))));
+//		envList.add(new Pair<>("query", new FunType(new StrType(), server, new FunType(new IntType(), server, new FunType(new StrType(), server, new StrType())))));
+//		envList.add(new Pair<>("fromRecord", new FunType(new StrType(), server, new FunType(new IntType(), server, new StrType()))));
+		
+		envList.add(new Pair<>("primCreateTable", new FunType(new StrType(), server, new FunType(new StrType(), server, new IntType()))));
+		envList.add(new Pair<>("primInsertRecord", new FunType(new StrType(), server, new FunType(new StrType(), server, new BoolType()))));
+		envList.add(new Pair<>("primUpdateRecord", new FunType(new StrType(), server, new FunType(new StrType(), server, new BoolType()))));
+		envList.add(new Pair<>("primDeleteRecord", new FunType(new StrType(), server, new FunType(new StrType(), server, new BoolType()))));
+		envList.add(new Pair<>("primQuery", new FunType(new StrType(), server, new FunType(new IntType(), server, new FunType(new StrType(), server, new StrType())))));
+		envList.add(new Pair<>("primFromRecord", new FunType(new StrType(), server, new FunType(new IntType(), server, new StrType()))));
 		
 		env.getPairList().addAll(envList);
 	}
@@ -225,7 +261,7 @@ public class TypeChecker {
 						argTy = checkTerm(tApp.getArg(), tyenv, Location.Server);
 					}
 					
-					if (argType.getClass() != argTy.getClass())
+					if (!equalTy(argType, argTy))
 						flag = true;
 				}
 				else
@@ -281,7 +317,7 @@ public class TypeChecker {
 			Type t1Ty = checkTerm(t1, tyenv, loc);
 			Type t2Ty = checkTerm(t2, tyenv, loc);
 			
-			if (t1Ty.toString().equals(tLet.getIdTy().toString()))
+			if (equalTy(t1Ty, tLet.getIdTy()))
 				return t2Ty;
 			else
 				throw new TypeCheckException("T1(" + t1 + ": " + t1Ty + ") is not equal ID type(" + tLet.getId() + ": " + tLet.getIdTy() + ")");
@@ -294,7 +330,7 @@ public class TypeChecker {
 			Type elseTy = checkTerm(tIf.getElseT(), tyenv, loc);
 			
 			if (condTy instanceof BoolType) {
-				if (thenTy.getClass() == elseTy.getClass())
+				if (equalTy(thenTy, elseTy))
 					return thenTy;
 			}
 			else
@@ -311,7 +347,7 @@ public class TypeChecker {
 				Type oprnd1Ty = checkTerm(oprnd1, tyenv, loc);
 				Type oprnd2Ty = checkTerm(oprnd2, tyenv, loc);
 				
-				if (oprnd1Ty instanceof IntType && oprnd2Ty instanceof IntType) {
+				if (equalTy(oprnd1Ty, oprnd2Ty)) {
 					return oprnd1Ty;
 				}
 				else
@@ -334,7 +370,7 @@ public class TypeChecker {
 				Type oprnd1Ty = checkTerm(oprnd1, tyenv, loc);
 				Type oprnd2Ty = checkTerm(oprnd2, tyenv, loc);
 				
-				if (oprnd1Ty instanceof IntType && oprnd2Ty instanceof IntType) {
+				if (equalTy(oprnd1Ty, oprnd2Ty)) {
 					return new BoolType();
 				}
 				else
@@ -347,7 +383,7 @@ public class TypeChecker {
 				Type oprnd1Ty = checkTerm(oprnd1, tyenv, loc);
 				Type oprnd2Ty = checkTerm(oprnd2, tyenv, loc);
 				
-				if (oprnd1Ty.getClass() == oprnd2Ty.getClass())
+				if (equalTy(oprnd1Ty, oprnd2Ty))
 					return new BoolType();
 				else
 					throw new TypeCheckException("Oprnd1(" + oprnd1 + ") type is " + oprnd1Ty + ", Oprnd2(" + oprnd2 + ") type is " + oprnd2Ty);
@@ -359,7 +395,7 @@ public class TypeChecker {
 				Type oprnd1Ty = checkTerm(oprnd1, tyenv, loc);
 				Type oprnd2Ty = checkTerm(oprnd2, tyenv, loc);
 				
-				if (oprnd1Ty instanceof BoolType && oprnd2Ty instanceof BoolType) {
+				if (equalTy(oprnd1Ty, oprnd2Ty)) {
 					return oprnd1Ty;
 				}
 				else
@@ -393,7 +429,7 @@ public class TypeChecker {
 				
 				Type tyArg = tylookup(args.get(idx), tyenv); 
 				
-				if (!funTyArg.toString().equals(tyArg.toString())) {
+				if (!equalTy(funTyArg, tyArg)) {
 					throw new TypeCheckException("LibTerm(" + tLibTerm +")");
 				}
 				
@@ -407,6 +443,7 @@ public class TypeChecker {
 		
 		return null;
 	}
+	
 	public static Type subst(Type t, String s, Type ty) {
 		check(s, ty);
 
@@ -482,5 +519,45 @@ public class TypeChecker {
 			check(s, fTy.getRetTy());
 		}
 
+	}
+	
+	public static boolean equalTy(Type t1, Type t2) {
+		if (t1 instanceof UnitType && t2 instanceof UnitType)
+			return true;
+		else if (t1 instanceof IntType && t2 instanceof IntType)
+			return true;
+		else if (t1 instanceof StrType && t2 instanceof StrType)
+			return true;
+		else if (t1 instanceof BoolType && t2 instanceof BoolType)
+			return true;
+		else if (t1 instanceof VarType && t2 instanceof VarType) {
+			VarType varTy1 = (VarType) t1;
+			VarType varTy2 = (VarType) t2;
+			
+			if (varTy1.getVar().equals(varTy2.getVar()))
+				return true;
+			else
+				return false;
+		}
+		else if (t1 instanceof FunType && t2 instanceof FunType) {
+			FunType funTy1 = (FunType) t1;
+			FunType funTy2 = (FunType) t2;
+			
+			boolean isArgTyEqual = equalTy(funTy1.getArgTy(), funTy2.getArgTy());
+			boolean isRetTyEqual = equalTy(funTy1.getRetTy(), funTy2.getRetTy());
+			
+			return isArgTyEqual && isRetTyEqual;
+		}
+		else if (t1 instanceof ForAll && t2 instanceof ForAll) {
+			ForAll forall1 = (ForAll) t1;
+			ForAll forall2 = (ForAll) t2;
+			
+			boolean isIdTyEqual = equalTy(forall1.getTyId(), forall2.getTyId());
+			boolean isTyEqual = equalTy(forall1.getTy(), forall2.getTy());
+			
+			return isIdTyEqual && isTyEqual;
+		}
+		else
+			return false;
 	}
 }
