@@ -1,3 +1,4 @@
+connectDB: String-s->Int-s->String-s->String-s->String-s->Bool = lam^s ip: String. lam^s port: Int.lam^s id: String. lam^s pwd: String. lam^s dbname: String. #primConnectDB (ip, port, id, pwd, dbname);
 createTable: String-s->String-s->Int = lam^s tblname: String. lam^s recordfield: String. #primCreateTable (tblname, recordfield);
 insertRecord: String-s->String-s->Bool = lam^s tblname: String. lam^s content: String. #primInsertRecord (tblname, content);
 updateRecord: String-s->String-s->Bool = lam^s tblname: String. lam^s content: String. #primUpdateRecord (tblname, content);

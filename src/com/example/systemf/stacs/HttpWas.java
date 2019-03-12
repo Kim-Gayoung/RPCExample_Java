@@ -140,14 +140,15 @@ public class HttpWas {
 	}
 
 	class CSServer {
-		private String[] libraryNames = {
-				"primIsNothing_server", "primFromJust_server", "primOpenFile_server", "primCloseFile_server",
-				"primWriteFile_server", "primReadFile_server", "primToString_server", "primToInt_server",
-				"primToBool_server", "primReverse_server", "primAppend_server", "primLength_server",
-				"primGetHour_server", "primGetYear_server", "primGetMonth_server", "primGetDay_server", "primGetDate_server"
-		};
+		private String[] libraryNames = { "primIsNothing_server", "primFromJust_server", "primOpenFile_server",
+				"primCloseFile_server", "primWriteFile_server", "primReadFile_server", "primToString_server",
+				"primToInt_server", "primToBool_server", "primReverse_server", "primAppend_server", "primLength_server",
+				"primGetYear_server", "primGetMonth_server", "primGetDay_server", "primGetDate_server",
+				"primGetHour_server", "primGetMinute_server",
+				"primConnectDB", "primCreateTable", "primInsertRecord", "primUpdateRecord", "primDeleteRecord",
+				"primQuery", "primFromRecord" };
 		private ArrayList<String> libs = new ArrayList<>();
-		
+
 		private FunStore phi;
 		private int sessionNum;
 
@@ -641,27 +642,38 @@ public class HttpWas {
 			}
 		}
 	}
+
 	public static Term evalLibrary(String funName, ArrayList<Value> args) {
 		if (funName.equals("primIsNothing_client")) {
-
+			String content = ((Str) args.get(0)).getStr();
+			
+			if (content == null || content.equals(""))
+				return new Bool("False");
+			else
+				return new Bool("True");
 		} else if (funName.equals("primFromJust_server")) {
-
+			String content = ((Str) args.get(0)).getStr();
+			
+			return new Str(content);
 		} else if (funName.equals("primOpenFile_server")) {
-
+			String fileName = ((Str) args.get(0)).getStr();
+			String mode = ((Str) args.get(1)).getStr();
+			
+			
 		} else if (funName.equals("primCloseFile_server")) {
-
+			int fileDesc = ((Num) args.get(0)).getI();	
 		} else if (funName.equals("primWriteFile_server")) {
-
+			int fileDesc = ((Num) args.get(0)).getI();
 		} else if (funName.equals("primReadFile_server")) {
-			String msg = args.get(0).toString();
+			int fileDesc = ((Num) args.get(0)).getI();
 			
 			
 		} else if (funName.equals("primToString_server")) {
-			String msg = args.get(0).toString();
+			String msg = ((Str) args.get(0)).getStr();
 			
 			return new Str(msg);
 		} else if (funName.equals("primToInt_server")) {
-			String msg = args.get(0).toString();
+			String msg = ((Str) args.get(0)).getStr();
 			
 			try {
 				return new Num(Integer.parseInt(msg));
@@ -670,30 +682,26 @@ public class HttpWas {
 			}
 			
 		} else if (funName.equals("primToBool_server")) {
-			String msg = args.get(0).toString();
+			String msg = ((Str) args.get(0)).getStr();
 			
 			if (msg.equalsIgnoreCase("true"))
 				return new Bool("True");
 			else
 				return new Bool("False");
 		} else if (funName.equals("primReverse_server")) {
-			String msg = args.get(0).toString();
+			String msg = ((Str) args.get(0)).getStr();
 			String ret = new StringBuilder(msg).reverse().toString();
 			
 			return new Str(ret);
 		} else if (funName.equals("primAppend_server")) {
-			String msg1 = args.get(0).toString();
-			String msg2 = args.get(1).toString();
+			String msg1 = ((Str) args.get(0)).getStr();
+			String msg2 = ((Str) args.get(1)).getStr();
 			
 			return new Str(msg1 + msg2);
 		} else if (funName.equals("primLength_server")) {
-			String msg = args.get(0).toString();
+			String msg = ((Str) args.get(0)).getStr();
 			
 			return new Num(msg.length());
-		} else if (funName.equals("primGetHour_server")) {
-			Calendar calendar = Calendar.getInstance();
-			
-			return new Num(calendar.get(Calendar.HOUR_OF_DAY));
 		} else if (funName.equals("primGetYear_server")) {
 			Calendar calendar = Calendar.getInstance();
 			
@@ -714,8 +722,65 @@ public class HttpWas {
 			
 			return new Num(calendar.get(Calendar.DAY_OF_MONTH));
 			
+		} else if (funName.equals("primGetHour_server")) {
+			Calendar calendar = Calendar.getInstance();
+			
+			return new Num(calendar.get(Calendar.HOUR_OF_DAY));
+		} else if (funName.equals("primGetMinute_server")) {
+			Calendar calendar = Calendar.getInstance();
+			
+			return new Num(calendar.get(Calendar.MINUTE));
 		} else
-			throw new RuntimeException(funName + " not supported Library.");
+			return evalDBLibrary(funName, args);
+		
+		return null;
+	}
+	
+	public static Term evalDBLibrary(String funName, ArrayList<Value> args) {
+		if (funName.equals("primConnectDB")) {
+			String ip = ((Str) args.get(0)).getStr();
+			int port = ((Num) args.get(1)).getI();
+			String id = ((Str) args.get(2)).getStr();
+			String pwd = ((Str) args.get(3)).getStr();
+			String dbname = ((Str) args.get(4)).getStr();
+			
+			
+		}
+		else if (funName.equals("primCreateTable")) {
+			String tblname = ((Str) args.get(0)).getStr();
+			String recordField = ((Str) args.get(1)).getStr();
+			
+			
+		}
+		else if (funName.equals("primInsertRecord")) {
+			String tblname = ((Str) args.get(0)).getStr();
+			String content = ((Str) args.get(1)).getStr();
+			
+			
+		}
+		else if (funName.equals("primUpdateRecord")) {
+			String tblname = ((Str) args.get(0)).getStr();
+			String content = ((Str) args.get(1)).getStr();
+			
+		}
+		else if (funName.equals("primDeleteRecord")) {
+			String tblname = ((Str) args.get(0)).getStr();
+			int recordId = ((Num) args.get(1)).getI();
+			
+		}
+		else if (funName.equals("primQuery" )) {
+			String tblname = ((Str) args.get(0)).getStr();
+			int recordId = ((Num) args.get(1)).getI();
+			String field = ((Str) args.get(2)).getStr();
+			
+			
+		}
+		else if (funName.equals("primFromRecord")) {
+			String tblname = ((Str) args.get(0)).getStr();
+			int recordId = ((Num) args.get(1)).getI();
+		}
+		else
+			throw new RuntimeException(funName + " is not support Library.");
 		
 		return null;
 	}

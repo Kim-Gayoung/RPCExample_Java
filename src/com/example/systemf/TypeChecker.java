@@ -154,7 +154,7 @@ public class TypeChecker {
 //		envList.add(new Pair<>("deleteRecord", new FunType(new StrType(), server, new FunType(new StrType(), server, new BoolType()))));
 //		envList.add(new Pair<>("query", new FunType(new StrType(), server, new FunType(new IntType(), server, new FunType(new StrType(), server, new StrType())))));
 //		envList.add(new Pair<>("fromRecord", new FunType(new StrType(), server, new FunType(new IntType(), server, new StrType()))));
-		
+		envList.add(new Pair<>("primConnectDB", new FunType(new StrType(), server, new FunType(new IntType(), server, new FunType(new StrType(), server, new FunType(new StrType(), server, new FunType(new StrType(), server, new BoolType())))))));
 		envList.add(new Pair<>("primCreateTable", new FunType(new StrType(), server, new FunType(new StrType(), server, new IntType()))));
 		envList.add(new Pair<>("primInsertRecord", new FunType(new StrType(), server, new FunType(new StrType(), server, new BoolType()))));
 		envList.add(new Pair<>("primUpdateRecord", new FunType(new StrType(), server, new FunType(new StrType(), server, new BoolType()))));

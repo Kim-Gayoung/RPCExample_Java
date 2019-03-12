@@ -2,9 +2,6 @@ package com.example.systemf.stacs;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -13,7 +10,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Scanner;
 import java.util.function.Function;
 
@@ -55,8 +51,6 @@ public class CSClient {
 			"primGetDay_client", "primGetDate_client" };
 	private static ArrayList<String> libs = new ArrayList<>();
 
-	private static HashMap<String, File> fileMap = new HashMap<>();
-	
 	private FunStore clientFS;
 	private String programName;
 	private String serverAddr;
@@ -256,6 +250,10 @@ public class CSClient {
 						m = new Let(mLet.getId(), SubstStaCS.substs(closedFun.getM(), closedFun.getZs(), fClo.getVs()),
 								mLet.getT2());
 					}
+				} else if (m1 instanceof Var) {
+					Var mVar1 = (Var) m1;
+
+					System.out.println(mVar1.getVar());
 				} else if (m1 instanceof Clo) {
 					Clo mClo1 = (Clo) m1;
 
@@ -425,61 +423,82 @@ public class CSClient {
 	public static Term evalLibrary(String funName, ArrayList<Value> args) {
 		if (funName.equals("primIsNothing_client")) {
 			String content = ((Str) args.get(0)).getStr();
-			
+
 			if (content == null || content.equals(""))
 				return new Bool("False");
 			else
 				return new Bool("True");
 		} else if (funName.equals("primFromJust_client")) {
 			String content = ((Str) args.get(0)).getStr();
-			
+
 			return new Str(content);
 		} else if (funName.equals("primOpenFile_client")) {
 			String fileName = ((Str) args.get(0)).getStr();
 			String mode = ((Str) args.get(1)).getStr();
-			
-			
+
+//			 1. 파일을 만들 때 mode에 따라 bufferedreader, bufferedwriter를 만들어주기
+//			 r일 경우 bufferedreader에 대한 description을 전달
+//			 w일 경우 bufferedwriter에 대한 description을 전달
+//			 rw인 경우... -> buffer로 전달...?
+//			
+//			if (mode.equalsIgnoreCase("r")) {
+//				
+//			}
+//			else if (mode.equalsIgnoreCase("w")) {
+//				
+//			}
+//			else if (mode.equalsIgnoreCase("rw")) {
+//				
+//			}
+//			else
+//				throw new RuntimeException(mode + " not support mode.");
+
+//			2. 파일을 만들 때 그냥 file로 만들어주기
+//			이경우에는 사용자가 어떤 모드로 파일을 열었는지 알 수가 없음
+//			또한, 파일에 내용을 입력할 때 File을 이용하면 상당히 느리다는 단점 존재
+
+//			3. 
+
 		} else if (funName.equals("primCloseFile_client")) {
-			String fileName = ((Str) args.get(0)).getStr();
-			
-			File file = fileMap.get(fileName);
-			
-			if (file != null)
-				fileMap.remove(fileName);
-			
-			return new Unit();
+			int fileDesc = ((Num) args.get(0)).getI();
+//			File file = fileMap.get(fileName);
+//			
+//			if (file != null)
+//				fileMap.remove(fileName);
+//			
+//			return new Unit();
 		} else if (funName.equals("primWriteFile_client")) {
-			String fileName = ((Str) args.get(0)).getStr();
+			int fileDesc = ((Num) args.get(0)).getI();
 			String content = ((Str) args.get(1)).getStr();
-			
-			try {
-				File file = fileMap.get(fileName);
-				
-				BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true));
-				writer.write(content);
-				writer.flush();
-				writer.close();
-			} catch(IOException e) {
-				System.err.println("file is not open.");
-			}
-			
-			return new Unit();
+
+//			try {
+//				File file = fileMap.get(fileName);
+//				
+//				BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true));
+//				writer.write(content);
+//				writer.flush();
+//				writer.close();
+//			} catch(IOException e) {
+//				System.err.println("file is not open.");
+//			}
+//			
+//			return new Unit();
 		} else if (funName.equals("primReadFile_client")) {
-			String fileName = ((Str) args.get(0)).getStr();
+			int fileDesc = ((Num) args.get(0)).getI();
 			String ret = "";
 
-			try {
-				File file = fileMap.get(fileName);
-				BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-				String line;
-				while ((line = bufferedReader.readLine()) != null) {
-					ret += line;
-				}
-
-				return new Str(ret);
-			} catch (IOException e) {
-				System.err.println("file is not exist.");
-			}
+//			try {
+//				File file = fileMap.get(fileName);
+//				BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+//				String line;
+//				while ((line = bufferedReader.readLine()) != null) {
+//					ret += line;
+//				}
+//
+//				return new Str(ret);
+//			} catch (IOException e) {
+//				System.err.println("file is not exist.");
+//			}
 		} else if (funName.equals("primReadConsole")) {
 			Scanner scan = new Scanner(System.in);
 			String input = scan.next();
@@ -491,7 +510,7 @@ public class CSClient {
 
 			return new Unit();
 		} else if (funName.equals("primToString_client")) {
-			String msg = ((Str) args.get(0)).getStr();
+			String msg = args.get(0).toString();
 
 			return new Str(msg);
 		} else if (funName.equals("primToInt_client")) {
@@ -516,18 +535,14 @@ public class CSClient {
 
 			return new Str(ret);
 		} else if (funName.equals("primAppend_client")) {
-			String msg1 = ((Str)args.get(0)).getStr();
-			String msg2 = ((Str)args.get(1)).getStr();
+			String msg1 = ((Str) args.get(0)).getStr();
+			String msg2 = ((Str) args.get(1)).getStr();
 
 			return new Str(msg1 + msg2);
 		} else if (funName.equals("primLength_client")) {
 			String msg = ((Str) args.get(0)).getStr();
 
 			return new Num(msg.length());
-		} else if (funName.equals("primGetHour_client")) {
-			Calendar calendar = Calendar.getInstance();
-
-			return new Num(calendar.get(Calendar.HOUR_OF_DAY));
 		} else if (funName.equals("primGetYear_client")) {
 			Calendar calendar = Calendar.getInstance();
 
@@ -548,6 +563,14 @@ public class CSClient {
 
 			return new Num(calendar.get(Calendar.DAY_OF_MONTH));
 
+		} else if (funName.equals("primGetHour_client")) {
+			Calendar calendar = Calendar.getInstance();
+
+			return new Num(calendar.get(Calendar.HOUR_OF_DAY));
+		} else if (funName.equals("primGetMinute_client")) {
+			Calendar calendar = Calendar.getInstance();
+			
+			return new Num(calendar.get(Calendar.MINUTE));
 		} else
 			throw new RuntimeException(funName + " not supported Library.");
 
