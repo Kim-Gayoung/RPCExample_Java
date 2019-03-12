@@ -1,25 +1,9 @@
 package com.example.systemf.stacs;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Scanner;
-import java.util.function.Function;
-
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import com.example.lib.LexerException;
 import com.example.lib.ParserException;
@@ -29,27 +13,14 @@ import com.example.systemf.TypeCheckException;
 import com.example.systemf.TypeChecker;
 import com.example.systemf.ast.Type;
 import com.example.systemf.parser.Parser;
-import com.example.systemf.sta.ast.App;
-import com.example.systemf.sta.ast.Bool;
-import com.example.systemf.sta.ast.Call;
-import com.example.systemf.sta.ast.Clo;
-import com.example.systemf.sta.ast.If;
-import com.example.systemf.sta.ast.Let;
-import com.example.systemf.sta.ast.Num;
-import com.example.systemf.sta.ast.PrimTerm;
-import com.example.systemf.sta.ast.Req;
-import com.example.systemf.sta.ast.Ret;
-import com.example.systemf.sta.ast.Str;
-import com.example.systemf.sta.ast.Tapp;
 import com.example.systemf.sta.ast.Term;
-import com.example.systemf.sta.ast.Unit;
 import com.example.systemf.sta.ast.Value;
-import com.example.systemf.sta.ast.Var;
 import com.example.systemf.starpc.CompStaRpc;
 import com.example.utils.TripleTup;
 
 public class StaCSInHttp {
-	private static final String OPEN_SESSION = "OPEN_SESSION";
+/*	
+    private static final String OPEN_SESSION = "OPEN_SESSION";
 	private static final String CLOSE_SESSION = "CLOSE_SESSION";
 
 	private static final String REQ = "REQ";
@@ -58,7 +29,7 @@ public class StaCSInHttp {
 	private static final String CALL = "CALL";
 
 	private static final int PORT = 8080;
-
+*/
 	public static void main(String[] args) throws TypeCheckException, CompException {
 		Parser parser;
 		String serverAddr = "127.0.0.1";
@@ -129,7 +100,7 @@ public class StaCSInHttp {
 		}
 
 	}
-
+/*
 	public static class HttpWas {
 		private static HashMap<String, FunStore> programFSMap = new HashMap<>();
 		private static HashMap<Integer, CSServer> sessionMap = new HashMap<>();
@@ -782,9 +753,9 @@ public class StaCSInHttp {
 			else
 				throw new RuntimeException("Not expected Operator " + PrimTerm.get(op));
 		}
-	}
+	}*/
 
-	public static class CSClient {
+/*	public static class CSClient {
 		private FunStore clientFS;
 		private String programName;
 		private String serverAddr;
@@ -1235,4 +1206,5 @@ public class StaCSInHttp {
 		System.err.println("lookup: Not found: " + f + " in \n" + fs);
 		return null;
 	}
+	*/
 }
