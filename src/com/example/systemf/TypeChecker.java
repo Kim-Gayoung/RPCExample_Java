@@ -77,12 +77,29 @@ public class TypeChecker {
 		envList.add(new Pair<>("toBool_client", new FunType(new StrType(), client, new BoolType())));
 		envList.add(new Pair<>("toBool_server", new FunType(new StrType(), server, new BoolType())));
 		
+		envList.add(new Pair<>("primToString_client", new FunType(new VarType("t1"), client, new StrType())));
+		envList.add(new Pair<>("primToString_server", new ForAll(new VarType("primToStringTy_server"), new FunType(new VarType("primToStringTy_server"), server, new StrType()))));
+		envList.add(new Pair<>("primToInt_client", new FunType(new StrType(), client, new IntType())));
+		envList.add(new Pair<>("primToInt_server", new FunType(new StrType(), server, new IntType())));
+		envList.add(new Pair<>("primToBool_client", new FunType(new StrType(), client, new BoolType())));
+		envList.add(new Pair<>("primToBool_server", new FunType(new StrType(), server, new BoolType())));
+		
 		envList.add(new Pair<>("reverse_client", new FunType(new StrType(), client, new StrType())));
 		envList.add(new Pair<>("reverse_server", new FunType(new StrType(), server, new StrType())));
 		envList.add(new Pair<>("append_client", new FunType(new StrType(), client, new FunType(new StrType(), client, new StrType()))));
 		envList.add(new Pair<>("append_server", new FunType(new StrType(), server, new FunType(new StrType(), server, new StrType()))));
 		envList.add(new Pair<>("length_client", new FunType(new StrType(), client, new IntType())));
 		envList.add(new Pair<>("length_server", new FunType(new StrType(), server, new IntType())));
+		
+		envList.add(new Pair<>("primReverse_client", new FunType(new StrType(), client, new StrType())));
+		envList.add(new Pair<>("primReverse_server", new FunType(new StrType(), server, new StrType())));
+		envList.add(new Pair<>("primAppend_client", new FunType(new StrType(), client, new FunType(new StrType(), client, new StrType()))));
+		envList.add(new Pair<>("primAppend_server", new FunType(new StrType(), server, new FunType(new StrType(), server, new StrType()))));
+		envList.add(new Pair<>("primLength_client", new FunType(new StrType(), client, new IntType())));
+		envList.add(new Pair<>("primLength_server", new FunType(new StrType(), server, new IntType())));
+		
+		envList.add(new Pair<>("primLength_client", new FunType(new StrType(), client, new IntType())));
+		envList.add(new Pair<>("primLength_server", new FunType(new StrType(), server, new IntType())));
 		
 		envList.add(new Pair<>("getHour_client", new FunType(new UnitType(), client, new IntType())));
 		envList.add(new Pair<>("getHour_server", new FunType(new UnitType(), server, new IntType())));
@@ -376,7 +393,7 @@ public class TypeChecker {
 				
 				Type tyArg = tylookup(args.get(idx), tyenv); 
 				
-				if (!funTyArg.equals(tyArg)) {
+				if (!funTyArg.toString().equals(tyArg.toString())) {
 					throw new TypeCheckException("LibTerm(" + tLibTerm +")");
 				}
 				
