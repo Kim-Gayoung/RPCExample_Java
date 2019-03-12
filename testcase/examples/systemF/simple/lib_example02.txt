@@ -1,0 +1,31 @@
+openFile_client: String-c->String-c->Int = lam^c filename: String. lam^c mode: String. #primOpenFile_client (filename, mode);
+closeFile_client: Int-c->Unit = lam^c fd: Int. #primCloseFile_client (fd);
+writeFile_client: Int-c->String-c->Int = lam^c fd: Int. lam^c content: String. #primWriteFile_client (fd, content);
+readFile_client: Int-c->String = lam^c fd: Int. #primReadFile_client (fd);
+toString_client: forall toStringTy_client. (toStringTy_client-c->String) = tylam toStringTy_client. lam^c x: toStringTy_client. #primToString_client (x);
+append_client: String-c->String-c->String = lam^c x: String. lam^c y: String. #primAppend_client (x, y);
+
+readConsole: Unit-c->String = lam^c x: Unit. #primReadConsole (x);
+writeConsole: String-c->Unit = lam^c x: String. #primWriteConsole (x);
+
+filePath: Unit-c->String = lam^c x: Unit.
+					let a: Unit = writeConsole ^c^ "Enter the file Path: " in
+						readConsole ^c^ ()
+					end;
+
+fileContent: Unit-c->String = lam^c x: Unit.
+					let a: Unit = writeConsole ^c^ "Enter the file content: " in
+						readConsole ^c^ ()
+					end;
+
+main: Unit = let inputFilePath: String = filePath ^c^ () in
+				let inputFileContent: String = fileContent ^c^ () in
+					let fd: Int = openFile_client ^c^ inputFilePath ^c^ "rw" in
+						let write: Int = writeFile_client ^c^ fd ^c^ inputFileContent in
+							let close: Unit = closeFile_client ^c^ fd in
+								writeConsole ^c^ (append_client ^c^ "File write complete: " ^c^ (toString_client [Int] ^c^ write))
+							end
+						end
+					end
+				end
+			end

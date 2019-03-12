@@ -112,9 +112,6 @@ public class TypeChecker {
 		envList.add(new Pair<>("primLength_client", new FunType(new StrType(), client, new IntType())));
 		envList.add(new Pair<>("primLength_server", new FunType(new StrType(), server, new IntType())));
 		
-		envList.add(new Pair<>("primLength_client", new FunType(new StrType(), client, new IntType())));
-		envList.add(new Pair<>("primLength_server", new FunType(new StrType(), server, new IntType())));
-		
 //		envList.add(new Pair<>("getYear_client", new FunType(new UnitType(), client, new IntType())));
 //		envList.add(new Pair<>("getYear_server", new FunType(new UnitType(), server, new IntType())));
 //		envList.add(new Pair<>("getMonth_client", new FunType(new UnitType(), client, new IntType())));
@@ -430,9 +427,9 @@ public class TypeChecker {
 				Type tyArg = tylookup(args.get(idx), tyenv); 
 				
 				if (!equalTy(funTyArg, tyArg)) {
-					throw new TypeCheckException("LibTerm(" + tLibTerm +")");
+					throw new TypeCheckException("LibTerm(" + tLibTerm +"): " + funTyArg + " != " + tyArg);
 				}
-				
+				idx++;
 				tyFunName = funTyRet;
 			}
 			

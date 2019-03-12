@@ -2,6 +2,10 @@ package com.example.systemf.stacs;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -10,6 +14,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.util.function.Function;
 
@@ -33,6 +38,8 @@ import com.example.systemf.sta.ast.Unit;
 import com.example.systemf.sta.ast.Value;
 import com.example.systemf.sta.ast.Var;
 
+import javafx.util.Pair;
+
 public class CSClient {
 	private static final String OPEN_SESSION = "OPEN_SESSION";
 	private static final String CLOSE_SESSION = "CLOSE_SESSION";
@@ -49,7 +56,13 @@ public class CSClient {
 			"primWriteConsole", "primToString_client", "primToInt_client", "primToBool_client", "primReverse_client",
 			"primAppend_client", "primLength_client", "primGetHour_client", "primGetYear_client", "primGetMonth_client",
 			"primGetDay_client", "primGetDate_client" };
+
 	private static ArrayList<String> libs = new ArrayList<>();
+
+	private static HashMap<Integer, Pair<String, String>> fileMap = new HashMap<>();
+	private static HashMap<Integer, BufferedWriter> fileWriters = new HashMap<>();
+	private static HashMap<Integer, BufferedReader> fileReaders = new HashMap<>();
+	private static int fileIdx = 0;
 
 	private FunStore clientFS;
 	private String programName;
@@ -81,9 +94,11 @@ public class CSClient {
 
 				reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-			} catch (UnknownHostException e) {
+			}
+			catch (UnknownHostException e) {
 				e.printStackTrace();
-			} catch (IOException e) {
+			}
+			catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
@@ -95,7 +110,8 @@ public class CSClient {
 			writer.write("GET " + "/rpc/" + programName + " HTTP/1.1.\r\n");
 			writer.write("Host: " + socket.getInetAddress().getHostAddress() + "\r\n");
 			writer.write("\r\n");
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -126,7 +142,8 @@ public class CSClient {
 					try {
 						if (sessionState.equals(CLOSE_SESSION)) {
 							sessionNum = null;
-						} else {
+						}
+						else {
 							sessionNum = Integer.parseInt(sessionState);
 						}
 
@@ -136,7 +153,8 @@ public class CSClient {
 							Value replyVal = JSonUtil.fromJson(replyJson);
 
 							retM = new Let(mLet.getId(), replyVal, mLet.getT2());
-						} else if (protocol.equals(CALL)) {
+						}
+						else if (protocol.equals(CALL)) {
 							String strClo = reader.readLine();
 							JSONObject cloJson = (JSONObject) jsonParser.parse(strClo);
 							Value clo = JSonUtil.fromJson(cloJson);
@@ -153,30 +171,36 @@ public class CSClient {
 							}
 
 							retM = new Let(mLet.getId(), new App(clo, args), mLet.getT2());
-						} else {
+						}
+						else {
 							System.err.println("receiver: Unexpected protocol(" + protocol + ")");
 							retM = null;
 						}
-					} catch (NumberFormatException e) {
-						e.printStackTrace();
-						retM = null;
-					} catch (ParseException e) {
+					}
+					catch (NumberFormatException e) {
 						e.printStackTrace();
 						retM = null;
 					}
-				} else {
+					catch (ParseException e) {
+						e.printStackTrace();
+						retM = null;
+					}
+				}
+				else {
 					System.err.println(statusCode);
 					retM = null;
 				}
 
-			} catch (IOException e) {
+			}
+			catch (IOException e) {
 				e.printStackTrace();
 				retM = null;
 			}
 
 			try {
 				socket.close();
-			} catch (IOException e) {
+			}
+			catch (IOException e) {
 				e.printStackTrace();
 			}
 
@@ -207,14 +231,16 @@ public class CSClient {
 								mApp1.getWs());
 
 						m = new Let(mLet.getId(), letBody, mLet.getT2());
-					} else if (mApp1.getFun() instanceof Var) {
+					}
+					else if (mApp1.getFun() instanceof Var) {
 						Var fVar = (Var) mApp1.getFun();
 
 						letBody = evalLibrary(fVar.getVar(), mApp1.getWs());
 
 						m = new Let(mLet.getId(), letBody, mLet.getT2());
 					}
-				} else if (m1 instanceof Req) {
+				}
+				else if (m1 instanceof Req) {
 					Req mReq1 = (Req) m1;
 
 					if (mReq1.getFun() instanceof Clo) {
@@ -233,13 +259,15 @@ public class CSClient {
 								writer.write(w.toJson() + "\n");
 							}
 							writer.flush();
-						} catch (IOException e) {
+						}
+						catch (IOException e) {
 							e.printStackTrace();
 						}
 
 						m = receiver.apply(mLet);
 					}
-				} else if (m1 instanceof Tapp) {
+				}
+				else if (m1 instanceof Tapp) {
 					Tapp mTapp1 = (Tapp) m1;
 
 					if (mTapp1.getFun() instanceof Clo) {
@@ -250,37 +278,45 @@ public class CSClient {
 						m = new Let(mLet.getId(), SubstStaCS.substs(closedFun.getM(), closedFun.getZs(), fClo.getVs()),
 								mLet.getT2());
 					}
-				} else if (m1 instanceof Var) {
+				}
+				else if (m1 instanceof Var) {
 					Var mVar1 = (Var) m1;
 
 					System.out.println(mVar1.getVar());
-				} else if (m1 instanceof Clo) {
+				}
+				else if (m1 instanceof Clo) {
 					Clo mClo1 = (Clo) m1;
 
 					m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), mClo1);
-				} else if (m1 instanceof Unit) {
+				}
+				else if (m1 instanceof Unit) {
 					Unit mUnit1 = (Unit) m1;
 
 					m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), mUnit1);
-				} else if (m1 instanceof Num) {
+				}
+				else if (m1 instanceof Num) {
 					Num mNum1 = (Num) m1;
 
 					m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), mNum1);
-				} else if (m1 instanceof Bool) {
+				}
+				else if (m1 instanceof Bool) {
 					Bool mBool1 = (Bool) m1;
 
 					m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), mBool1);
-				} else if (m1 instanceof Str) {
+				}
+				else if (m1 instanceof Str) {
 					Str mStr1 = (Str) m1;
 
 					m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), mStr1);
-				} else if (m1 instanceof Let) {
+				}
+				else if (m1 instanceof Let) {
 					Let mLet1 = (Let) m1;
 
 					Let let = new Let(mLet1.getId(), mLet1.getT1(), new Let(mLet.getId(), mLet1.getT2(), mLet.getT2()));
 
 					m = let;
-				} else if (m1 instanceof Ret) {
+				}
+				else if (m1 instanceof Ret) {
 					Ret mRet1 = (Ret) m1;
 					Value retVal = mRet1.getW();
 
@@ -291,12 +327,14 @@ public class CSClient {
 						writer.write(retVal.toJson() + "\n");
 
 						writer.flush();
-					} catch (IOException e) {
+					}
+					catch (IOException e) {
 						e.printStackTrace();
 					}
 
 					m = receiver.apply(mLet);
-				} else if (m1 instanceof If) {
+				}
+				else if (m1 instanceof If) {
 					If mIf1 = (If) m1;
 
 					Term cond = mIf1.getCond();
@@ -309,7 +347,8 @@ public class CSClient {
 						else
 							m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), (Value) mIf1.getElseT());
 					}
-				} else if (m1 instanceof PrimTerm) {
+				}
+				else if (m1 instanceof PrimTerm) {
 					PrimTerm mExpr1 = (PrimTerm) m1;
 					Term oprnd1;
 					Term oprnd2;
@@ -328,7 +367,8 @@ public class CSClient {
 							Num numOprnd2 = (Num) oprnd2;
 
 							v = compPrimTerm(numOprnd1, mExpr1.getOp(), numOprnd2);
-						} else
+						}
+						else
 							throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1
 									+ ") and oprnd2(" + oprnd2 + ") are not Num.");
 						break;
@@ -339,7 +379,8 @@ public class CSClient {
 							Num numOprnd1 = (Num) oprnd1;
 
 							v = new Num(-numOprnd1.getI());
-						} else
+						}
+						else
 							throw new RuntimeException(
 									"StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1 + ") is not Num.");
 						break;
@@ -355,7 +396,8 @@ public class CSClient {
 							Num numOprnd2 = (Num) oprnd2;
 
 							v = compPrimTerm(numOprnd1, mExpr1.getOp(), numOprnd2);
-						} else
+						}
+						else
 							throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1
 									+ ") and oprnd2(" + oprnd2 + ") are not Num.");
 						break;
@@ -365,7 +407,8 @@ public class CSClient {
 
 						if (oprnd1.getClass() == oprnd2.getClass()) {
 							v = new Bool(Boolean.toString(oprnd1.equals(oprnd2)));
-						} else
+						}
+						else
 							throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1
 									+ ") and oprnd2(" + oprnd2 + ") are not Equal.");
 						break;
@@ -375,7 +418,8 @@ public class CSClient {
 
 						if (oprnd1.getClass() == oprnd2.getClass()) {
 							v = new Bool(Boolean.toString(!oprnd1.equals(oprnd2)));
-						} else
+						}
+						else
 							throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1
 									+ ") and oprnd2(" + oprnd2 + ") are not Equal.");
 						break;
@@ -389,7 +433,8 @@ public class CSClient {
 							Bool boolOprnd2 = (Bool) oprnd2;
 
 							v = compPrimTerm(boolOprnd1, mExpr1.getOp(), boolOprnd2);
-						} else
+						}
+						else
 							throw new RuntimeException("StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1
 									+ ") and oprnd2(" + oprnd2 + ") are not Bool.");
 						break;
@@ -400,7 +445,8 @@ public class CSClient {
 							Bool boolOprnd1 = (Bool) oprnd1;
 
 							v = new Bool(Boolean.toString(!boolOprnd1.getBool()));
-						} else
+						}
+						else
 							throw new RuntimeException(
 									"StaCsInHttp.evalClient(PrimTerm): oprnd1(" + oprnd1 + ") is not Bool.");
 						break;
@@ -408,12 +454,13 @@ public class CSClient {
 
 					m = SubstStaCS.subst(mLet.getT2(), mLet.getId(), v);
 				}
-			} else if (m instanceof Clo || m instanceof Unit || m instanceof Num || m instanceof Str
-					|| m instanceof Bool)
+			}
+			else if (m instanceof Clo || m instanceof Unit || m instanceof Num || m instanceof Str || m instanceof Bool)
 
 			{
 				return (Value) m;
-			} else {
+			}
+			else {
 				throw new RuntimeException("StaCsInHttp.evalClient: Must not reach here");
 			}
 		}
@@ -428,153 +475,221 @@ public class CSClient {
 				return new Bool("False");
 			else
 				return new Bool("True");
-		} else if (funName.equals("primFromJust_client")) {
+		}
+		else if (funName.equals("primFromJust_client")) {
 			String content = ((Str) args.get(0)).getStr();
 
 			return new Str(content);
-		} else if (funName.equals("primOpenFile_client")) {
+		}
+		else if (funName.equals("primOpenFile_client")) {
 			String fileName = ((Str) args.get(0)).getStr();
 			String mode = ((Str) args.get(1)).getStr();
+			int idx = fileIdx;
 
-//			 1. 파일을 만들 때 mode에 따라 bufferedreader, bufferedwriter를 만들어주기
-//			 r일 경우 bufferedreader에 대한 description을 전달
-//			 w일 경우 bufferedwriter에 대한 description을 전달
-//			 rw인 경우... -> buffer로 전달...?
-//			
-//			if (mode.equalsIgnoreCase("r")) {
-//				
-//			}
-//			else if (mode.equalsIgnoreCase("w")) {
-//				
-//			}
-//			else if (mode.equalsIgnoreCase("rw")) {
-//				
-//			}
-//			else
-//				throw new RuntimeException(mode + " not support mode.");
+			try {
+				if (mode.equalsIgnoreCase("r")) {
+					BufferedReader fileReader = new BufferedReader(new FileReader(fileName));
+					fileReaders.put(idx, fileReader);
+				}
+				else if (mode.equalsIgnoreCase("w")) {
+					File file = new File(fileName);
+					if (!file.exists()) {
+						file.createNewFile();
+					}
+					BufferedWriter fileWriter = new BufferedWriter(new FileWriter(fileName, true));
+					fileWriters.put(idx, fileWriter);
+				}
+				else if (mode.equalsIgnoreCase("rw")) {
+					File file = new File(fileName);
+					if (!file.exists()) {
+						file.createNewFile();
+					}
+					
+					BufferedReader fileReader = new BufferedReader(new FileReader(fileName));
+					BufferedWriter fileWriter = new BufferedWriter(new FileWriter(fileName, true));
 
-//			2. 파일을 만들 때 그냥 file로 만들어주기
-//			이경우에는 사용자가 어떤 모드로 파일을 열었는지 알 수가 없음
-//			또한, 파일에 내용을 입력할 때 File을 이용하면 상당히 느리다는 단점 존재
+					fileReaders.put(idx, fileReader);
+					fileWriters.put(idx, fileWriter);
+				}
+				else
+					throw new RuntimeException(mode + " is not support mode.");
 
-//			3. 
+				fileMap.put(idx, new Pair<>(fileName, mode));
+				fileIdx = fileIdx + 1;
 
-		} else if (funName.equals("primCloseFile_client")) {
+				return new Num(idx);
+			}
+			catch (FileNotFoundException e) {
+				throw new RuntimeException(fileName + " is not found. Check file path.");
+			}
+			catch (IOException e) {
+				throw new RuntimeException(fileName + " can not open.");
+			}
+		}
+		else if (funName.equals("primCloseFile_client")) {
 			int fileDesc = ((Num) args.get(0)).getI();
-//			File file = fileMap.get(fileName);
-//			
-//			if (file != null)
-//				fileMap.remove(fileName);
-//			
-//			return new Unit();
-		} else if (funName.equals("primWriteFile_client")) {
+			// filename, mode
+			Pair<String, String> fileInf = fileMap.get(fileDesc);
+			String mode = fileInf.getValue();
+			try {
+				if (mode.equalsIgnoreCase("r")) {
+					BufferedReader fileReader = fileReaders.remove(fileDesc);
+					fileReader.close();
+				}
+				else if (mode.equalsIgnoreCase("w")) {
+					BufferedWriter fileWriter = fileWriters.remove(fileDesc);
+					fileWriter.close();
+				}
+				else if (mode.equalsIgnoreCase("rw")) {
+					BufferedReader fileReader = fileReaders.remove(fileDesc);
+					BufferedWriter fileWriter = fileWriters.remove(fileDesc);
+
+					fileReader.close();
+					fileWriter.close();
+				}
+				else
+					throw new RuntimeException(fileDesc + " not support mode.");
+
+				fileMap.remove(fileDesc);
+
+				return new Unit();
+			}
+			catch (IOException e) {
+				throw new RuntimeException(fileDesc + " closed.");
+			}
+		}
+		else if (funName.equals("primWriteFile_client")) {
 			int fileDesc = ((Num) args.get(0)).getI();
 			String content = ((Str) args.get(1)).getStr();
 
-//			try {
-//				File file = fileMap.get(fileName);
-//				
-//				BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true));
-//				writer.write(content);
-//				writer.flush();
-//				writer.close();
-//			} catch(IOException e) {
-//				System.err.println("file is not open.");
-//			}
-//			
-//			return new Unit();
-		} else if (funName.equals("primReadFile_client")) {
+			Pair<String, String> fileInf = fileMap.get(fileDesc);
+			String mode = fileInf.getValue();
+
+			if (mode.equalsIgnoreCase("w") || mode.equalsIgnoreCase("rw")) {
+				try {
+					BufferedWriter fileWriter = fileWriters.get(fileDesc);
+					fileWriter.write(content);
+					fileWriter.flush();
+				}
+				catch (IOException e) {
+					throw new RuntimeException(fileDesc + " occurs IOException.");
+				}
+			}
+			else
+				throw new RuntimeException(fileDesc + " not open write mode.");
+			
+			 return new Num(content.length());
+		}
+		else if (funName.equals("primReadFile_client")) {
 			int fileDesc = ((Num) args.get(0)).getI();
 			String ret = "";
 
-//			try {
-//				File file = fileMap.get(fileName);
-//				BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-//				String line;
-//				while ((line = bufferedReader.readLine()) != null) {
-//					ret += line;
-//				}
-//
-//				return new Str(ret);
-//			} catch (IOException e) {
-//				System.err.println("file is not exist.");
-//			}
-		} else if (funName.equals("primReadConsole")) {
+			Pair<String, String> fileInf = fileMap.get(fileDesc);
+			String mode = fileInf.getValue();
+			
+			if (mode.equalsIgnoreCase("r") || mode.equalsIgnoreCase("rw")) {
+				try {
+					BufferedReader fileReader = fileReaders.get(fileDesc);
+					String line;
+					
+					while ((line = fileReader.readLine()) != null)
+						ret += line;
+				} catch(IOException e) {
+					throw new RuntimeException(fileDesc + " occurs IOException.");
+				}
+				return new Str(ret);
+			}
+			else
+				throw new RuntimeException(fileDesc + " not open reader mode.");
+		}
+		else if (funName.equals("primReadConsole")) {
 			Scanner scan = new Scanner(System.in);
-			String input = scan.next();
+			String input = scan.nextLine();
 
 			return new Str(input);
-		} else if (funName.equals("primWriteConsole")) {
+		}
+		else if (funName.equals("primWriteConsole")) {
 			String msg = ((Str) args.get(0)).getStr();
 			System.out.println(msg);
 
 			return new Unit();
-		} else if (funName.equals("primToString_client")) {
+		}
+		else if (funName.equals("primToString_client")) {
 			String msg = args.get(0).toString();
 
 			return new Str(msg);
-		} else if (funName.equals("primToInt_client")) {
+		}
+		else if (funName.equals("primToInt_client")) {
 			String msg = ((Str) args.get(0)).getStr();
 
 			try {
 				return new Num(Integer.parseInt(msg));
-			} catch (NumberFormatException e) {
+			}
+			catch (NumberFormatException e) {
 				throw new RuntimeException(msg + " is not Number format.");
 			}
-
-		} else if (funName.equals("primToBool_client")) {
+		}
+		else if (funName.equals("primToBool_client")) {
 			String msg = ((Str) args.get(0)).getStr();
 
 			if (msg.equalsIgnoreCase("true"))
 				return new Bool("True");
 			else
 				return new Bool("False");
-		} else if (funName.equals("primReverse_client")) {
+		}
+		else if (funName.equals("primReverse_client")) {
 			String msg = ((Str) args.get(0)).getStr();
 			String ret = new StringBuilder(msg).reverse().toString();
 
 			return new Str(ret);
-		} else if (funName.equals("primAppend_client")) {
+		}
+		else if (funName.equals("primAppend_client")) {
 			String msg1 = ((Str) args.get(0)).getStr();
 			String msg2 = ((Str) args.get(1)).getStr();
 
 			return new Str(msg1 + msg2);
-		} else if (funName.equals("primLength_client")) {
+		}
+		else if (funName.equals("primLength_client")) {
 			String msg = ((Str) args.get(0)).getStr();
 
 			return new Num(msg.length());
-		} else if (funName.equals("primGetYear_client")) {
+		}
+		else if (funName.equals("primGetYear_client")) {
 			Calendar calendar = Calendar.getInstance();
 
 			return new Num(calendar.get(Calendar.YEAR));
 
-		} else if (funName.equals("primGetMonth_client")) {
+		}
+		else if (funName.equals("primGetMonth_client")) {
 			Calendar calendar = Calendar.getInstance();
 
 			return new Num(calendar.get(Calendar.MONTH));
 
-		} else if (funName.equals("primGetDay_client")) {
+		}
+		else if (funName.equals("primGetDay_client")) {
 			Calendar calendar = Calendar.getInstance();
 
 			return new Num(calendar.get(Calendar.DAY_OF_WEEK));
 
-		} else if (funName.equals("primGetDate_client")) {
+		}
+		else if (funName.equals("primGetDate_client")) {
 			Calendar calendar = Calendar.getInstance();
 
 			return new Num(calendar.get(Calendar.DAY_OF_MONTH));
 
-		} else if (funName.equals("primGetHour_client")) {
+		}
+		else if (funName.equals("primGetHour_client")) {
 			Calendar calendar = Calendar.getInstance();
 
 			return new Num(calendar.get(Calendar.HOUR_OF_DAY));
-		} else if (funName.equals("primGetMinute_client")) {
+		}
+		else if (funName.equals("primGetMinute_client")) {
 			Calendar calendar = Calendar.getInstance();
-			
-			return new Num(calendar.get(Calendar.MINUTE));
-		} else
-			throw new RuntimeException(funName + " not supported Library.");
 
-		return null;
+			return new Num(calendar.get(Calendar.MINUTE));
+		}
+		else
+			throw new RuntimeException(funName + " not supported Library.");
 	}
 
 	public static Value compPrimTerm(Num oprnd1, int op, Num oprnd2) {

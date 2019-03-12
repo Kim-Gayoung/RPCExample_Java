@@ -1,9 +1,9 @@
-openFile_client: String-c->String-c->String = lam^c filename: String. lam^c mode: String. #primOpenFile_client (filename, mode);
-openFile_server: String-s->String-s->String = lam^s filename: String. lam^s mode: String. #primOpenFile_server (filename, mode);
+openFile_client: String-c->String-c->Int = lam^c filename: String. lam^c mode: String. #primOpenFile_client (filename, mode);
+openFile_server: String-s->String-s->Int = lam^s filename: String. lam^s mode: String. #primOpenFile_server (filename, mode);
 closeFile_client: Int-c->Unit = lam^c fd: Int. #primCloseFile_client (fd);
 closeFile_server: Int-s->Unit = lam^s fd: Int. #primCloseFile_server (fd);
 
-writeFile_client: Int-c->String-c->String = lam^c fd: Int. lam^c content: String. #primWriteFile_client (fd, content);
-writeFIle_server: Int-s->String-s->String = lam^s fd: Int. lam^s content: String. #primWriteFile_server (fd, content);
+writeFile_client: Int-c->String-c->Int = lam^c fd: Int. lam^c content: String. #primWriteFile_client (fd, content);
+writeFile_server: Int-s->String-s->Int = lam^s fd: Int. lam^s content: String. #primWriteFile_server (fd, content);
 readFile_client: Int-c->String = lam^c fd: Int. #primReadFile_client (fd);
 readFile_server: Int-s->String = lam^s fd: Int. #primReadFile_server (fd);
