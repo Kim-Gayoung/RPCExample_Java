@@ -1,4 +1,4 @@
-length_client: String-c->Int = lam^c x: String. primLength_client ^c^ (x);
+length_client: String-c->Int = lam^c x: String. #primLength_client (x);
 
 a: String = "c++ programing";
 b: String = "python programming";

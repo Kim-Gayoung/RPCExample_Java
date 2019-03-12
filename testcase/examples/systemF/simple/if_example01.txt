@@ -1,5 +1,5 @@
 append_client: String-c->String-c->String = lam^c x: String. lam^c y: String. #primAppend_client (x, y);
-toString_client: forall t1. (t1-c->String) = tylam t1. lam^c x: t1. #primToString_client (x);
+toString_client: forall toStringTy_client. (toStringTy_client-c->String) = tylam toStringTy_client. lam^c x: toStringTy_client. #primToString_client (x);
 
 age: Int = 21;
 
