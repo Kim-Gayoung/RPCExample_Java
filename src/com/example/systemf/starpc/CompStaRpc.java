@@ -346,6 +346,19 @@ public class CompStaRpc {
 
 			return expr;
 		}
+		else if (t instanceof com.example.systemf.ast.LibTerm) {
+			com.example.systemf.ast.LibTerm tLibTerm = (com.example.systemf.ast.LibTerm) t;
+			
+			ArrayList<Value> ws = new ArrayList<>();
+			
+			for (String s: tLibTerm.getArgs()) {
+				ws.add(new Var(s));
+			}
+			
+			Value f = new Var(tLibTerm.getFunName());
+			
+			return new App(f, ws);
+		}
 		else
 			throw new CompException("CompStaRpc(compServer) not match " + t.getClass() + "(" + t + ")");
 	}
