@@ -2,6 +2,10 @@ package com.example.systemf.stacs;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -34,6 +38,8 @@ import com.example.systemf.sta.ast.Unit;
 import com.example.systemf.sta.ast.Value;
 import com.example.systemf.sta.ast.Var;
 
+import javafx.util.Pair;
+
 public class HttpWas {
 	private static final String OPEN_SESSION = "OPEN_SESSION";
 	private static final String CLOSE_SESSION = "CLOSE_SESSION";
@@ -48,7 +54,13 @@ public class HttpWas {
 	private static HashMap<String, FunStore> programFSMap = new HashMap<>();
 	private static HashMap<Integer, CSServer> sessionMap = new HashMap<>();
 	private static int count = 0;
+	
+	private static HashMap<Integer, Pair<String, String>> fileMap = new HashMap<>();
+	private static HashMap<Integer, BufferedReader> fileReaders = new HashMap<>();
+	private static HashMap<Integer, BufferedWriter> fileWriters = new HashMap<>();
 
+	private static int fileIdx = 0;
+	
 	public String protocol;
 
 	public HttpWas() {
@@ -658,16 +670,118 @@ public class HttpWas {
 		} else if (funName.equals("primOpenFile_server")) {
 			String fileName = ((Str) args.get(0)).getStr();
 			String mode = ((Str) args.get(1)).getStr();
-			
-			
+			int idx = fileIdx;
+
+			try {
+				if (mode.equalsIgnoreCase("r")) {
+					BufferedReader fileReader = new BufferedReader(new FileReader(fileName));
+					fileReaders.put(idx, fileReader);
+				}
+				else if (mode.equalsIgnoreCase("w")) {
+					File file = new File(fileName);
+					if (!file.exists()) {
+						file.createNewFile();
+					}
+					BufferedWriter fileWriter = new BufferedWriter(new FileWriter(fileName, true));
+					fileWriters.put(idx, fileWriter);
+				}
+				else if (mode.equalsIgnoreCase("rw")) {
+					File file = new File(fileName);
+					if (!file.exists()) {
+						file.createNewFile();
+					}
+					
+					BufferedReader fileReader = new BufferedReader(new FileReader(fileName));
+					BufferedWriter fileWriter = new BufferedWriter(new FileWriter(fileName, true));
+
+					fileReaders.put(idx, fileReader);
+					fileWriters.put(idx, fileWriter);
+				}
+				else
+					throw new RuntimeException(mode + " is not support mode.");
+
+				fileMap.put(idx, new Pair<>(fileName, mode));
+				fileIdx = fileIdx + 1;
+
+				return new Num(idx);
+			} catch(FileNotFoundException e) {
+				throw new RuntimeException(fileName + " is not found. Check file path.");
+			} catch(IOException e) {
+				throw new RuntimeException(fileName + " can not open.");
+			}
 		} else if (funName.equals("primCloseFile_server")) {
-			int fileDesc = ((Num) args.get(0)).getI();	
+			int fileDesc = ((Num) args.get(0)).getI();
+			// filename, mode
+			Pair<String, String> fileInf = fileMap.get(fileDesc);
+			String mode = fileInf.getValue();
+			try {
+				if (mode.equalsIgnoreCase("r")) {
+					BufferedReader fileReader = fileReaders.remove(fileDesc);
+					fileReader.close();
+				}
+				else if (mode.equalsIgnoreCase("w")) {
+					BufferedWriter fileWriter = fileWriters.remove(fileDesc);
+					fileWriter.close();
+				}
+				else if (mode.equalsIgnoreCase("rw")) {
+					BufferedReader fileReader = fileReaders.remove(fileDesc);
+					BufferedWriter fileWriter = fileWriters.remove(fileDesc);
+
+					fileReader.close();
+					fileWriter.close();
+				}
+				else
+					throw new RuntimeException(fileDesc + " not support mode.");
+
+				fileMap.remove(fileDesc);
+
+				return new Unit();
+			}
+			catch (IOException e) {
+				throw new RuntimeException(fileDesc + " closed.");
+			}	
 		} else if (funName.equals("primWriteFile_server")) {
 			int fileDesc = ((Num) args.get(0)).getI();
+			String content = ((Str) args.get(1)).getStr();
+
+			Pair<String, String> fileInf = fileMap.get(fileDesc);
+			String mode = fileInf.getValue();
+
+			if (mode.equalsIgnoreCase("w") || mode.equalsIgnoreCase("rw")) {
+				try {
+					BufferedWriter fileWriter = fileWriters.get(fileDesc);
+					fileWriter.write(content);
+					fileWriter.flush();
+				}
+				catch (IOException e) {
+					throw new RuntimeException(fileDesc + " occurs IOException.");
+				}
+			}
+			else
+				throw new RuntimeException(fileDesc + " not open write mode.");
+			
+			 return new Num(content.length());
 		} else if (funName.equals("primReadFile_server")) {
 			int fileDesc = ((Num) args.get(0)).getI();
+			String ret = "";
+
+			Pair<String, String> fileInf = fileMap.get(fileDesc);
+			String mode = fileInf.getValue();
 			
-			
+			if (mode.equalsIgnoreCase("r") || mode.equalsIgnoreCase("rw")) {
+				try {
+					BufferedReader fileReader = fileReaders.get(fileDesc);
+					String line;
+					
+					while ((line = fileReader.readLine()) != null)
+						ret += line;
+				} catch(IOException e) {
+					throw new RuntimeException(fileDesc + " occurs IOException.");
+				}
+				return new Str(ret);
+			}
+			else
+				throw new RuntimeException(fileDesc + " not open reader mode.");
 		} else if (funName.equals("primToString_server")) {
 			String msg = ((Str) args.get(0)).getStr();
 			
@@ -680,7 +794,6 @@ public class HttpWas {
 			} catch(NumberFormatException e) {
 				throw new RuntimeException(msg + " is not Number format.");
 			}
-			
 		} else if (funName.equals("primToBool_server")) {
 			String msg = ((Str) args.get(0)).getStr();
 			
@@ -732,8 +845,6 @@ public class HttpWas {
 			return new Num(calendar.get(Calendar.MINUTE));
 		} else
 			return evalDBLibrary(funName, args);
-		
-		return null;
 	}
 	
 	public static Term evalDBLibrary(String funName, ArrayList<Value> args) {
