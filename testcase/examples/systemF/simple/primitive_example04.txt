@@ -1,0 +1,13 @@
+length_server: String-s->Int = lam^s x: String. #primLength_server (x);
+
+a: String = "c++ programing";
+b: String = "python programming";
+c: String = "web programming";
+d: String = "Java programming";
+
+a_length: Int = length_server ^s^ a;
+b_length: Int = length_server ^s^ b;
+c_length: Int = length_server ^s^ c;
+d_length: Int = length_server ^s^ d;
+
+main: Int = a_length + b_length + c_length + d_length

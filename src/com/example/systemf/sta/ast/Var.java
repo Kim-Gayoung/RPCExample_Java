@@ -1,5 +1,7 @@
 package com.example.systemf.sta.ast;
 
+import org.json.simple.JSONObject;
+
 public class Var extends Value {
 	private String var;
 
@@ -18,5 +20,17 @@ public class Var extends Value {
 	@Override
 	public String toString() {
 		return var;
+	}
+	
+	public static final String Var = "Var";
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public JSONObject toJson() {
+		JSONObject jsonObject = new JSONObject();
+		
+		jsonObject.put(Var, var);
+		
+		return jsonObject;
 	}
 }

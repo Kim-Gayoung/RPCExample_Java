@@ -13,6 +13,7 @@ import com.example.systemf.sta.ast.Num;
 import com.example.systemf.sta.ast.Str;
 import com.example.systemf.sta.ast.Unit;
 import com.example.systemf.sta.ast.Value;
+import com.example.systemf.sta.ast.Var;
 
 public class JSonUtil {
 	public static Value fromJson (JSONObject json) {
@@ -39,6 +40,12 @@ public class JSonUtil {
 		if (obj instanceof String) {
 			String s = (String) obj;
 			return new Str(s);
+		}
+		
+		obj = json.get(Var.Var);
+		if (obj instanceof String) {
+			String var = (String) obj;
+			return new Var(var);
 		}
 		
 		obj = json.get(Clo.Clo);
