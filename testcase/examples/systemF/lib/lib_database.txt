@@ -1,7 +1,7 @@
 connectDB: String-s->Int-s->String-s->String-s->String-s->Bool = lam^s ip: String. lam^s port: Int.lam^s id: String. lam^s pwd: String. lam^s dbname: String. #primConnectDB (ip, port, id, pwd, dbname);
-createTable: String-s->String-s->Int = lam^s tblname: String. lam^s recordfield: String. #primCreateTable (tblname, recordfield);
-insertRecord: String-s->String-s->Bool = lam^s tblname: String. lam^s content: String. #primInsertRecord (tblname, content);
+createTable: String-s->String-s->Bool = lam^s tblname: String. lam^s recordfield: String. #primCreateTable (tblname, recordfield);
+insertRecord: String-s->String-s->Int = lam^s tblname: String. lam^s content: String. #primInsertRecord (tblname, content);
 updateRecord: String-s->String-s->Bool = lam^s tblname: String. lam^s content: String. #primUpdateRecord (tblname, content);
 deleteRecord: String-s->String-s->Bool = lam^s tblname: String. lam^s recordId: Int. #primDeleteRecord (tblname, recordId);
-query: String-s->Int-s->String-s->String = lam^s tblname: String. lam^s recordId: Int. lam^s field: String. #primQuery (tblname, recordId, field);
-fromRecord: String-s->Int-s->String = lam^s tblname: String. lam^s recordId: Int. #primFromRecord (tblname, recordId);
+query: String-s->String-s->String-s->String = lam^s tblname: String. lam^s whereContent: String. lam^s field: String. #primQuery (tblname, whereContent, field);
+fromRecord: String-s->String-s->String = lam^s tblname: String. lam^s whereContent: String. #primFromRecord (tblname, whereContent);
